@@ -1,0 +1,39 @@
+$primary-color: #59018b;
+$background-color: white;
+$hover-background-color: #e0d5d7;
+$hover-text-color: white;
+$active-background-color : #cec0c2;
+$renk : #59018b;
+
+.login-button1 {
+  float: right;
+  margin-right: 10px;
+  background-color: $background-color;
+  color: $primary-color;
+  border: none;
+  height: 35px;
+  width: 100px;
+  padding: 0%;
+  font-weight: bold;
+  cursor: pointer;
+  
+  &:hover {
+    background-color: $hover-background-color;
+    color: $primary-color;
+  }
+
+  &:active {
+    background-color: $active-background-color !important;
+    color: $primary-color !important;
+  }
+}
+
+.login-link{
+    color: $primary-color;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 16px;
+    text-decoration: none;
+   
+}
+

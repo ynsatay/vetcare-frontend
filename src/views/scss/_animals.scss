@@ -1,0 +1,68 @@
+/* Dış container, merkezi hizalama için */
+.ani-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Tam ekran yüksekliği */
+    background-color: #f9f9f9; /* Arka plan rengi */
+  }
+  
+  /* Form Wrapper, formu belirli bir genişlikte ortalar */
+  .ani-form-wrapper {
+    width: 100%; /* Genişlik ayarı */
+    max-width: 1000px; /* Maksimum genişlik */
+    background: white; /* Form arka planı */
+    padding: 20px; /* İç boşluk */
+    border-radius: 8px; /* Köşeleri yuvarlat */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Hafif gölge */
+  }
+  
+  /* Form stilleri */
+  .ani-reg-form {
+    display: flex;
+    gap: 20px; /* Gruplar arasında boşluk */
+    justify-content: space-between; /* Grupları yan yana yerleştirir */
+  }
+  
+  .ani-form-group {
+    display: flex;
+    align-items: center;
+    flex: 1; /* Her grup için esnek genişlik */
+    min-width: 300px; /* Minimum genişlik */
+    margin-top: 5px;
+
+  }
+  
+  .ani-form-label {
+    flex: 0 0 150px; /* Etiket genişliği */
+    text-align: left; /* Yazıyı sağa hizala */
+    margin-right: 10px; /* Yazı ile input arasında boşluk */
+    justify-content: center;
+  }
+  
+  .ani-form-select {
+    flex: 1; /* Kalan alanı kaplar */
+  }
+  
+  @media (max-width: 800px) {
+    .ani-reg-form {
+      flex-direction: column; /* Küçük ekranlarda alt alta getirir */
+      align-items: center; /* Ortaya hizalar */
+    }
+  
+    .ani-form-group {
+      width: 100%; /* Küçük ekranlarda tam genişlik */
+      justify-content: center; /* Grupları ortalar */
+    }
+  
+    .ani-form-label {
+      text-align: center; /* Etiketleri ortalar */
+      margin-right: 0; /* Sağ boşluğu sıfırlar */
+      margin-bottom: 10px; /* Alt boşluk ekler */
+    }
+  
+    .ani-form-select {
+      width: 100%; /* Küçük ekranlarda tam genişlik */
+    }
+  }
+  

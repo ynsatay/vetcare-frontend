@@ -1,0 +1,28 @@
+.sidebarArea {
+  position: fixed;
+  top: 60px; // header yüksekliği kadar
+  left: 0;
+  width: $sidebarWidth;
+  height: calc(100vh - 60px); // header'ın altını kapsasın
+  background-color: $sidebarColor;
+  overflow-y: auto;
+  z-index: 999;
+  flex-shrink: 0;
+
+  .sidenav-bg:hover {
+    background-color: $gray-100;
+    border-radius: $border-radius;
+  }
+}
+
+// Küçük ekranlar için: Açılıp kapanma özelliği devam etsin
+@include media-breakpoint-down(lg) {
+  .sidebarArea {
+    margin-left: -$sidebarWidth;
+    transition: margin-left 0.2s ease-in;
+
+    &.showSidebar {
+      margin-left: 0;
+    }
+  }
+}

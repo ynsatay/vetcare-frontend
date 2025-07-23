@@ -1,0 +1,48 @@
+/* Daha spesifik seçici ve !important ile yazı rengini zorlayalım */
+.fc-theme-standard .fc-col-header-cell-cushion {
+  color: white !important;
+}
+
+/* Arka plan yine istediğin gibi */
+.fc-col-header-cell {
+  background-color: #59018b !important;
+  border: none !important;
+  padding: 10px 0 !important;
+  font-weight: 700;
+  font-size: 1rem;
+  text-transform: uppercase;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Alt çizgiyi kaldır */
+.fc-col-header {
+  border-bottom: none !important;
+}
+
+.custom-checkbox {
+  width: 20px;
+  height: 20px;
+  accent-color: #59018b; 
+  vertical-align: middle;
+}
+
+
+@media (max-width: 768px) {
+  .fc-header-toolbar {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .fc-toolbar-chunk {
+    text-align: center;
+    width: 100%;
+  }
+
+  .fc-button {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+}

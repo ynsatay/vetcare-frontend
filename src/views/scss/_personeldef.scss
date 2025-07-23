@@ -1,0 +1,76 @@
+.perdef-main-div{
+    height : 750px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-radius: 10px;
+    background-color: #f1f1f175
+}
+
+.perdef-alt-div{
+    height : 100%;
+    width : 30%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+}
+
+.per-top-div{
+    width : 100%;
+    height : 30%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.perdef-alt-form-div{
+    background-color: white;
+    height: 100%;
+    width: 70%;
+    border: 1px solid #ccc;
+    border-radius: 0px 10px 10px 0px;
+    padding: 20px;
+}
+
+.perdef-form-sex-div{
+    width : 50%;
+    height : 55px;
+    margin-top : 14px;
+    border : 1px solid #c7c7c7;
+    border-radius : 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    
+    &:hover{
+        border : 1px solid #59018b;
+    }
+}
+.perdef-label{
+    width: 100px;
+    height: 55px;
+    margin-top: 10px;
+    font-size: 18px;
+    color: #575656;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-left: 0%;
+
+}
+
+.perdef-label2{
+    width: 65px;
+    height: 55px;
+    margin-top: 10px;
+    font-size: 18px;
+    color: #575656;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    padding-left: 0%;
+
+}
+
