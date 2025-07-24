@@ -15,7 +15,7 @@ root.render(
 
   <Suspense fallback={<Loader />}>
     <AuthContextProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/">
         <App />
       </BrowserRouter>
     </AuthContextProvider>
