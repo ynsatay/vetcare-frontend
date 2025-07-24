@@ -14,7 +14,8 @@ const AddStock = forwardRef(({ onClose }, ref) => {
         //quantity: '', //Stok Alım Ekanı için kaldırıldı. 
         quantity: 0, 
         unit: '',
-        categorymin_stock_level: '',
+        category: '',
+        min_stock_level: '',
         barcode: '',
         supplier_name: '',
         description: ''
