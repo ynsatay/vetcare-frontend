@@ -1,4 +1,4 @@
-import React, { forwardRef, useImperativeHandle, useState, useEffect } from "react";
+import React, { forwardRef, useImperativeHandle, useState, useEffect, useContext } from "react";
 import AppPatientSearch from "./AppPatientSearch";
 import {
   Grid,
@@ -10,7 +10,7 @@ import { DateTimePicker } from "@mui/x-date-pickers";
 import { useConfirm } from "../../components/ConfirmContext";
 import axiosInstance from "../../api/axiosInstance.ts";
 import dayjs from "dayjs";
-
+import AuthContext from "../context/usercontext.tsx";
 const VaccinationPlanForm = forwardRef(({ materialsList = [], initialDate }, ref) => {
   const [selectedAnimal, setSelectedAnimal] = useState(null);
   const [showPatientSearch, setShowPatientSearch] = useState(false);
@@ -19,6 +19,7 @@ const VaccinationPlanForm = forwardRef(({ materialsList = [], initialDate }, ref
   const [notes, setNotes] = useState("");
   const [repeatCount, setRepeatCount] = useState(1);
   const [repeatIntervalMonths, setRepeatIntervalMonths] = useState(6);
+  const { userid } = useContext(AuthContext);
 
   const { confirm } = useConfirm();
 
@@ -68,7 +69,7 @@ const VaccinationPlanForm = forwardRef(({ materialsList = [], initialDate }, ref
       notes: notes || null,
       repeat_count: repeatCount,
       repeat_interval_months: repeatIntervalMonths,
-      created_by: 1, // Örnek kullanıcı ID
+      created_by: userid, // Örnek kullanıcı ID
     };
 
     try {
