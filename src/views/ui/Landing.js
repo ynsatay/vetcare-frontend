@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import heroImage from '../../assets/images/bg/bgmain3.png';
 import "../scss/_login.scss";
 import { useLocation } from "react-router-dom";
-import Header from '../../layouts/Header';
 
 const Landing = () => {
     const location = useLocation();
@@ -28,9 +27,6 @@ const Landing = () => {
     }, [location.state, location.pathname, navigate]);
 
     return (
-        <>
-        <Header />
-        
         <div style={{ background: '#f8f9fa', width: '100%', paddingTop: 60, paddingBottom: 80 }}>
             <Container fluid className="d-flex flex-column justify-content-center" style={{ maxWidth: 1200 }}>
 
@@ -281,7 +277,6 @@ const Landing = () => {
                 </section>
             </Container>
         </div>
-        </>
     );
 };
 
