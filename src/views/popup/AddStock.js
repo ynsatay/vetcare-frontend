@@ -32,6 +32,15 @@ const AddStock = forwardRef(({ onClose }, ref) => {
         { label: "Diğer", value: 4 }
     ];
 
+    const units = [
+    { label: "Adet", value: 0 },
+    { label: "Kutu", value: 1 },
+    { label: "ML", value: 2 },
+    { label: "Gram", value: 3 },
+    { label: "Litre", value: 4 }
+];
+
+
     useImperativeHandle(ref, () => ({
         handleSave: async () => {
             // if (!formData.name || !formData.quantity || !formData.unit) {  //Stok Alım Ekanı için kaldırıldı
@@ -115,11 +124,9 @@ const AddStock = forwardRef(({ onClose }, ref) => {
                             onChange={handleChange}
                         >
                             <option value="">Seçiniz</option>
-                            <option value="Adet">Adet</option>
-                            <option value="Kutu">Kutu</option>
-                            <option value="ML">ML</option>
-                            <option value="Gram">Gram</option>
-                            <option value="Litre">Litre</option>
+                            {units.map(opt => (
+                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            ))}
                         </Input>
                     </Col>
                 </Row>
