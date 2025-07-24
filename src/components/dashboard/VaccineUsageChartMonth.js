@@ -34,10 +34,15 @@ const VaccineUsageChart = () => {
       }));
     };
 
-    const cached = sessionStorage.getItem("vaccineUsageData");
-    if (cached) {
-      const data = JSON.parse(cached);
-      updateChart(data);
+    const cachedData = sessionStorage.getItem("vaccineUsageData");
+    if (cachedData) {
+      try {
+        const parsedData = JSON.parse(cachedData);
+        updateChart(parsedData);
+      } catch {
+        // Cache bozuksa silelim ve tekrar istekte bulunalım
+        sessionStorage.removeItem("vaccineUsageData");
+      }
     } else {
       axiosInstance
         .get("/vaccine-usage-last-month")
