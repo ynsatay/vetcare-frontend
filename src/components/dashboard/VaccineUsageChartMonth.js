@@ -40,7 +40,19 @@ const VaccineUsageChart = () => {
             },
           ],
           options: {
-            ...chartData.options,
+            chart: {
+              type: "area",
+            },
+            dataLabels: {
+              enabled: false,
+            },
+            grid: {
+              strokeDashArray: 3,
+            },
+            stroke: {
+              curve: "smooth",
+              width: 2,
+            },
             xaxis: {
               categories: data.map(item => item.name),
             },
@@ -53,6 +65,7 @@ const VaccineUsageChart = () => {
 
     fetchData();
   }, []);
+
 
   return (
     <Card>
