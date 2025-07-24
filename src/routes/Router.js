@@ -1,12 +1,17 @@
+// src/routes/Router.js
 import { lazy } from "react";
 import { Navigate } from "react-router-dom";
-import RequireAuth from "./RequireAuth.js";
+import RequireAuth from "./RequireAuth";
 
-
-/****Layouts*****/
+// Layout
 const FullLayout = lazy(() => import("../layouts/FullLayout.js"));
 
-/***** Pages ****/
+// Giriş ve genel ekranlar
+const Login = lazy(() => import("../views/ui/Login.js"));
+const Register = lazy(() => import("../views/ui/Register.js"));
+const Landing = lazy(() => import("../views/ui/Landing.js"));
+
+// Sayfalar
 const Starter = lazy(() => import("../views/Starter.js"));
 const About = lazy(() => import("../views/About.js"));
 const Alerts = lazy(() => import("../views/ui/Alerts.js"));
@@ -17,8 +22,6 @@ const Grid = lazy(() => import("../views/ui/Grid.js"));
 const Tables = lazy(() => import("../views/ui/Tables.js"));
 const Forms = lazy(() => import("../views/ui/Forms.js"));
 const Breadcrumbs = lazy(() => import("../views/ui/Breadcrumbs.js"));
-const Login = lazy(() => import("../views/ui/Login.js"));
-const Register = lazy(() => import("../views/ui/Register.js"));
 const Profile = lazy(() => import("../views/ui/Profile.js"));
 const AnimalsManagment = lazy(() => import("../views/ui/AnimalsManagment.js"));
 const PersonelManagment = lazy(() => import("../views/ui/PersonelManagment.js"));
@@ -33,15 +36,18 @@ const ServiceList = lazy(() => import("../views/list/ServiceList.js"));
 const StockInvoicePage = lazy(() => import("../views/ui/StockInvoices.js"));
 const VaccinationTracker = lazy(() => import("../views/ui/VaccinationTracker.js"));
 
-/*****Routes******/
 const ThemeRoutes = [
   {
     path: "/login",
-    element: <Login />, // Bu ayrı kalacak
+    element: <Login />,
   },
   {
     path: "/register",
-    element: <Register />, // Bu da
+    element: <Register />,
+  },
+  {
+    path: "/landing",
+    element: <Landing />,
   },
   {
     path: "/",
@@ -62,7 +68,7 @@ const ThemeRoutes = [
       { path: "/table", element: <Tables /> },
       { path: "/forms", element: <Forms /> },
       { path: "/breadcrumbs", element: <Breadcrumbs /> },
-      { path: "/profile", element: <Profile /> }, 
+      { path: "/profile", element: <Profile /> },
       { path: "/animalslist", element: <AnimalsManagment /> },
       { path: "/personelManagment", element: <PersonelManagment /> },
       { path: "/officeList", element: <OfficeList /> },
@@ -70,13 +76,16 @@ const ThemeRoutes = [
       { path: "/appointmentList", element: <ApporinmentList /> },
       { path: "/identityinfo/:id", element: <IdentityInfo /> },
       { path: "/patientFile/:id", element: <PatientFile /> },
-      { path: "/processDef", element: <ProcessDef/>},
-      { path: "/stoklist", element: <StockList/>},
-      { path: "/servicelist", element: <ServiceList/>},
+      { path: "/processDef", element: <ProcessDef /> },
+      { path: "/stoklist", element: <StockList /> },
+      { path: "/servicelist", element: <ServiceList /> },
       { path: "/purchase-invoices", element: <StockInvoicePage /> },
       { path: "/vaccination-tracker", element: <VaccinationTracker /> },
-
     ],
+  },
+  {
+    path: "*",
+    element: <Navigate to="/landing" />,
   },
 ];
 
