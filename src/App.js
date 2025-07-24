@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useRoutes } from 'react-router-dom';
-import Themeroutes from './routes/Router';
+import Themeroutes from './routes/Router.js';
 import "./assets/scss/style.scss";
 import './App.css';
 import { ToastContainer } from 'react-toastify';
