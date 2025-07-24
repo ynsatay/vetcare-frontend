@@ -1,40 +1,40 @@
 // src/routes/Router.js
-import { lazy } from "react";
+import React from "react";
 import { Navigate } from "react-router-dom";
 import RequireAuth from "./RequireAuth";
 
 // Layout
-const FullLayout = lazy(() => import("../layouts/FullLayout.js"));
+import FullLayout from "../layouts/FullLayout.js";
 
 // Giriş ve genel ekranlar
-const Login = lazy(() => import("../views/ui/Login.js"));
-const Register = lazy(() => import("../views/ui/Register.js"));
-const Landing = lazy(() => import("../views/ui/Landing.js"));
+import Login from "../views/ui/Login.js";
+import Register from "../views/ui/Register.js";
+import Landing from "../views/ui/Landing.js";
 
 // Sayfalar
-const Starter = lazy(() => import("../views/Starter.js"));
-const About = lazy(() => import("../views/About.js"));
-const Alerts = lazy(() => import("../views/ui/Alerts.js"));
-const Badges = lazy(() => import("../views/ui/Badges.js"));
-const Buttons = lazy(() => import("../views/ui/Buttons.js"));
-const Cards = lazy(() => import("../views/ui/Cards.js"));
-const Grid = lazy(() => import("../views/ui/Grid.js"));
-const Tables = lazy(() => import("../views/ui/Tables.js"));
-const Forms = lazy(() => import("../views/ui/Forms.js"));
-const Breadcrumbs = lazy(() => import("../views/ui/Breadcrumbs.js"));
-const Profile = lazy(() => import("../views/ui/Profile.js"));
-const AnimalsManagment = lazy(() => import("../views/ui/AnimalsManagment.js"));
-const PersonelManagment = lazy(() => import("../views/ui/PersonelManagment.js"));
-const OfficeList = lazy(() => import("../views/ui/OfficeList.js"));
-const ClinicList = lazy(() => import("../views/ui/ClinicList.js"));
-const ApporinmentList = lazy(() => import("../views/ui/Appointment.js"));
-const IdentityInfo = lazy(() => import("../views/ui/IdentityInfo.js"));
-const PatientFile = lazy(() => import("../views/ui/PatientFile.js"));
-const ProcessDef = lazy(() => import("../views/ui/ProcessDef.js"));
-const StockList = lazy(() => import("../views/list/StockList.js"));
-const ServiceList = lazy(() => import("../views/list/ServiceList.js"));
-const StockInvoicePage = lazy(() => import("../views/ui/StockInvoices.js"));
-const VaccinationTracker = lazy(() => import("../views/ui/VaccinationTracker.js"));
+import Starter from "../views/Starter.js";
+import About from "../views/About.js";
+import Alerts from "../views/ui/Alerts.js";
+import Badges from "../views/ui/Badges.js";
+import Buttons from "../views/ui/Buttons.js";
+import Cards from "../views/ui/Cards.js";
+import Grid from "../views/ui/Grid.js";
+import Tables from "../views/ui/Tables.js";
+import Forms from "../views/ui/Forms.js";
+import Breadcrumbs from "../views/ui/Breadcrumbs.js";
+import Profile from "../views/ui/Profile.js";
+import AnimalsManagment from "../views/ui/AnimalsManagment.js";
+import PersonelManagment from "../views/ui/PersonelManagment.js";
+import OfficeList from "../views/ui/OfficeList.js";
+import ClinicList from "../views/ui/ClinicList.js";
+import ApporinmentList from "../views/ui/Appointment.js";
+import IdentityInfo from "../views/ui/IdentityInfo.js";
+import PatientFile from "../views/ui/PatientFile.js";
+import ProcessDef from "../views/ui/ProcessDef.js";
+import StockList from "../views/list/StockList.js";
+import ServiceList from "../views/list/ServiceList.js";
+import StockInvoicePage from "../views/ui/StockInvoices.js";
+import VaccinationTracker from "../views/ui/VaccinationTracker.js";
 
 const ThemeRoutes = [
   {
@@ -57,35 +57,35 @@ const ThemeRoutes = [
       </RequireAuth>
     ),
     children: [
-      { path: "/", element: <Navigate to="/starter" /> },
-      { path: "/starter", element: <Starter /> },
-      { path: "/about", element: <About /> },
-      { path: "/alerts", element: <Alerts /> },
-      { path: "/badges", element: <Badges /> },
-      { path: "/buttons", element: <Buttons /> },
-      { path: "/cards", element: <Cards /> },
-      { path: "/grid", element: <Grid /> },
-      { path: "/table", element: <Tables /> },
-      { path: "/forms", element: <Forms /> },
-      { path: "/breadcrumbs", element: <Breadcrumbs /> },
-      { path: "/profile", element: <Profile /> },
-      { path: "/animalslist", element: <AnimalsManagment /> },
-      { path: "/personelManagment", element: <PersonelManagment /> },
-      { path: "/officeList", element: <OfficeList /> },
-      { path: "/clinicList", element: <ClinicList /> },
-      { path: "/appointmentList", element: <ApporinmentList /> },
-      { path: "/identityinfo/:id", element: <IdentityInfo /> },
-      { path: "/patientFile/:id", element: <PatientFile /> },
-      { path: "/processDef", element: <ProcessDef /> },
-      { path: "/stoklist", element: <StockList /> },
-      { path: "/servicelist", element: <ServiceList /> },
-      { path: "/purchase-invoices", element: <StockInvoicePage /> },
-      { path: "/vaccination-tracker", element: <VaccinationTracker /> },
+      { path: "/", element: <Navigate to="/starter" replace /> },
+      { path: "starter", element: <Starter /> },
+      { path: "about", element: <About /> },
+      { path: "alerts", element: <Alerts /> },
+      { path: "badges", element: <Badges /> },
+      { path: "buttons", element: <Buttons /> },
+      { path: "cards", element: <Cards /> },
+      { path: "grid", element: <Grid /> },
+      { path: "table", element: <Tables /> },
+      { path: "forms", element: <Forms /> },
+      { path: "breadcrumbs", element: <Breadcrumbs /> },
+      { path: "profile", element: <Profile /> },
+      { path: "animalslist", element: <AnimalsManagment /> },
+      { path: "personelManagment", element: <PersonelManagment /> },
+      { path: "officeList", element: <OfficeList /> },
+      { path: "clinicList", element: <ClinicList /> },
+      { path: "appointmentList", element: <ApporinmentList /> },
+      { path: "identityinfo/:id", element: <IdentityInfo /> },
+      { path: "patientFile/:id", element: <PatientFile /> },
+      { path: "processDef", element: <ProcessDef /> },
+      { path: "stoklist", element: <StockList /> },
+      { path: "servicelist", element: <ServiceList /> },
+      { path: "purchase-invoices", element: <StockInvoicePage /> },
+      { path: "vaccination-tracker", element: <VaccinationTracker /> },
     ],
   },
   {
     path: "*",
-    element: <Navigate to="/landing" />,
+    element: <Navigate to="/landing" replace />,
   },
 ];
 

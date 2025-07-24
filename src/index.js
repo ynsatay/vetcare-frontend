@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client';
 import "./assets/scss/style.scss";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter  } from "react-router-dom";
 import Loader from "./layouts/loader/Loader";
 import { AuthContextProvider } from "./context/usercontext.tsx";
 
@@ -15,9 +15,9 @@ root.render(
 
   <Suspense fallback={<Loader />}>
     <AuthContextProvider>
-      <BrowserRouter basename="/">
+      <BrowserRouter  >
         <App />
-      </BrowserRouter>
+      </BrowserRouter >
     </AuthContextProvider>
   </Suspense>
 
