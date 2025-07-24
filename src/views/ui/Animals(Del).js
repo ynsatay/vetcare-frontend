@@ -20,7 +20,7 @@ const Animals = () => {
     useEffect(() => {
         const fetchAnimals = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/animals');
+                const response = await axios.get('http://vatcare-backend-production.up.railway.app/api/animals');
                 const animalData = response.data.response;
                 setAnimals(animalData);
             } catch (error) {
@@ -39,7 +39,7 @@ const Animals = () => {
             return;
         }
         try {
-            const response = await axios.get('http://localhost:3001/api/animalsspecies', {
+            const response = await axios.get('http://vatcare-backend-production.up.railway.app/api/animalsspecies', {
                 params: {
                     animal_id: animal_id
                 }
@@ -58,7 +58,7 @@ const Animals = () => {
     }
     const animalpost = async () => {
         try {
-            const response = await axios.post('http://localhost:3001/api/animalpost', {
+            const response = await axios.post('http://vatcare-backend-production.up.railway.app/api/animalpost', {
                 user_id: userid,
                 animal_id: selectedAnimal,
                 animal_species_id: selectedanimalsspecies,

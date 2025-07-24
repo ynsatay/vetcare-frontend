@@ -1,5 +1,6 @@
 import { lazy } from "react";
 import { Navigate } from "react-router-dom";
+import RequireAuth from "./RequireAuth.js";
 
 
 /****Layouts*****/
@@ -34,11 +35,21 @@ const VaccinationTracker = lazy(() => import("../views/ui/VaccinationTracker.js"
 
 /*****Routes******/
 const ThemeRoutes = [
-  { path: "/login", element: <Login /> },
-  { path: "/register", element: <Register /> },
+  {
+    path: "/login",
+    element: <Login />, // Bu ayrı kalacak
+  },
+  {
+    path: "/register",
+    element: <Register />, // Bu da
+  },
   {
     path: "/",
-    element: <FullLayout />,
+    element: (
+      <RequireAuth>
+        <FullLayout />
+      </RequireAuth>
+    ),
     children: [
       { path: "/", element: <Navigate to="/starter" /> },
       { path: "/starter", element: <Starter /> },

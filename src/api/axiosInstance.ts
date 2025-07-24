@@ -2,7 +2,7 @@ import axios from 'axios';
 import { logoutRef } from "../context/usercontext.tsx";
 
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:3001/api',
+  baseURL: 'http://vatcare-backend-production.up.railway.app/api',
 });
 
 axiosInstance.interceptors.request.use(

@@ -28,7 +28,7 @@ const PersonalReg = React.forwardRef((props, ref) => {
 
   const handleSave = async () => {
     try {
-      const response = await axiosInstance.post('http://localhost:3001/api/addpersonel', {
+      const response = await axiosInstance.post('/addpersonel', {
         name,
         surname,
         username,

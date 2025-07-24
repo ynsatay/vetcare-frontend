@@ -21,16 +21,12 @@ const FullLayout = () => {
             <Sidebar />
           </aside>
         )}
-
-        {isLogin ? (
-          <div className="contentArea">
-            <Container className="p-4 wrapper" fluid>
-              <Outlet />
-            </Container>
-          </div>
-        ) : (
-          <Landing />
-        )}
+        
+        <div className="contentArea">
+          <Container className="p-4 wrapper" fluid>
+            <Outlet />
+          </Container>
+        </div>
 
         {/* <div className="contentArea">
           <Container className="p-4 wrapper" fluid>
