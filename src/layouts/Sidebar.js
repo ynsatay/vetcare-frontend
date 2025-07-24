@@ -148,10 +148,10 @@ const Sidebar = () => {
     {
       title: "Aşı Takibi",
       href: "/vaccination-tracker",
-      icon: "",       
-      icon2: faSyringe, 
+      icon: "",
+      icon2: faSyringe,
       rol: 2,
-      modal: null,  
+      modal: null,
       footer: false,
     },
     {
@@ -231,6 +231,12 @@ const Sidebar = () => {
     setIsOpen(true); // modalı aç
   };
 
+  const closeSidebarIfMobile = () => {
+    if (window.innerWidth < 991) {
+      document.getElementById("sidebarArea")?.classList.remove("showSidebar");
+    }
+  };
+
   return (
     <div className="p-3">
       {/* Logo */}
@@ -276,9 +282,7 @@ const Sidebar = () => {
                     setShowFooter(navi.footer);
                   }
 
-                  if (window.innerWidth < 991) {
-                    document.getElementById("sidebarArea")?.classList.remove("showSidebar");
-                  }
+                  closeSidebarIfMobile();
                 }}
 
               >
@@ -310,6 +314,9 @@ const Sidebar = () => {
                             ? "text-primary nav-link py-2"
                             : "nav-link text-secondary py-2"
                         }
+                        onClick={() => {
+                          closeSidebarIfMobile(); 
+                        }}
                       >
                         <div className="d-flex align-items-center">
                           {subItem.icon2 && <FontAwesomeIcon icon={subItem.icon2} className="me-1 ms-2" />}
