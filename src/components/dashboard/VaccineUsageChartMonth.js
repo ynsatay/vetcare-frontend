@@ -16,45 +16,29 @@ const VaccineUsageChart = () => {
   });
 
   useEffect(() => {
-    const updateChart = (data) => {
-      setChartData((prev) => ({
-        ...prev,
-        series: [
-          {
-            name: "Kullanım Sayısı",
-            data: data.map((item) => item.usage_count),
+    axiosInstance
+      .get("/vaccine-usage-last-month")
+      .then((res) => {
+        const data = res.data;
+        setChartData((prev) => ({
+          ...prev,
+          series: [
+            {
+              name: "Kullanım Sayısı",
+              data: data.map((item) => item.usage_count),
+            },
+          ],
+          options: {
+            ...prev.options,
+            xaxis: {
+              categories: data.map((item) => item.name),
+            },
           },
-        ],
-        options: {
-          ...prev.options,
-          xaxis: {
-            categories: data.map((item) => item.name),
-          },
-        },
-      }));
-    };
-
-    const cachedData = sessionStorage.getItem("vaccineUsageData");
-    if (cachedData) {
-      try {
-        const parsedData = JSON.parse(cachedData);
-        updateChart(parsedData);
-      } catch {
-        // Cache bozuksa silelim ve tekrar istekte bulunalım
-        sessionStorage.removeItem("vaccineUsageData");
-      }
-    } else {
-      axiosInstance
-        .get("/vaccine-usage-last-month")
-        .then((res) => {
-          const data = res.data;
-          sessionStorage.setItem("vaccineUsageData", JSON.stringify(data));
-          updateChart(data);
-        })
-        .catch((error) => {
-          console.error("Aşı grafiği verisi alınamadı", error);
-        });
-    }
+        }));
+      })
+      .catch((error) => {
+        console.error("Aşı grafiği verisi alınamadı", error);
+      });
   }, []);
 
   return (
