@@ -52,7 +52,7 @@ const VaccineUsageChart = () => {
     };
 
     fetchData();
-  }, [chartData.options]);
+  }, []);
 
   return (
     <Card>
