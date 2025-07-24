@@ -42,6 +42,7 @@
     "react-toastify": "^10.0.6",
     "reactstrap": "9.1.10",
     "sass": "^1.63.2",
+    "some-module": "^0.0.3",
     "web-vitals": "3.3.2"
   },
   "scripts": {
@@ -76,12 +77,11 @@
     "react-scripts": "5.0.1",
     "typescript": "^5.8.3"
   },
-  
   "overrides": {
     "nth-check": "2.1.1"
   },
   "engines": {
-  "node": "18.x",
-  "npm": "9.x"
-}
+    "node": "18.x",
+    "npm": "9.x"
+  }
 }
