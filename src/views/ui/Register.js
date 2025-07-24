@@ -27,7 +27,7 @@ const Register = () => {
         }
 
         try {
-            await axios.post('http://vatcare-backend-production.up.railway.app/api/register', {
+            await axios.post('https://vatcare-backend-production.up.railway.app/api/register', {
                 name,
                 surname,
                 username,
@@ -36,7 +36,7 @@ const Register = () => {
                 email
             });
 
-            const responseLogin = await axios.post('http://vatcare-backend-production.up.railway.app/api/login', {
+            const responseLogin = await axios.post('https://vatcare-backend-production.up.railway.app/api/login', {
                 username,
                 password,
             });

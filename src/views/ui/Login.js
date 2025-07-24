@@ -22,7 +22,7 @@ const Login = () => {
     }
 
     try {
-      const response = await axios.post('http://vatcare-backend-production.up.railway.app/api/login', {
+      const response = await axios.post('https://vatcare-backend-production.up.railway.app/api/login', {
         username,
         password,
       });
