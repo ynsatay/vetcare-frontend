@@ -111,15 +111,16 @@ const Header = () => {
                 />
               </DropdownToggle>
               <DropdownMenu>
-                <DropdownItem header>Info</DropdownItem>
+                <DropdownItem header>Kullanıcı</DropdownItem>
                 <DropdownItem tag={Link} to="/profile">
                   Hesabım
                 </DropdownItem>
-                <DropdownItem>Edit Profile</DropdownItem>
+                {/* <DropdownItem>Edit Profile</DropdownItem>
                 <DropdownItem divider />
                 <DropdownItem>My Balance</DropdownItem>
-                <DropdownItem>Inbox</DropdownItem>
-                <DropdownItem onClick={logout}>Logout</DropdownItem>
+                <DropdownItem>Inbox</DropdownItem> */}
+                <DropdownItem divider />
+                <DropdownItem onClick={logout}>Çıkış Yap</DropdownItem>
               </DropdownMenu>
             </Dropdown>
           </div>
