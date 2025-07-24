@@ -4,6 +4,7 @@ import Header from "./Header";
 import { Container } from "reactstrap";
 import { useContext } from "react";
 import AuthContext from "../context/usercontext.tsx";
+import Landing from "../views/ui/Landing";
 
 const FullLayout = () => {
   const { isLogin } = useContext(AuthContext);
@@ -21,11 +22,15 @@ const FullLayout = () => {
           </aside>
         )}
 
-        <div className="contentArea">
-          <Container className="p-4 wrapper" fluid>
-            <Outlet />
-          </Container>
-        </div>
+        {isLogin ? (
+          <div className="contentArea">
+            <Container className="p-4 wrapper" fluid>
+              <Outlet />
+            </Container>
+          </div>
+        ) : (
+          <Landing />
+        )}
 
         {/* <div className="contentArea">
           <Container className="p-4 wrapper" fluid>

@@ -1,7 +1,6 @@
 // src/routes/Router.js
 import React from "react";
 import { Navigate } from "react-router-dom";
-import RequireAuth from "./RequireAuth";
 
 // Layout
 import FullLayout from "../layouts/FullLayout.js";
@@ -9,7 +8,6 @@ import FullLayout from "../layouts/FullLayout.js";
 // Giriş ve genel ekranlar
 import Login from "../views/ui/Login.js";
 import Register from "../views/ui/Register.js";
-import Landing from "../views/ui/Landing.js";
 
 // Sayfalar
 import Starter from "../views/Starter.js";
@@ -37,55 +35,38 @@ import StockInvoicePage from "../views/ui/StockInvoices.js";
 import VaccinationTracker from "../views/ui/VaccinationTracker.js";
 
 const ThemeRoutes = [
-  {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/register",
-    element: <Register />,
-  },
-  {
-    path: "/landing",
-    element: <Landing />,
-  },
+  { path: "/login", element: <Login /> },
+  { path: "/register", element: <Register /> },
   {
     path: "/",
-    element: (
-      <RequireAuth>
-        <FullLayout />
-      </RequireAuth>
-    ),
+    element: <FullLayout />,
     children: [
-      { path: "/", element: <Navigate to="/starter" replace /> },
-      { path: "starter", element: <Starter /> },
-      { path: "about", element: <About /> },
-      { path: "alerts", element: <Alerts /> },
-      { path: "badges", element: <Badges /> },
-      { path: "buttons", element: <Buttons /> },
-      { path: "cards", element: <Cards /> },
-      { path: "grid", element: <Grid /> },
-      { path: "table", element: <Tables /> },
-      { path: "forms", element: <Forms /> },
-      { path: "breadcrumbs", element: <Breadcrumbs /> },
-      { path: "profile", element: <Profile /> },
-      { path: "animalslist", element: <AnimalsManagment /> },
-      { path: "personelManagment", element: <PersonelManagment /> },
-      { path: "officeList", element: <OfficeList /> },
-      { path: "clinicList", element: <ClinicList /> },
-      { path: "appointmentList", element: <ApporinmentList /> },
-      { path: "identityinfo/:id", element: <IdentityInfo /> },
-      { path: "patientFile/:id", element: <PatientFile /> },
-      { path: "processDef", element: <ProcessDef /> },
-      { path: "stoklist", element: <StockList /> },
-      { path: "servicelist", element: <ServiceList /> },
-      { path: "purchase-invoices", element: <StockInvoicePage /> },
-      { path: "vaccination-tracker", element: <VaccinationTracker /> },
+      { path: "/", element: <Navigate to="/starter" /> },
+      { path: "/starter", element: <Starter /> },
+      { path: "/about", element: <About /> },
+      { path: "/alerts", element: <Alerts /> },
+      { path: "/badges", element: <Badges /> },
+      { path: "/buttons", element: <Buttons /> },
+      { path: "/cards", element: <Cards /> },
+      { path: "/grid", element: <Grid /> },
+      { path: "/table", element: <Tables /> },
+      { path: "/forms", element: <Forms /> },
+      { path: "/breadcrumbs", element: <Breadcrumbs /> },
+      { path: "/profile", element: <Profile /> }, 
+      { path: "/animalslist", element: <AnimalsManagment /> },
+      { path: "/personelManagment", element: <PersonelManagment /> },
+      { path: "/officeList", element: <OfficeList /> },
+      { path: "/clinicList", element: <ClinicList /> },
+      { path: "/appointmentList", element: <ApporinmentList /> },
+      { path: "/identityinfo/:id", element: <IdentityInfo /> },
+      { path: "/patientFile/:id", element: <PatientFile /> },
+      { path: "/processDef", element: <ProcessDef/>},
+      { path: "/stoklist", element: <StockList/>},
+      { path: "/servicelist", element: <ServiceList/>},
+      { path: "/purchase-invoices", element: <StockInvoicePage /> },
+      { path: "/vaccination-tracker", element: <VaccinationTracker /> },
+
     ],
-  },
-  {
-    path: "*",
-    element: <Navigate to="/landing" replace />,
   },
 ];
 
