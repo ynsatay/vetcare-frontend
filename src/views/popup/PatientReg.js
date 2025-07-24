@@ -279,7 +279,7 @@ const PatientReg = forwardRef((props, ref) => {
         const confirm = window.confirm("Hayvan bulunamadı. Yeni kayıt oluşturulsun mu?");
         if (confirm) {
           setShowPatientForm(true);
-          setShowAnimalForm(true);
+          setShowAnimalForm(false);
         }
       } else {
         if (owners.length === 1) setSelectedOwner(owners[0]);
@@ -287,7 +287,7 @@ const PatientReg = forwardRef((props, ref) => {
 
         if (animal) setSelectedAnimal(animal);
 
-        setShowAnimalForm(true);
+        setShowAnimalForm(false);
       }
     } catch (error) {
       console.error('Hayvan sorgu hatası:', error);
