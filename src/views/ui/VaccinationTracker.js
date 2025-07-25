@@ -9,6 +9,7 @@ import VaccinationPlanForm from "../popup/VaccinationPlanForm.js";
 import MainModal from "../../components/MainModal.js";
 import { useConfirm } from "../../components/ConfirmContext";
 import "../scss/_appointment.scss";
+import VaccinePlanEdit from "../popup/VaccinePlanEdit.js";
 
 const VaccinationTracker = () => {
   const calendarRef = useRef(null);
@@ -18,6 +19,8 @@ const VaccinationTracker = () => {
   const [startDate, setStartDate] = useState(null);
   const [currentRange, setCurrentRange] = useState({ start: null, end: null });
   const [showVaccineModal, setShowVaccineModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
 
   const [materialsList, setMaterialsList] = useState([]);
 
@@ -63,15 +66,29 @@ const VaccinationTracker = () => {
     fetchEvents(dateInfo.startStr, dateInfo.endStr);
   };
 
-  // Etkinlik tıklanınca (isteğe bağlı detay işlemleri)
-  const handleEventClick = ({ event }) => {
+  const fetchVaccinationPlan = async (id) => {
+    try {
+      const response = await axiosInstance.get(`/vaccine/plan/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Aşı planı alınırken hata:", error);
+      return null;
+    }
+  };
+
+  // Etkinlik tıklanınca plan detaylarını çekip modal aç
+  const handleEventClick = async ({ event }) => {
     const [type, realId] = event.id.split("-");
     if (type === "plan") {
-      console.log("Plan detay düzenleme:", realId);
-      // İstersen buraya plan düzenleme modal açma kodu ekleyebilirsin
+      const planData = await fetchVaccinationPlan(realId);
+      if (planData) {
+        setSelectedPlan(planData);
+        setShowEditModal(true);
+      } else {
+        confirm("Aşı planı yüklenirken hata oluştu.", "Tamam", "", "Hata");
+      }
     } else {
-      console.log("Uygulanan aşı detay:", realId);
-      // Sadece görüntüleme vs.
+      confirm("Uygulanan aşı detayları düzenlenemez.", "Tamam", "", "Bilgi");
     }
   };
 
@@ -95,21 +112,29 @@ const VaccinationTracker = () => {
     setShowVaccineModal(false);
   };
 
+  const handleEditModalClose = () => {
+    setShowEditModal(false);
+    setSelectedPlan(null);
+  };
+
   // Kaydet butonuna basılınca çağrılır
   const handleSave = async () => {
     setShowVaccineModal(false);
     if (!currentRange.start || !currentRange.end) return;
 
-    // Burada currentRange tarihlerini biraz genişletebilirsin
     const startDate = new Date(currentRange.start);
     const endDate = new Date(currentRange.end);
 
-    // Örneğin 1 ay öncesi
     startDate.setMonth(startDate.getMonth() - 1);
-    // 1 ay sonrası
     endDate.setMonth(endDate.getMonth() + 1);
 
     fetchEvents(startDate.toISOString(), endDate.toISOString());
+  };
+
+  // Güncelleme başarılı olunca takvimi yenile
+  const handleUpdateSuccess = () => {
+    if (!currentRange.start || !currentRange.end) return;
+    fetchEvents(currentRange.start.toISOString(), currentRange.end.toISOString());
   };
 
   return (
@@ -163,6 +188,20 @@ const VaccinationTracker = () => {
           }
           onSave={handleSave}
           saveButtonLabel="Kaydet"
+        />
+
+        <MainModal
+          isOpen={showEditModal}
+          toggle={handleEditModalClose}
+          title="Aşı Planı Düzenle"
+          content={
+            <VaccinePlanEdit
+              plan={selectedPlan}
+              onClose={handleEditModalClose}
+              onUpdateSuccess={handleUpdateSuccess}
+            />
+          }
+          ShowFooter={false}
         />
       </div>
     </div>
