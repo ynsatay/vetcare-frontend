@@ -50,6 +50,12 @@ const Header = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handlelogout = () => {
+    logout();
+    navigate("/");
+  };
+
+  
   return (
     <Navbar
       className="navbar"
@@ -120,7 +126,7 @@ const Header = () => {
                 <DropdownItem>My Balance</DropdownItem>
                 <DropdownItem>Inbox</DropdownItem> */}
                 <DropdownItem divider />
-                <DropdownItem onClick={logout}>Çıkış Yap</DropdownItem>
+                <DropdownItem onClick={handlelogout}>Çıkış Yap</DropdownItem>
               </DropdownMenu>
             </Dropdown>
           </div>

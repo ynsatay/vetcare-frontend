@@ -207,7 +207,7 @@ const Sidebar = () => {
       href: "",
       icon: "bi bi-patch-check",
       icon2: faFolderOpen,
-      rol: 0,
+      rol: 2,
       subMenu: [
         { title: "Stok Listesi", href: "/stoklist", icon: "", icon2: faBoxOpen },
         { title: "Hizmet Listesi", href: "/servicelist", icon: "", icon2: faStethoscope },
