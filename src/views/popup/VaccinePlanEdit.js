@@ -7,7 +7,7 @@ import {
   FormControlLabel,
   Button
 } from "@mui/material";
-import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import trLocale from 'date-fns/locale/tr';
 import dayjs from 'dayjs';
@@ -17,15 +17,15 @@ import { useConfirm } from '../../components/ConfirmContext';
 const VaccinePlanEdit = ({ plan, onClose, onUpdateSuccess }) => {
   const { confirm } = useConfirm();
 
-  const [applied, setApplied] = useState(false);
   const [planDate, setPlanDate] = useState(null);
   const [note, setNote] = useState("");
+  const [applied, setApplied] = useState(false);
 
   useEffect(() => {
     if (plan) {
-      setApplied(!!plan.applied);
-      setPlanDate(plan.plan_date ? new Date(plan.plan_date) : null);
-      setNote(plan.note || "");
+      setApplied(!!plan.is_applied);  // Veritabanından gelen alan is_applied olduğunu varsayıyorum
+      setPlanDate(plan.planned_date ? new Date(plan.planned_date) : null);  // planned_date doğru isim olmalı
+      setNote(plan.notes || ""); // notes doğru isim olmalı
     }
   }, [plan]);
 
@@ -36,23 +36,42 @@ const VaccinePlanEdit = ({ plan, onClose, onUpdateSuccess }) => {
     }
 
     try {
-      const response = await axiosInstance.post("/update-vaccine-plan", {
-        id: plan.id,
-        applied,
-        plan_date: dayjs(planDate).format("YYYY-MM-DD HH:mm:ss"),
-        note
+      const response = await axiosInstance.put(`/vaccine/plan/${plan.id}`, {
+        planned_date: dayjs(planDate).format("YYYY-MM-DD"), // sadece tarih formatı
+        notes: note
       });
 
-      if (response.data.status === "success") {
+      if (response.data.message) {
         confirm("Aşı planı güncellendi.", "Tamam", "", "Bilgi");
         onUpdateSuccess?.();
         onClose?.();
       } else {
-        confirm("Güncelleme başarısız: " + response.data.message, "Tamam", "", "Hata");
+        confirm("Güncelleme başarısız.", "Tamam", "", "Hata");
       }
     } catch (error) {
       console.error("Güncelleme hatası:", error);
       confirm("Bir hata oluştu. Lütfen tekrar deneyin.", "Tamam", "", "Hata");
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      const result = await confirm("Bu işlemi silmek istediğinize emin misiniz?", "Evet", "Hayır", "Silme Onayı");
+      if (!result) return;
+
+      const response = await axiosInstance.delete(`/vaccine/plan/${plan.id}`);
+
+      if (response.data.message) {
+        confirm("Aşı planı silindi.", "Tamam", "", "Bilgi");
+        onUpdateSuccess?.();
+        onClose?.();
+      } else {
+        confirm("Silme işlemi başarısız.", "Tamam", "", "Hata");
+      }
+    } catch (error) {
+      console.error("Silme hatası:", error);
+      const errorMessage = error.response?.data?.error || "Bir hata oluştu. Lütfen tekrar deneyin.";
+      confirm(errorMessage, "Tamam", "", "Hata");
     }
   };
 
@@ -72,14 +91,14 @@ const VaccinePlanEdit = ({ plan, onClose, onUpdateSuccess }) => {
 
         <Grid item xs={12}>
           <FormControlLabel
-            control={<Checkbox checked={applied} onChange={(e) => setApplied(e.target.checked)} />}
+            control={<Checkbox checked={applied} disabled />}
             label="Uygulandı"
           />
         </Grid>
 
         <Grid item xs={5}><Typography variant="subtitle1">Plan Tarihi:</Typography></Grid>
         <Grid item xs={7}>
-          <DateTimePicker
+          <DatePicker
             value={planDate}
             onChange={(newValue) => setPlanDate(newValue)}
             renderInput={(params) => <TextField fullWidth size="small" {...params} />}
@@ -98,6 +117,7 @@ const VaccinePlanEdit = ({ plan, onClose, onUpdateSuccess }) => {
         </Grid>
 
         <Grid item xs={12} sx={{ mt: 2, display: "flex", justifyContent: "flex-end", gap: 2 }}>
+          <Button variant="contained" color="error" onClick={handleDelete}>SİL</Button>
           <Button variant="contained" onClick={handleUpdate}>Güncelle</Button>
         </Grid>
       </Grid>

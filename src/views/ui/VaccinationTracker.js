@@ -50,6 +50,7 @@ const VaccinationTracker = () => {
         id: `${event.type}-${event.id}`,
         title: `💉 ${event.vaccine_name}-${event.animal_name}`,
         date: event.date,
+        allDay: true,
         backgroundColor: event.type === "plan" ? "#26a69a" : "#4caf50",
         borderColor: "#ccc",
         textColor: "#fff",
