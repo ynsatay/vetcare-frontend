@@ -43,6 +43,8 @@ const InvoiceSelectorModal = ({ open, onClose, onSelect }) => {
           endDate: endDate.format('YYYY-MM-DD'),
         };
         const res = await axiosInstance.get('/material-invoice/list', { params });
+
+        console.log('API cevabı:', res.data); // buraya bak
         setFilteredInvoices(res.data);
       }
     } catch (err) {
@@ -87,7 +89,10 @@ const InvoiceSelectorModal = ({ open, onClose, onSelect }) => {
       headerName: 'Tutar',
       width: 120,
       flex: 1,
-      valueFormatter: (params) => `${params.value.toFixed(2)} ₺`,
+      valueFormatter: (params) => {
+        const val = Number(params.value);
+        return isNaN(val) ? '-' : `${val.toFixed(2)} ₺`;
+      }
     },
   ];
 
