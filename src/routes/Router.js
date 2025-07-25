@@ -7,7 +7,7 @@ import FullLayout from "../layouts/FullLayout.js";
 
 // Giriş ve genel ekranlar
 import Login from "../views/ui/Login.js";
-import Register from "../views/ui/Register.js";
+import Register from "../views/ui/_Old_Register.js";
 
 // Sayfalar
 import Starter from "../views/Starter.js";

@@ -1,31 +1,40 @@
 import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button, TextField, Typography } from '@mui/material';
-import MenuLogo from '../../assets/images/logos/vc2.png';
-import "../scss/_register.scss";
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Button, TextField, Typography, Grid, Paper, Box } from '@mui/material';
 import axios from 'axios';
 import { AuthContext } from '../../context/usercontext.tsx';
-
-// import { AuthContext } from '../../context/usercontext.tsx';
+import MenuLogo from '../../assets/images/logos/vc2.png';
 
 const Register = () => {
     const [name, setName] = useState('');
-    const [surname, setSurmame] = useState('');
+    const [surname, setSurname] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [passwordAgain, setPasswordAgain] = useState('');
     const [email, setEmail] = useState('');
     const [message, setMessage] = useState('');
-    const { login } = useContext(AuthContext)
+
+    const [clinicName, setClinicName] = useState('');
+    const [clinicPhone, setClinicPhone] = useState('');
+    const [clinicAddress, setClinicAddress] = useState('');
+
+    const [cardName, setCardName] = useState('');
+    const [cardNumber, setCardNumber] = useState('');
+    const [expiryDate, setExpiryDate] = useState('');
+    const [cvc, setCvc] = useState('');
+
+    const { login } = useContext(AuthContext);
     const navigate = useNavigate();
+    const location = useLocation();
+    const selectedPlan = location.state?.selectedPlan;
 
     const handleRegister = async (e) => {
         e.preventDefault();
-        if (name === '' || surname === '' || username === '' || password === '' || passwordAgain === '' || email === '') {
+        if (!name || !surname || !username || !password || !passwordAgain || !email ||
+            !cardName || !cardNumber || !expiryDate || !cvc) {
             setMessage('Tüm alanları doldurunuz!');
             return;
         }
-
         try {
             await axios.post('https://vatcare-backend-production.up.railway.app/api/register', {
                 name,
@@ -33,7 +42,8 @@ const Register = () => {
                 username,
                 password,
                 passwordAgain,
-                email
+                email,
+                selectedPlan,
             });
 
             const responseLogin = await axios.post('https://vatcare-backend-production.up.railway.app/api/login', {
@@ -42,7 +52,6 @@ const Register = () => {
             });
 
             axios.defaults.headers.common['Authorization'] = `Bearer ${responseLogin.data.token}`;
-
             localStorage.setItem('token', responseLogin.data.token);
             localStorage.setItem('userid', responseLogin.data.userid);
 
@@ -66,111 +75,100 @@ const Register = () => {
     };
 
     return (
-        <div className='reg-maindiv'>
-            <div className='reg-altdiv'>
-                <div className='reg-altdiv2'>
-                    <div className='reg-form-div'>
-                        <div className='reg-form-image-div'>
-                            <div className='reg-alt-form-image-div'>
-                                <img src={MenuLogo} alt="Logo" className='reg-form-image' />
-                            </div>
+        <Box
+            sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '100vh',
+                backgroundColor: '#f5f5f5',
+                padding: 2,
+            }}
+        >
+            <Paper elevation={6} sx={{ maxWidth: 500, width: '100%', p: 4 }}>
+                <Box textAlign="center" mb={3}>
+                    <img src={MenuLogo} alt="Logo" style={{ height: 80 }} />
+                    <Typography variant="h5" mt={2}>Kayıt Ol</Typography>
+                    {selectedPlan && (
+                        <Typography variant="subtitle1" color="primary">
+                            Seçilen Plan: {selectedPlan}
+                        </Typography>
+                    )}
+                </Box>
 
-                            <Typography variant="h4" component="h1" gutterBottom>
-                                Kayıt Ol!
-                            </Typography>
+                <form onSubmit={handleRegister}>
+                    <Grid container spacing={2}>
 
-                            <form className='reg-form' onSubmit={handleRegister}>
-                                <div display="flex" flexDirection="row">
-                                    <TextField
-                                        style={{ width: '50%', marginRight: '1%' }}
-                                        label="Adın"
-                                        variant="outlined"
-                                        margin="normal"
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
-                                    />
-                                    <TextField
-                                        style={{ width: '49%', marginleft: '1%' }}
-                                        label="Soyadın"
-                                        variant="outlined"
-                                        margin="normal"
-                                        value={surname}
-                                        onChange={(e) => setSurmame(e.target.value)}
-                                    />
-                                </div>
+                        {/* Klinik Bilgileri */}
+                        <Grid item xs={12}>
+                            <Typography variant="subtitle1" fontWeight="bold">Klinik Bilgileri</Typography>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField fullWidth size="small" label="Klinik Adı" value={clinicName} onChange={(e) => setClinicName(e.target.value)} />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField fullWidth size="small" label="Klinik Telefon" value={clinicPhone} onChange={(e) => setClinicPhone(e.target.value)} />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField fullWidth size="small" label="Klinik Adres" value={clinicAddress} onChange={(e) => setClinicAddress(e.target.value)} />
+                        </Grid>
 
-                                <TextField
-                                    label="Kullanıcı Adı"
-                                    variant="outlined"
-                                    margin="normal"
-                                    fullWidth
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                />
+                        {/* Kullanıcı Bilgileri */}
+                        <Grid item xs={12}>
+                            <Typography variant="subtitle1" fontWeight="bold">Kullanıcı Bilgileri</Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField fullWidth size="small" label="Ad" value={name} onChange={(e) => setName(e.target.value)} />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField fullWidth size="small" label="Soyad" value={surname} onChange={(e) => setSurname(e.target.value)} />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField fullWidth size="small" label="Kullanıcı Adı" value={username} onChange={(e) => setUsername(e.target.value)} />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField fullWidth size="small" label="Şifre" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField fullWidth size="small" label="Şifre Tekrar" type="password" value={passwordAgain} onChange={(e) => setPasswordAgain(e.target.value)} />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField fullWidth size="small" label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                        </Grid>
 
-                                <div display="flex" flexDirection="row">
-                                    <TextField
-                                        style={{ width: '50%', marginRight: '1%', }}
-                                        type="password"
-                                        label="Şifre"
-                                        variant="outlined"
-                                        margin="normal"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                    />
-                                    <TextField
-                                        style={{ width: '49%', marginleft: '1%', marginRight: '0%' }}
-                                        type="password"
-                                        label="Şifre tekrarı"
-                                        variant="outlined"
-                                        margin="normal"
-                                        value={passwordAgain}
-                                        onChange={(e) => setPasswordAgain(e.target.value)}
-                                    />
-                                </div>
+                        {/* Ödeme Bilgileri */}
+                        <Grid item xs={12}>
+                            <Typography variant="subtitle1" fontWeight="bold">Ödeme Bilgileri</Typography>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField fullWidth size="small" label="Kart Üzerindeki İsim" value={cardName} onChange={(e) => setCardName(e.target.value)} />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField fullWidth size="small" label="Kart Numarası" placeholder="**** **** **** ****" inputProps={{ maxLength: 19 }} value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField fullWidth size="small" label="Son Kullanma Tarihi (MM/YY)" placeholder="MM/YY" value={expiryDate} onChange={(e) => setExpiryDate(e.target.value)} />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField fullWidth size="small" label="CVC" placeholder="123" inputProps={{ maxLength: 4 }} value={cvc} onChange={(e) => setCvc(e.target.value)} />
+                        </Grid>
 
-                                {/* <Input 
-                                  style={{ height: '56px', marginTop: '16px' }}
-                                  id="exampleSelect"
-                                  name="select"
-                                  type="select" 
-                                  margin="normal"  
-                                  value={sex}
-                                  onChange={(e) => setSex(e.target.value)}
-                                  >
-                                    <option>Cinsiyet</option>
-                                    <option>Erkek</option>
-                                    <option>Kadın</option>
-                                </Input> */}
+                        {/* Hata mesajı ve buton */}
+                        {message && (
+                            <Grid item xs={12}>
+                                <Typography color="error">{message}</Typography>
+                            </Grid>
+                        )}
+                        <Grid item xs={12}>
+                            <Button type="submit" variant="contained" color="primary" fullWidth>
+                                Kaydol
+                            </Button>
+                        </Grid>
 
-                                <TextField
-                                    label="E-mail"
-                                    variant="outlined"
-                                    margin="normal"
-                                    fullWidth
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                />
-
-                                <Button
-                                    fullWidth
-                                    size="large"
-                                    variant="contained"
-                                    style={{ marginTop: '16px' }}
-                                    className='login'
-                                    type="submit"
-                                // onClick={() => login(username, password)}
-                                >
-                                    KAYDOL
-                                </Button>
-
-                            </form>
-                            {message && <Typography color="error" style={{ marginTop: '16px' }}>{message}</Typography>}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    </Grid>
+                </form>
+            </Paper>
+        </Box>
     );
 };
 

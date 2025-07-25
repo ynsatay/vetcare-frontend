@@ -144,7 +144,7 @@ const Landing = () => {
                                             color={btnColor}
                                             outline={btnOutline}
                                             size="lg"
-                                            onClick={() => navigate('/register')}
+                                            onClick={() => navigate('/checkout', { state: { selectedPlan: title } })}
                                             style={{ minWidth: 140, fontWeight: 600 }}
                                         >
                                             {btnText}
