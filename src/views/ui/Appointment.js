@@ -273,6 +273,25 @@ const Appointment = () => {
           }}
         />
 
+        <div style={{ marginTop: 20, display: 'flex', gap: 20, alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 20, height: 20, backgroundColor: '#4e73df', borderRadius: 4 }}></div>
+            <span>Beklemede</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 20, height: 20, backgroundColor: '#f6c23e', borderRadius: 4 }}></div>
+            <span>Geldi</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 20, height: 20, backgroundColor: '#1cc88a', borderRadius: 4 }}></div>
+            <span>Tamamlandı</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 20, height: 20, backgroundColor: '#e74a3b', borderRadius: 4 }}></div>
+            <span>İptal Edildi</span>
+          </div>
+        </div>
+
         <MainModal
           isOpen={showModal}
           toggle={() => setShowModal(false)}

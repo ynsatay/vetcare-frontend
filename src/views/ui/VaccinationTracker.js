@@ -174,6 +174,17 @@ const VaccinationTracker = () => {
           }}
         />
 
+        <div style={{ marginTop: 20, display: 'flex', gap: 20, alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 20, height: 20, backgroundColor: '#4caf50', borderRadius: 4 }}></div>
+            <span>Uygulandı</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 20, height: 20, backgroundColor: '#26a69a', borderRadius: 4 }}></div>
+            <span>Uygulanmadı (Plan)</span>
+          </div>
+        </div>
+
         <MainModal
           isOpen={showVaccineModal}
           toggle={handleModalClose}
