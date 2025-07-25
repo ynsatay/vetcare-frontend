@@ -111,7 +111,7 @@ function TabPanel(props) {
     );
 }
 
-export default function VisitsAndAppointmentsTabs({ visitList, appointmentList }) {
+export default function VisitsAndAppointmentsTabs({ visitList, appointmentList, animalId }) {
     const [tabIndex, setTabIndex] = useState(0);
     const navigate = useNavigate();
 

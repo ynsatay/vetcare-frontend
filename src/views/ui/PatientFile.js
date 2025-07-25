@@ -18,6 +18,9 @@ const NewVisitFileLayout = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const vet_u_id = localStorage.getItem('userid');
+  const [plans, setPlans] = useState([]);
+  const [selectedPlanId, setSelectedPlanId] = useState(null);
+  const [animalId, setAnimalId] = useState(null);
   const { confirm } = useConfirm();
 
   // Modal kontrol durumları
@@ -110,6 +113,7 @@ const NewVisitFileLayout = () => {
     }
   };
 
+  // İşlem silme
   const handleDelete = async (processId) => {
     const result = await confirm("Bu işlemi silmek istediğinize emin misiniz?", "Evet", "Hayır", "Silme Onayı");
     if (!result) return;
@@ -123,6 +127,7 @@ const NewVisitFileLayout = () => {
     }
   };
 
+  //Ödeme Özeti
   const fetchPaymentSummary = useCallback(async () => {
     try {
       const res = await axiosInstance.get(`/payment-summary/${id}`);
@@ -132,11 +137,73 @@ const NewVisitFileLayout = () => {
     }
   }, [id]);
 
+  //Uygulanmamış Aşı Planları.
+  const getUnappliedPlans = async () => {
+    try {
+      const response = await axiosInstance.get(`/vaccine/plans/unapplied/${animalId}`);
+      setPlans(response.data);
+    } catch (err) {
+      console.error("Aşı planları alınamadı:", err);
+      confirm("Aşı planları alınırken hata oluştu.", "Tamam", "", "Hata");
+    }
+  };
+
+  //Aşı Uygulama
+  const handleApplyVaccine = async () => {
+    if (!selectedPlanId) {
+      return confirm("Lütfen bir aşı planı seçin.", "Tamam", "", "Uyarı");
+    }
+
+    const plan = plans.find(p => p.id === selectedPlanId);
+    const result = await confirm(`${plan.vaccine_name} aşısını uygulamak istiyor musunuz?`, "Evet", "Hayır", "Onay");
+    if (!result) return;
+
+    try {
+      const stockDetailRes = await axiosInstance.get(`/material/id/${plan.m_id}`);
+      const stock = stockDetailRes.data.data;
+
+      const addProcessRes = await axiosInstance.post('/add-patient-process', {
+        pa_id: id,
+        process_id: stock.id,
+        row_type: 'M',
+        count: 1,
+        total_prices: stock.price,
+        unit_prices: stock.price
+      });
+
+      const pp_id = addProcessRes.data.id;
+
+      await axiosInstance.put(`/vaccine/plan/${plan.id}/apply`, {
+        is_applied: true,
+        pp_id
+      });
+
+      await confirm(`${plan.vaccine_name} aşısı başarıyla uygulandı.`, "Tamam", "", "Bilgi");
+
+      getUnappliedPlans();
+
+      const processRes = await axiosInstance.get(`/patient-process/${id}`);
+      setPatientProcesses(processRes.data.map(item => ({
+        ...item,
+        unit_price: item.unit_price,
+        total_price: item.total_prices,
+      })) || []);
+
+      fetchPaymentSummary();
+      setSelectedPlanId(null);
+    } catch (err) {
+      console.error("Aşı uygulanırken hata:", err);
+      confirm("Aşı uygulanırken hata oluştu.", "Tamam", "", "Hata");
+    }
+  };
+
+
   useEffect(() => {
     if (!id) return;
 
     const fetchData = async () => {
       try {
+        // 1. Geliş bilgileri ve işlemleri paralel olarak çek
         const [infoRes, processRes] = await Promise.all([
           axiosInstance.get("/getPatientFileInfo", {
             params: { patFileId: id }
@@ -150,11 +217,22 @@ const NewVisitFileLayout = () => {
           setError("Geliş bilgisi alınamadı");
         }
 
-        setPatientProcesses(processRes.data.map(item => ({
-          ...item,
-          unit_price: item.unit_price,
-          total_price: item.total_prices,
-        })) || []);
+        setPatientProcesses(
+          processRes.data.map(item => ({
+            ...item,
+            unit_price: item.unit_price,
+            total_price: item.total_prices,
+          })) || []
+        );
+
+        const animalRes = await axiosInstance.get(`/patient-arrival/${id}/animal`);
+        setAnimalId(animalRes.data.animal_id);
+
+
+        if (animalId) {
+          const plansRes = await axiosInstance.get(`/vaccine/plans/unapplied/${animalId}`);
+          setPlans(plansRes.data);
+        }
 
       } catch (err) {
         console.error("Hata:", err);
@@ -166,8 +244,7 @@ const NewVisitFileLayout = () => {
 
     fetchData();
     fetchPaymentSummary();
-  }, [id, fetchPaymentSummary]);
-
+  }, [id, fetchPaymentSummary, animalId]);
 
   if (loading) return <div>Yükleniyor...</div>;
   if (error) return <div>Hata: {error}</div>;
@@ -248,7 +325,7 @@ const NewVisitFileLayout = () => {
       </Row>
 
       <Row>
-        <Col md={4} sm={12}  style={{ marginTop: "20px" }}>
+        <Col md={4} sm={12} style={{ marginTop: "20px" }}>
           <Card className="shadow-sm h-100">
             <CardBody className="text-left">
               <CardTitle tag="h5">Borçlara Ait Bilgiler</CardTitle>
@@ -268,22 +345,28 @@ const NewVisitFileLayout = () => {
           </Card>
         </Col>
 
-        <Col md={8} sm={12}  style={{ marginTop: "20px" }}>
+        <Col md={8} sm={12} style={{ marginTop: "20px" }}>
           <Card className="shadow-sm mb-4 h-100">
             <CardBody className="d-flex flex-column" style={{ minHeight: 300 }}>
               <CardTitle tag="h5" className="d-flex justify-content-between align-items-center">
                 <span>Planlanan Aşılar</span>
                 <div className="d-flex gap-2">
-                  <Button color="success" size="sm" onClick={toggleStockModal}>Uygula</Button>
+                  <Button color="success" size="sm" onClick={handleApplyVaccine}>Uygula</Button>
                 </div>
-              </CardTitle>  
+              </CardTitle>
 
               <DataGrid
-                rows={patientProcesses.map((item, index) => ({ ...item, id: item.id }))}
-                columns={columns}
-                autoHeight={false}
-                disableRowSelectionOnClick
-                hideFooterPagination
+                rows={plans.map(plan => ({ ...plan, id: plan.id }))}
+                columns={[
+                  { field: 'vaccine_name', headerName: 'Aşı Adı', flex: 1 },
+                  { field: 'planned_date', headerName: 'Planlanan Tarih', width: 150 },
+                  { field: 'notes', headerName: 'Notlar', flex: 1 },
+                  { field: 'm_id', headerName: 'Stok ID', width: 100, hide: true }
+                ]}
+                autoHeight
+                disableRowSelectionOnClick={false}
+                checkboxSelection={false}
+                onRowClick={(params) => setSelectedPlanId(params.row.id)}
                 sx={{ height: 300 }}
               />
             </CardBody>
