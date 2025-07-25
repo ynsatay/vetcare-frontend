@@ -50,7 +50,7 @@ const VaccinePlanEdit = ({ plan, onClose, onUpdateSuccess }) => {
       }
     } catch (error) {
       console.error("Güncelleme hatası:", error);
-      confirm("Bir hata oluştu. Lütfen tekrar deneyin.", "Tamam", "", "Hata");
+      confirm(error.response?.data?.error || "Bir hata oluştu. Lütfen tekrar deneyin.", "Tamam", "", "Hata");
     }
   };
 
@@ -117,7 +117,7 @@ const VaccinePlanEdit = ({ plan, onClose, onUpdateSuccess }) => {
         </Grid>
 
         <Grid item xs={12} sx={{ mt: 2, display: "flex", justifyContent: "flex-end", gap: 2 }}>
-          <Button variant="contained" color="error" onClick={handleDelete}>SİL</Button>
+          <Button variant="contained" color="error" disabled={applied} onClick={handleDelete}>SİL</Button>
           <Button variant="contained" onClick={handleUpdate}>Güncelle</Button>
         </Grid>
       </Grid>

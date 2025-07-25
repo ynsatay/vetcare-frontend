@@ -39,22 +39,23 @@ const VaccinationTracker = () => {
   const fetchEvents = async (startStr, endStr) => {
     try {
       const response = await axiosInstance.get("/vaccine/calendarEvents", {
-        params: {
-          startDate: startStr,
-          endDate: endStr,
-          includeUnplanned: true,
-        },
+        params: { startDate: startStr, endDate: endStr },
       });
 
-      const formatted = response.data.map((event) => ({
-        id: `${event.type}-${event.id}`,
-        title: `💉 ${event.vaccine_name}-${event.animal_name}`,
-        date: event.date,
-        allDay: true,
-        backgroundColor: event.type === "plan" ? "#26a69a" : "#4caf50",
-        borderColor: "#ccc",
-        textColor: "#fff",
-      }));
+      const formatted = response.data.map((event) => {
+        const isApplied = event.is_applied === 1;
+        const backgroundColor = isApplied ? "#4caf50" : "#26a69a"; // uygulandı ise yeşil, plan ise turkuaz
+
+        return {
+          id: `${event.id}`,
+          title: `💉 ${event.vaccine_name}-${event.animal_name}`,
+          date: event.date,
+          allDay: true,
+          backgroundColor,
+          borderColor: "#ccc",
+          textColor: "#fff",
+        };
+      });
 
       setEvents(formatted);
     } catch (error) {
@@ -79,19 +80,16 @@ const VaccinationTracker = () => {
 
   // Etkinlik tıklanınca plan detaylarını çekip modal aç
   const handleEventClick = async ({ event }) => {
-    const [type, realId] = event.id.split("-");
-    if (type === "plan") {
-      const planData = await fetchVaccinationPlan(realId);
-      if (planData) {
-        setSelectedPlan(planData);
-        setShowEditModal(true);
-      } else {
-        confirm("Aşı planı yüklenirken hata oluştu.", "Tamam", "", "Hata");
-      }
+    const realId = event.id; // artık id tek parça
+    const planData = await fetchVaccinationPlan(realId);
+    if (planData) {
+      setSelectedPlan(planData);
+      setShowEditModal(true);
     } else {
-      confirm("Uygulanan aşı detayları düzenlenemez.", "Tamam", "", "Bilgi");
+      confirm("Aşı planı yüklenirken hata oluştu.", "Tamam", "", "Hata");
     }
   };
+
 
   // Tarih seçilince modal açılır, geçmişe planlama engellenir
   const handleDateClick = (info) => {
