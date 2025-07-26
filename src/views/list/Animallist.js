@@ -9,11 +9,8 @@ import axiosInstance from '../../api/axiosInstance.ts';
 
 const Animalslist = () => {
   const [animalslist, setAnimalslist] = useState([]);
-  const [animals, setAnimals] = useState([]);
-  const [animalsspecies, setAnimalsspecies] = useState([]);
   const [selectedanimalid, setSelectedanimalid] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedAnimalIndex, setSelectedAnimalIndex] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const { userid } = useContext(AuthContext);
   const animalFormRef = useRef(null);
@@ -43,8 +40,6 @@ const Animalslist = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const animalRes = await axiosInstance.get('/animals');
-        setAnimals(animalRes.data.response);
         await fetchAnimalsList();
       } catch (error) {
         console.error(error);
@@ -55,7 +50,6 @@ const Animalslist = () => {
 
   const toggleModal = (index) => {
     const animal = animalslist[index];
-    setSelectedAnimalIndex(index);
     setModalOpen(true);
     setSelectedanimalid(animal.id);
     setEditedAnimal({
@@ -75,8 +69,8 @@ const Animalslist = () => {
 
   const fetchAnimalSpecies = async (animal_id) => {
     try {
-      const response = await axiosInstance.get('/animalsspecies', { params: { animal_id } });
-      setAnimalsspecies(response.data.response);
+      await axiosInstance.get('/animalsspecies', { params: { animal_id } });
+      // Burada setAnimalsspecies kullanılmadığı için atlandı
     } catch (error) {
       console.error(error);
     }
