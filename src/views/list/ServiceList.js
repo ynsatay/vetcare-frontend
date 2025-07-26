@@ -5,6 +5,7 @@ import MainModal from '../../components/MainModal.js';
 import AddService from '../popup/AddService.js';
 import axiosInstance from '../../api/axiosInstance.ts';
 import { useConfirm } from '../../components/ConfirmContext';
+import { trTR } from '@mui/x-data-grid/locales';
 
 const categories = [
   { label: "Muayene", value: 1 },
@@ -115,7 +116,7 @@ const ServiceList = () => {
       field: 'price', headerName: 'Fiyat', flex: 1, width: 100,
       valueFormatter: (params) => params.value ? `${params.value} ₺` : ''
     },
-    {field: 'description', headerName: 'Açıklama', flex: 1, minWidth: 200, sortable: false, filterable: false},
+    { field: 'description', headerName: 'Açıklama', flex: 1, minWidth: 200, sortable: false, filterable: false },
   ];
 
   return (
@@ -174,6 +175,13 @@ const ServiceList = () => {
             setSelectedRow(selected || null);
           }}
           selectionModel={selectedRow ? [selectedRow.id] : []}
+          localeText={{
+            ...trTR.components.MuiDataGrid.defaultProps.localeText,
+            footerRowSelected: (count) =>
+              count > 1
+                ? `${count.toLocaleString()} satır seçildi`
+                : `${count.toLocaleString()} satır seçildi`,
+          }}
         />
       </div>
 

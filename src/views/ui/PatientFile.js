@@ -10,6 +10,7 @@ import MainModal from '../../components/MainModal';
 import { DataGrid } from '@mui/x-data-grid';
 import AddPaymentProcess from '../popup/AddPaymentProcess.js';
 import { useConfirm } from '../../components/ConfirmContext';
+import { trTR } from '@mui/x-data-grid/locales';
 
 const NewVisitFileLayout = () => {
   const { id } = useParams();
@@ -300,6 +301,13 @@ const NewVisitFileLayout = () => {
                 disableRowSelectionOnClick
                 hideFooterPagination
                 sx={{ height: 300 }}
+                localeText={{
+                  ...trTR.components.MuiDataGrid.defaultProps.localeText,
+                  footerRowSelected: (count) =>
+                    count > 1
+                      ? `${count.toLocaleString()} satır seçildi`
+                      : `${count.toLocaleString()} satır seçildi`,
+                }}
               />
             </CardBody>
           </Card>
@@ -368,6 +376,13 @@ const NewVisitFileLayout = () => {
                 checkboxSelection={false}
                 onRowClick={(params) => setSelectedPlanId(params.row.id)}
                 sx={{ height: 300 }}
+                localeText={{
+                  ...trTR.components.MuiDataGrid.defaultProps.localeText,
+                  footerRowSelected: (count) =>
+                    count > 1
+                      ? `${count.toLocaleString()} satır seçildi`
+                      : `${count.toLocaleString()} satır seçildi`,
+                }}
               />
             </CardBody>
           </Card>

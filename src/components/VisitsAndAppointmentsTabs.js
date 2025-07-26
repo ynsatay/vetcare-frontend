@@ -120,21 +120,21 @@ export default function VisitsAndAppointmentsTabs({ visitList, appointmentList, 
     };
 
     return (
-        <Box style={{ width: '100%', backgroundColor: 'white', borderRadius: '10px', height: '450px' }} >
+        <Box style={{ width: '100%', backgroundColor: 'white', borderRadius: '10px', height: '450px' }}>
             <Tabs value={tabIndex} onChange={handleChange} aria-label="Geliş ve Randevu Sekmeleri">
                 <Tab label="Geliş Dosyası" />
                 <Tab label="Randevu Listesi" />
             </Tabs>
 
-            <TabPanel value={tabIndex} index={0}>
+            <TabPanel value={tabIndex} index={0} sx={{ height: '100%' }}>
                 <DataGrid
                     rows={visitList}
+                    autoHeight={false}
                     columns={visitColumns(navigate)}
-                    autoHeight
-                    pageSize={5}
-                    rowsPerPageOptions={[5, 10]}
+                    sx={{ height: 385 }} 
                     getRowId={(row) => row.id || row.ctime}
                     disableSelectionOnClick
+                    hideFooterPagination
                     localeText={{
                         noRowsLabel: 'Kayıt bulunamadı',
                     }}
@@ -144,17 +144,18 @@ export default function VisitsAndAppointmentsTabs({ visitList, appointmentList, 
             <TabPanel value={tabIndex} index={1}>
                 <DataGrid
                     rows={appointmentList}
+                    autoHeight={false}
                     columns={appointmentColumns}
-                    autoHeight
-                    pageSize={5}
-                    rowsPerPageOptions={[5, 10]}
+                    sx={{ height: 385 }} 
                     getRowId={(row) => row.id || row.start_time}
                     disableSelectionOnClick
+                    hideFooterPagination
                     localeText={{
                         noRowsLabel: 'Kayıt bulunamadı',
                     }}
                 />
             </TabPanel>
         </Box>
+
     );
 }

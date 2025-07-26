@@ -427,12 +427,12 @@ const IdentityInfo = () => {
         </Col>
       </Row>
       
-      {visitList.length > 0 && (
+      {/* {visitList.length > 0 && ( */}
         <VisitsAndAppointmentsTabs
           visitList={visitList}
           appointmentList={appointmentList}
         />
-      )}
+      {/* )} */}
 
       <MainModal
         isOpen={isPatientFileRegOpen}

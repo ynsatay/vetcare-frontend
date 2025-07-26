@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, TextField, Box } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import axiosInstance from '../../api/axiosInstance.ts';
+import { trTR } from '@mui/x-data-grid/locales';
 
 const AddPatStock = ({ onClose, onSelect }) => {
     const [stocks, setStocks] = useState([]);
@@ -94,6 +95,13 @@ const AddPatStock = ({ onClose, onSelect }) => {
                 }}
                 autoHeight={false}
                 style={{ height: 290 }}  // burada yüksekliği sabit veriyoruz
+                localeText={{
+                                        ...trTR.components.MuiDataGrid.defaultProps.localeText,
+                                        footerRowSelected: (count) =>
+                                            count > 1
+                                                ? `${count.toLocaleString()} satır seçildi`
+                                                : `${count.toLocaleString()} satır seçildi`,
+                                    }}
             />
 
             <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 2 }}>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Box, Button, TextField } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import axiosInstance from "../../api/axiosInstance.ts";
+import { trTR } from '@mui/x-data-grid/locales';
 
 const AddPatService = ({ onClose, onSelect }) => {
   const [services, setServices] = useState([]);
@@ -72,6 +73,13 @@ const AddPatService = ({ onClose, onSelect }) => {
         disableSelectionOnClick={false}
         getRowId={(row) => row.id}
         noRowsOverlay={() => <div style={{ padding: 16 }}>Hizmet bulunamadı.</div>}
+        localeText={{
+          ...trTR.components.MuiDataGrid.defaultProps.localeText,
+          footerRowSelected: (count) =>
+            count > 1
+              ? `${count.toLocaleString()} satır seçildi`
+              : `${count.toLocaleString()} satır seçildi`,
+        }}
       />
 
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2, gap: 1 }}>

@@ -6,6 +6,7 @@ import AddStock from '../popup/AddStock.js';
 import axiosInstance from '../../api/axiosInstance.ts';
 import EditStock from '../popup/EditStock.js';
 import { useConfirm } from '../../components/ConfirmContext';
+import { trTR } from '@mui/x-data-grid/locales';
 
 const categories = [
     { label: "İlaç", value: 0 },
@@ -228,6 +229,13 @@ const StockList = () => {
                         setSelectedRow(selected || null);
                     }}
                     selectionModel={selectedRow ? [selectedRow.id] : []}
+                    localeText={{
+                        ...trTR.components.MuiDataGrid.defaultProps.localeText,
+                        footerRowSelected: (count) =>
+                            count > 1
+                                ? `${count.toLocaleString()} satır seçildi`
+                                : `${count.toLocaleString()} satır seçildi`,
+                    }}
                 />
             </div>
 

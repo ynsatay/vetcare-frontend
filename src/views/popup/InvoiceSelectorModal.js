@@ -6,6 +6,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import axiosInstance from '../../api/axiosInstance.ts';
 import dayjs from 'dayjs';
+import { trTR } from '@mui/x-data-grid/locales';
 
 const invoiceTypes = {
   1: 'Alım',
@@ -164,6 +165,13 @@ const InvoiceSelectorModal = ({ open, onClose, onSelect }) => {
               '& .MuiDataGrid-row.Mui-selected': {
                 backgroundColor: '#d0f0fd !important',
               },
+            }}
+            localeText={{
+              ...trTR.components.MuiDataGrid.defaultProps.localeText,
+              footerRowSelected: (count) =>
+                count > 1
+                  ? `${count.toLocaleString()} satır seçildi`
+                  : `${count.toLocaleString()} satır seçildi`,
             }}
           />
         </Box>

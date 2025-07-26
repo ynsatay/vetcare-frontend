@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import axiosInstance from "../../api/axiosInstance.ts";
+import { trTR } from '@mui/x-data-grid/locales';
 
 const MaterialSelectModal = ({ open, onClose, onSelect }) => {
     const [materials, setMaterials] = useState([]);
@@ -69,6 +70,13 @@ const MaterialSelectModal = ({ open, onClose, onSelect }) => {
                         rowSelectionModel={selected}
                         onSelectionModelChange={(ids) => {
                             setSelected(ids.map(id => Number(id)));
+                        }}
+                        localeText={{
+                            ...trTR.components.MuiDataGrid.defaultProps.localeText,
+                            footerRowSelected: (count) =>
+                                count > 1
+                                    ? `${count.toLocaleString()} satır seçildi`
+                                    : `${count.toLocaleString()} satır seçildi`,
                         }}
                     />
                 )}

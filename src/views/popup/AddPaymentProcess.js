@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Button, Box } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import axiosInstance from "../../api/axiosInstance.ts";
+import { trTR } from '@mui/x-data-grid/locales';
 
 const AddPaymentProcess = ({ pa_id, vet_u_id }) => {
   const [unpaidRows, setUnpaidRows] = useState([]);
@@ -184,6 +185,13 @@ const AddPaymentProcess = ({ pa_id, vet_u_id }) => {
         }}
         selectionModel={selectedUnpaid}
         sx={{ height: 350, mb: 2 }}
+        localeText={{
+          ...trTR.components.MuiDataGrid.defaultProps.localeText,
+          footerRowSelected: (count) =>
+            count > 1
+              ? `${count.toLocaleString()} satır seçildi`
+              : `${count.toLocaleString()} satır seçildi`,
+        }}
       />
       <Button
         variant="contained"
@@ -215,6 +223,13 @@ const AddPaymentProcess = ({ pa_id, vet_u_id }) => {
         }
         // Detay satırlar seçilemesin diye:
         isRowSelectable={(params) => params.row.isMaster === true}
+        localeText={{
+          ...trTR.components.MuiDataGrid.defaultProps.localeText,
+          footerRowSelected: (count) =>
+            count > 1
+              ? `${count.toLocaleString()} satır seçildi`
+              : `${count.toLocaleString()} satır seçildi`,
+        }}
       />
       <Button
         variant="outlined"
