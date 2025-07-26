@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Card, CardBody, CardTitle, CardSubtitle, Button
+  Card, CardBody, CardTitle, Button
 } from 'reactstrap';
 import { DataGrid } from '@mui/x-data-grid';
 import axiosInstance from '../../api/axiosInstance.ts';
