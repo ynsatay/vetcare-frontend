@@ -1,13 +1,72 @@
-import React, { useEffect } from 'react';
-import { Container, Row, Col, Button, Card, CardBody, CardTitle, CardText } from 'reactstrap';
+import React, { useEffect, useState } from 'react';
+import { Container, Row, Col, Button, Card, CardBody, CardTitle, CardText, Modal, ModalBody, ModalHeader, Form, FormGroup, Label, Input } from 'reactstrap';
 import { useNavigate } from 'react-router-dom';
 import heroImage from '../../assets/images/bg/bgmain3.png';
 import "../scss/_login.scss";
 import { useLocation } from "react-router-dom";
+import StockInvoice from '../../assets/screenshots/Screenshot_1.png';
+import randevuImg from '../../assets/screenshots/Screenshot_2.png';
+import dashboardImg from '../../assets/screenshots/Screenshot_3.png';
+import Vaccine from '../../assets/screenshots/Screenshot_4.png';
+import hastalarImg from '../../assets/screenshots/Screenshot_5.png';
+import hastalarImg2 from '../../assets/screenshots/Screenshot_6.png';
 
 const Landing = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const screenshots = [dashboardImg, hastalarImg, hastalarImg2, StockInvoice, randevuImg, Vaccine];
+    const [modalOpen, setModalOpen] = useState(false);
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [formModalOpen, setFormModalOpen] = useState(false);
+    const [selectedPlan, setSelectedPlan] = useState(null);
+    const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
+
+    const toggleModal = () => setFormModalOpen(!formModalOpen);
+
+    const openModal = (index) => {
+        setCurrentIndex(index);
+        setModalOpen(true);
+    };
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const payload = {
+            ...formData,
+            plan: selectedPlan,
+        };
+
+        try {
+            const res = await fetch('https://vatcare-backend-production.up.railway.app/api/sendDemoRequest', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                alert("Talebiniz başarıyla gönderildi.");
+                setFormData({ name: '', email: '', phone: '', message: '' });
+                setFormModalOpen(false);
+            } else {
+                alert("Bir hata oluştu.");
+            }
+        } catch (err) {
+            alert("Sunucuya bağlanılamadı.");
+        }
+    };
+
+    const goPrev = () => {
+        setCurrentIndex((prev) => (prev === 0 ? screenshots.length - 1 : prev - 1));
+    };
+
+    const goNext = () => {
+        setCurrentIndex((prev) => (prev === screenshots.length - 1 ? 0 : prev + 1));
+    };
 
     useEffect(() => {
         if (location.state && location.state.scrollTo) {
@@ -44,19 +103,13 @@ const Landing = () => {
                                 color="primary"
                                 size="lg"
                                 className="shadow-sm"
-                                onClick={() => navigate('/login')}
                                 style={{ minWidth: 130, fontWeight: 600 }}
+                                onClick={() => {
+                                    setSelectedPlan("Demo Talebi");
+                                    setFormModalOpen(true);
+                                }}
                             >
-                                Giriş Yap
-                            </Button>
-                            <Button
-                                color="outline-primary"
-                                size="lg"
-                                className="shadow-sm"
-                                onClick={() => navigate('/register')}
-                                style={{ minWidth: 130, fontWeight: 600 }}
-                            >
-                                Ücretsiz Dene
+                                Demo İste
                             </Button>
                         </div>
                     </Col>
@@ -144,8 +197,11 @@ const Landing = () => {
                                             color={btnColor}
                                             outline={btnOutline}
                                             size="lg"
-                                            onClick={() => navigate('/register')}
                                             style={{ minWidth: 140, fontWeight: 600 }}
+                                            onClick={() => {
+                                                setSelectedPlan(title);
+                                                setFormModalOpen(true);
+                                            }}
                                         >
                                             {btnText}
                                         </Button>
@@ -156,7 +212,30 @@ const Landing = () => {
                     </Row>
                 </section>
 
-
+                <div className="text-center mt-5">
+                    <h4 style={{ color: '#59018b', marginBottom: '25px' }}>Uygulamadan Görseller</h4>
+                    <Row className="g-4 justify-content-center">
+                        {screenshots.map((imgSrc, idx) => (
+                            <Col key={idx} xs="6" md="4" lg="3">
+                                <img
+                                    src={imgSrc}
+                                    alt={`Screenshot ${idx + 1}`}
+                                    onClick={() => openModal(idx)}
+                                    style={{
+                                        width: '100%',
+                                        height: 'auto',
+                                        borderRadius: 10,
+                                        cursor: 'pointer',
+                                        boxShadow: '0 2px 10px rgba(0,0,0,0.15)',
+                                        transition: 'transform 0.3s',
+                                    }}
+                                    onMouseOver={e => (e.currentTarget.style.transform = 'scale(1.03)')}
+                                    onMouseOut={e => (e.currentTarget.style.transform = 'scale(1.0)')}
+                                />
+                            </Col>
+                        ))}
+                    </Row>
+                </div>
 
                 {/* About & Contact Section */}
                 <section style={{ marginTop: 80, marginBottom: 80 }}>
@@ -276,6 +355,103 @@ const Landing = () => {
                     </Container>
                 </section>
             </Container>
+
+            <Modal isOpen={modalOpen} toggle={() => setModalOpen(false)} centered size="xl">
+                <ModalBody className="position-relative text-center p-0" style={{ background: "#000" }}>
+                    <img
+                        src={screenshots[currentIndex]}
+                        alt="Büyük Görsel"
+                        style={{ width: '100%', height: 'auto', borderRadius: '5px' }}
+                    />
+
+                    <Button
+                        onClick={goPrev}
+                        style={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '20px',
+                            transform: 'translateY(-50%)',
+                            width: '50px',
+                            height: '50px',
+                            borderRadius: '50%',
+                            backgroundColor: 'rgba(255,255,255,0.9)',
+                            color: '#59018b',
+                            fontSize: '2rem',
+                            fontWeight: 'bold',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxShadow: '0 4px 10px rgba(0, 0, 0, 0.3)',
+                            border: 'none',
+                            zIndex: 999,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease-in-out',
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#fff')}
+                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.9)')}
+                    >
+                        ‹
+                    </Button>
+
+                    {/* Sağ Ok */}
+                    <Button
+                        onClick={goNext}
+                        style={{
+                            position: 'absolute',
+                            top: '50%',
+                            right: '20px',
+                            transform: 'translateY(-50%)',
+                            width: '50px',
+                            height: '50px',
+                            borderRadius: '50%',
+                            backgroundColor: 'rgba(255,255,255,0.9)',
+                            color: '#59018b',
+                            fontSize: '2rem',
+                            fontWeight: 'bold',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxShadow: '0 4px 10px rgba(0, 0, 0, 0.3)',
+                            border: 'none',
+                            zIndex: 999,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease-in-out',
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#fff')}
+                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.9)')}
+                    >
+                        ›
+                    </Button>
+                </ModalBody>
+
+            </Modal>
+
+            <Modal isOpen={formModalOpen} toggle={toggleModal}>
+                <ModalHeader toggle={toggleModal}>
+                    {selectedPlan}
+                </ModalHeader>
+                <ModalBody>
+                    <Form onSubmit={handleSubmit}>
+                        <FormGroup>
+                            <Label for="name">Ad Soyad</Label>
+                            <Input name="name" value={formData.name} onChange={handleChange} required />
+                        </FormGroup>
+                        <FormGroup>
+                            <Label for="email">E-Posta</Label>
+                            <Input type="email" name="email" value={formData.email} onChange={handleChange} required />
+                        </FormGroup>
+                        <FormGroup>
+                            <Label for="phone">Telefon</Label>
+                            <Input name="phone" value={formData.phone} onChange={handleChange} required />
+                        </FormGroup>
+                        <FormGroup>
+                            <Label for="message">Ek Mesaj</Label>
+                            <Input type="textarea" name="message" value={formData.message} onChange={handleChange} />
+                        </FormGroup>
+                        <Button type="submit" color="primary">Gönder</Button>
+                    </Form>
+                </ModalBody>
+            </Modal>
         </div>
     );
 };

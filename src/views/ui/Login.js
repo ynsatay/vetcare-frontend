@@ -105,7 +105,7 @@ const Login = () => {
                 <Link to="/forgot-password" className='forgot-password'>Şifremi mi Unuttun?</Link>
               </div>
 
-              <hr className='hr' />
+              {/* <hr className='hr' />
 
               <Link to="/register"  >
                 <Button
@@ -116,8 +116,8 @@ const Login = () => {
                   type="submit"
                 >
                   YENİ HESAP OLUŞTUR
-                </Button>
-              </Link>
+                </Button> 
+              </Link>*/}
             </div>
           </div>
         </div>
