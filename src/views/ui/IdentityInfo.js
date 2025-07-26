@@ -176,12 +176,19 @@ const IdentityInfo = () => {
   // Hayvan form inputları kontrolü
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    const val = type === 'checkbox' ? checked : value;
 
-    setSelectedAnimal(prev => ({
-      ...prev,
-      [name]: val
-    }));
+    setSelectedAnimal((prev) => {
+      let updated = {
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value,
+      };
+
+      if (name === 'deathdate') {
+        updated.isdeath = value ? true : false;
+      }
+
+      return updated;
+    });
   };
 
   // Sahip form inputları kontrolü
@@ -322,7 +329,7 @@ const IdentityInfo = () => {
                 <Input type="select" value={selectedAnimal?.id || ''} onChange={handleAnimalChange}>
                   <option value="">Seçiniz</option>
                   {animalsList.map((animal) => (
-                    <option key={animal.id} value={animal.id}>{animal.animalname}</option>
+                    <option key={animal.id} value={animal.id}>{animal.animal_name + " - " + animal.animalname}</option>
                   ))}
                   <option value="__add__">➕ Yeni Hayvan Ekle</option>
                 </Input>
@@ -409,8 +416,9 @@ const IdentityInfo = () => {
                         type="checkbox"
                         name="isdeath"
                         checked={!!selectedAnimal.isdeath}
+                        disabled
                         onChange={handleInputChange}
-                      /> Ölü
+                      /> Ölü (Ölüm Tarihi seçilmelidir.)
                     </Label>
                   </FormGroup>
 
@@ -418,7 +426,10 @@ const IdentityInfo = () => {
                     className="text-end mt-3"
                     sx={{ display: "flex", justifyContent: "space-between" }}
                   >
-                    <Button color="primary" onClick={() => setIsPatientFileRegOpen(true)}>
+                    <Button
+                      color="primary"
+                      disabled={selectedAnimal?.isdeath || !selectedAnimal?.active}
+                      onClick={() => setIsPatientFileRegOpen(true)}>
                       Yeni Geliş Dosyası Aç
                     </Button>
                     <Button color="primary" onClick={handleSave} disabled={isSaving}>

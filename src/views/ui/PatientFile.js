@@ -335,7 +335,7 @@ const NewVisitFileLayout = () => {
       <Row>
         <Col md={4} sm={12} style={{ marginTop: "20px" }}>
           <Card className="shadow-sm h-100">
-            <CardBody className="text-left">
+            <CardBody className="text-left" >
               <CardTitle tag="h5">Borçlara Ait Bilgiler</CardTitle>
               <div className="mb-3">
                 Toplam Borç: <strong>{paymentSummary.total.toFixed(2)} ₺</strong>

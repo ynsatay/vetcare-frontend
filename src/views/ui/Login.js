@@ -1,6 +1,6 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Button, TextField, Typography } from '@mui/material';
+import { Button, TextField, Typography, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
 import MenuLogo2 from '../../assets/images/logos/vc2.png';
 import LoginBack from '../../assets/images/bg/login-bg2.png';
 import "../scss/_login.scss";
@@ -10,12 +10,34 @@ import { AuthContext } from '../../context/usercontext.tsx';
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [offices, setOffices] = useState([]);
+  const [selectedOffice, setSelectedOffice] = useState('');
   const [message, setMessage] = useState('');
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // API'den hr_offices listesini çek
+    const fetchOffices = async () => {
+      try {
+        const res = await axios.get('https://vatcare-backend-production.up.railway.app/api/hr_offices');
+        setOffices(res.data);
+
+        // Eğer liste doluysa ilkini seçili yap
+        if (res.data.length > 0) {
+          setSelectedOffice(res.data[0].id);
+        }
+      } catch (error) {
+        console.error('Ofisler çekilirken hata:', error);
+      }
+    };
+
+    fetchOffices();
+  }, []);
+
   const handleLogin = async (e) => {
     e.preventDefault();
+
     if (username === '' || password === '') {
       setMessage('Kullanıcı adı ve şifre gereklidir');
       return;
@@ -25,11 +47,13 @@ const Login = () => {
       const response = await axios.post('https://vatcare-backend-production.up.railway.app/api/login', {
         username,
         password,
+        office_id: selectedOffice,  // office id gönderiyoruz
       });
 
       setMessage(`Giriş başarılı: ${response.data.message}`);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('userid', response.data.userid);
+      localStorage.setItem('off_id', response.data.off_id);
 
       axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
 
@@ -38,6 +62,7 @@ const Login = () => {
         username: response.data.username,
         userid: response.data.userid,
         userRole: response.data.userRole,
+        offId: response.data.off_id
       });
 
       navigate('/');
@@ -71,6 +96,24 @@ const Login = () => {
                 Hoşgeldiniz!
               </Typography>
               <form className='form' onSubmit={handleLogin}>
+
+                {/* Office select box */}
+                <FormControl fullWidth margin="normal" required sx={{ minWidth: 240 }}>
+                  <InputLabel id="office-select-label">Ofis Seçin</InputLabel>
+                  <Select
+                    labelId="office-select-label"
+                    value={selectedOffice}
+                    label="Ofis Seçin"
+                    onChange={e => setSelectedOffice(e.target.value)}
+                  >
+                    {offices.map(office => (
+                      <MenuItem key={office.id} value={office.id}>
+                        {office.name || `Ofis #${office.id}`}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
                 <TextField
                   label="Kullanıcı Adı"
                   variant="outlined"
@@ -105,19 +148,6 @@ const Login = () => {
                 <Link to="/forgot-password" className='forgot-password'>Şifremi mi Unuttun?</Link>
               </div>
 
-              {/* <hr className='hr' />
-
-              <Link to="/register"  >
-                <Button
-                  size="large"
-                  variant="contained"
-                  style={{ marginTop: '16px' }}
-                  className='register'
-                  type="submit"
-                >
-                  YENİ HESAP OLUŞTUR
-                </Button> 
-              </Link>*/}
             </div>
           </div>
         </div>

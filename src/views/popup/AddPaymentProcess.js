@@ -155,6 +155,80 @@ const AddPaymentProcess = ({ pa_id, vet_u_id }) => {
   ];
 
 
+  const handlePrint = (selectedIds) => {
+    const selectedData = paidRows.filter(row =>
+      selectedIds.includes(row.id) || selectedIds.includes(row.parentId)
+    );
+
+    const totalAmount = selectedData
+      .filter(row => row.isMaster)
+      .reduce((acc, row) => acc + Number(row.total_prices || 0), 0);
+
+    const detailRows = selectedData.filter(row => !row.isMaster);
+
+    const mastersById = {};
+    selectedData.filter(row => row.isMaster).forEach(master => {
+      mastersById[master.id] = master;
+    });
+
+    const printWindow = window.open('', '', 'width=900,height=700');
+    if (!printWindow) return;
+
+    const htmlContent = `
+      <html>
+        <head>
+          <title>Fatura</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            h2 { text-align: center; }
+            .total-amount {
+              font-weight: bold;
+              font-size: 1.2em;
+              margin-bottom: 15px;
+            }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ddd; padding: 8px; }
+            th { background-color: #f2f2f2; }
+          </style>
+        </head>
+        <body>
+          <h2>Fatura</h2>
+          <div class="total-amount">Toplam Tutar: ${totalAmount.toFixed(2)} ₺</div>
+          <table>
+            <thead>
+              <tr>
+                <th>İşlem</th>
+                <th>Tutar</th>
+                <th>Ödeme Tarihi</th>
+                <th>Tür</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${detailRows.map(row => {
+            const master = mastersById[row.parentId];
+            const ptime = master?.ptime ? new Date(master.ptime).toLocaleString('tr-TR') : '';
+            const type = master?.type || '';
+            return `
+                  <tr>
+                    <td>${row.process_name || '-'}</td>
+                    <td>${Number(row.total_prices || 0).toFixed(2)} ₺</td>
+                    <td>${ptime}</td>
+                    <td>${type}</td>
+                  </tr>
+                `;
+          }).join('')}
+            </tbody>
+          </table>
+        </body>
+      </html>
+      `;
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+  };
+
   return (
     <Box>
       <h5>Ödenmemiş İşlemler</h5>
@@ -238,6 +312,16 @@ const AddPaymentProcess = ({ pa_id, vet_u_id }) => {
         disabled={selectedPaid.length === 0}
       >
         Seçilen Tahsilatı Sil
+      </Button>
+
+      <Button
+        variant="outlined"
+        color="secondary"
+        onClick={() => handlePrint(selectedPaid)}
+        disabled={selectedPaid.length === 0}
+        sx={{ ml: 2 }}
+      >
+        Fatura Yazdır
       </Button>
 
       {/* Basit stil örneği, detay satırlarını açık renk yapalım */}

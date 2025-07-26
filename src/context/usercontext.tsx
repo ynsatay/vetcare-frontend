@@ -16,6 +16,7 @@ export const AuthContext = createContext<AuthContextType>({
   profileImage: null,
   setProfileImage: () => {},
   userRole: 0,
+  offId: 0
 });
 
 export const AuthContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -26,18 +27,21 @@ export const AuthContextProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState(0);
+  const [offId, setOff_id] = useState<number | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     const userid = Number(localStorage.getItem('userid'));
     const userNameLocal =  localStorage.getItem('userName') || '';
     const userRrole = Number(localStorage.getItem('userRole'));
+    const officeId = Number(localStorage.getItem('off_id'));
     if (token) {
       setIsLogin(true);
       setToken(token);
       setUserid(userid);
       setUserName(userNameLocal);
       setUserRole(userRrole);
+      setOff_id(officeId);
     }
     
     if (userid) {
@@ -65,17 +69,20 @@ export const AuthContextProvider: React.FC<{ children: React.ReactNode }> = ({ c
     username: string;
     userid: number;
     userRole: number;
+    offId: number;
   }) => {
     setToken(data.token);
     setIsLogin(true);
     setUserName(data.username);
     setUserid(data.userid);
     setUserRole(data.userRole);
+    
 
     localStorage.setItem('token', data.token);
     localStorage.setItem('userName', data.username);
     localStorage.setItem('userid', data.userid.toString());
     localStorage.setItem('userRole', data.userRole.toString());
+    localStorage.setItem('off_id', data.offId.toString()); 
 
     axiosInstance.get(`/get-profile-picture/${data.userid}`)
     .then(response => {
@@ -104,7 +111,7 @@ export const AuthContextProvider: React.FC<{ children: React.ReactNode }> = ({ c
   };
   logoutRef = logout;
   return (
-    <AuthContext.Provider value={{ token, userName, userid, isLogin, login, logout, profileImage, setProfileImage, userRole }}>
+    <AuthContext.Provider value={{ token, userName, userid, isLogin, login, logout, profileImage, setProfileImage, userRole, offId }}>
       {children}
     </AuthContext.Provider>
   );
@@ -121,11 +128,13 @@ export type AuthContextType = {
     username: string;
     userid: number;
     userRole: number;
+    offId : number;
   }) => void;
   logout: () => void;
   profileImage: string | null;
   setProfileImage: (profileImage: string | null) => void;
   userRole : number;
+  offId: number | null; 
 };
 
 export default AuthContext;
