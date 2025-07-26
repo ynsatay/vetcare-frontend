@@ -21,7 +21,7 @@ import { useConfirm } from '../../components/ConfirmContext';
 
 const IdentityInfo = () => {
   const location = useLocation();
-  const { userId, identity } = location.state || {};
+  const { userId, identity, animalId } = location.state || {};
 
   const [animalsList, setAnimalsList] = useState([]);
   const [selectedAnimal, setSelectedAnimal] = useState(null);
@@ -75,25 +75,30 @@ const IdentityInfo = () => {
         return;
       }
 
+      let user = null;
       if (identity && isValidTC(identity)) {
-        // TC Kimlik ile sorgu
         const res = await axiosInstance.get('/getpersonelsearch', { params: { tc: identity } });
-        const user = res.data.user || null;
-        setOwnerInfo(user);
-
-        const animalRes = await axiosInstance.get('/animalslist', { params: { user_id: user?.id || 0 } });
-        const animals = animalRes.data.response || [];
-        setAnimalsList(animals);
-        setSelectedAnimal(animals[0] || null);
+        user = res.data.user || null;
       } else if (userId) {
-        // userId ile sorgu
         const ownerRes = await axiosInstance.get('/getpersonelsearchuid', { params: { user_id: userId } });
-        const owner = ownerRes.data.user || null;
-        setOwnerInfo(owner);
+        user = ownerRes.data.user || null;
+      }
+      setOwnerInfo(user);
 
-        const animalRes = await axiosInstance.get('/animalslist', { params: { user_id: userId } });
-        const animals = animalRes.data.response || [];
-        setAnimalsList(animals);
+      if (!user) {
+        setAnimalsList([]);
+        setSelectedAnimal(null);
+        return;
+      }
+
+      const animalRes = await axiosInstance.get('/animalslist', { params: { user_id: user.id } });
+      const animals = animalRes.data.response || [];
+      setAnimalsList(animals);
+
+      if (animalId) {
+        const match = animals.find(a => a.id?.toString() === animalId?.toString());
+        setSelectedAnimal(match || animals[0] || null);
+      } else {
         setSelectedAnimal(animals[0] || null);
       }
     } catch (err) {
@@ -102,7 +107,7 @@ const IdentityInfo = () => {
       setAnimalsList([]);
       setSelectedAnimal(null);
     }
-  }, [identity, userId]);
+  }, [identity, userId, animalId]);
 
   // Seçilen hayvanın gelişlerini çek
   const fetchVisitList = async (animalId) => {
@@ -317,7 +322,7 @@ const IdentityInfo = () => {
                 <Input type="select" value={selectedAnimal?.id || ''} onChange={handleAnimalChange}>
                   <option value="">Seçiniz</option>
                   {animalsList.map((animal) => (
-                    <option key={animal.id} value={animal.id}>{animal.animal_name}</option>
+                    <option key={animal.id} value={animal.id}>{animal.animalname}</option>
                   ))}
                   <option value="__add__">➕ Yeni Hayvan Ekle</option>
                 </Input>
@@ -426,12 +431,12 @@ const IdentityInfo = () => {
           </Card>
         </Col>
       </Row>
-      
+
       {/* {visitList.length > 0 && ( */}
-        <VisitsAndAppointmentsTabs
-          visitList={visitList}
-          appointmentList={appointmentList}
-        />
+      <VisitsAndAppointmentsTabs
+        visitList={visitList}
+        appointmentList={appointmentList}
+      />
       {/* )} */}
 
       <MainModal

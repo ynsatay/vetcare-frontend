@@ -320,11 +320,12 @@ const PatientReg = forwardRef((props, ref) => {
     }
 
     if (onClose) onClose();
-
+    console.log(data.id)
     navigate(`/IdentityInfo/${data?.user_id || data?.id || fallback.id}`, {
       state: {
         userId: data?.user_id || data?.id || fallback.id,
-        identity: data?.animalidentnumber || data?.identity || fallback.identity
+        identity: data?.animalidentnumber || data?.identity || fallback.identity,
+        animalId: data?.id || null
       }
     });
   };
@@ -357,8 +358,8 @@ const PatientReg = forwardRef((props, ref) => {
   };
 
   return (
-    <div style={{   padding: 20, borderRadius: 12 }}>
-      <h3 style={{ color: '#6A1B9A'}}>Hasta Kayıt Formu</h3>
+    <div style={{ padding: 20, borderRadius: 12 }}>
+      <h3 style={{ color: '#6A1B9A' }}>Hasta Arama / Kayıt Formu</h3>
 
       <label style={{ fontWeight: 500 }}>
         <input
@@ -386,6 +387,11 @@ const PatientReg = forwardRef((props, ref) => {
           value={inputValue}
           onChange={e => setInputValue(e.target.value)}
           maxLength={searchByAnimalId ? undefined : 11}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleSearch(); // bu fonksiyon butonda kullandığın arama fonksiyonu
+            }
+          }}
           style={{ width: '100%', padding: 8, borderRadius: 6, border: '1px solid #ccc' }}
         />
       </div>
