@@ -152,7 +152,13 @@ const InvoiceSelectorModal = ({ open, onClose, onSelect }) => {
           </Grid>
 
           <DataGrid
-            rows={filteredInvoices}
+            rows={
+              searchTerm.trim() === ''
+                ? filteredInvoices
+                : filteredInvoices.filter((inv) =>
+                  inv.inv_no?.toLowerCase().includes(searchTerm.trim().toLowerCase())
+                )
+            }
             columns={columns}
             hideFooter
             autoHeight
