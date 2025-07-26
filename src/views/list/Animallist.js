@@ -187,17 +187,7 @@ const Animalslist = () => {
             </Button>
           </div>
 
-          {/* Beyaz kapsayıcı ile sarmalanmış DataGrid */}
-          <div
-            style={{
-              backgroundColor: 'white',
-              padding: '1rem',
-              borderRadius: '8px',
-              boxShadow: '0 0 10px rgba(0,0,0,0.1)',
-              height: 500,
-              width: '100%',
-            }}
-          >
+         <div style={{ height: 600, width: '100%' }}>
             <DataGrid
               rows={animalslist}
               columns={columns}
