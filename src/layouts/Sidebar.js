@@ -20,7 +20,9 @@ import {
   faFolderOpen,
   faCalendarDays,
   faFileInvoice,
-  faSyringe
+  faSyringe,
+  faTruck,
+  faMoneyBillWave 
 } from '@fortawesome/free-solid-svg-icons';
 
 
@@ -202,6 +204,22 @@ const Sidebar = () => {
     //   rol: 2,
     //   modal: null,
     // },
+    {
+      title: "Tedarikçi Firmaları",
+      href: "/providerfirms",
+      icon: "",
+      icon2: faTruck,
+      rol: 2,
+      modal: null,
+    },
+    {
+      title: "Tedarikçi Fiyat Listesi",
+      href: "/providerpriceslist",
+      icon: "",
+      icon2: faMoneyBillWave,
+      rol: 2,
+      modal: null,
+    },
     {
       title: "Stok / Hizmet",
       href: "",

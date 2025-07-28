@@ -70,7 +70,6 @@ const columns = [
     },
     { field: 'min_stock_level', headerName: 'Min. Stok', width: 110 },
     { field: 'barcode', headerName: 'Barkod', width: 140 },
-    { field: 'supplier_name', headerName: 'Tedarikçi', width: 150 },
     {
         field: 'description',
         headerName: 'Açıklama',

@@ -10,14 +10,12 @@ import axiosInstance from '../../api/axiosInstance.ts';
 const AddStock = forwardRef(({ onClose }, ref) => {
     const [formData, setFormData] = useState({
         name: '',
-        price: '',
+        price: 0,
         //quantity: '', //Stok Alım Ekanı için kaldırıldı. 
-        quantity: 0, 
-        unit: '',
-        category: '',
-        min_stock_level: '',
-        barcode: '',
-        supplier_name: '',
+        unit: 0,
+        category: 0,
+        min_stock_level: 0,
+        barcode: 0,
         description: ''
     });
 
@@ -75,7 +73,6 @@ const AddStock = forwardRef(({ onClose }, ref) => {
                 //{ label: "Adet*", name: "quantity", type: "number" }, //Stok Alım Ekanı için kaldırıldı.
                 { label: "Min. Stok", name: "min_stock_level", type: "number" },
                 { label: "Barkod", name: "barcode" },
-                { label: "Tedarikçi", name: "supplier_name" },
             ].map(({ label, name, type = "text" }) => (
                 <FormGroup key={name}>
                     <Row>
