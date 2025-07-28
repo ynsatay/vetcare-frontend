@@ -48,7 +48,7 @@ const EditProviderPrice = ({ initialData, onClose }) => {
 
         fetchMaterials();
         fetchProviders();
-    }, []);
+    }, [initialData]);
 
     // Validation kontrolü
     const validate = () => {
