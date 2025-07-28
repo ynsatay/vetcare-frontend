@@ -15,7 +15,7 @@ const AddPatStock = ({ onClose, onSelect }) => {
     useEffect(() => {
         const fetchStocks = async () => {
             try {
-                const res = await axiosInstance.get('/getMaterials');
+                const res = await axiosInstance.get('/getMaterialsWithQuantity');
                 setStocks(res.data.data || []);
             } catch (err) {
                 setError('Stoklar alınamadı');
@@ -34,7 +34,7 @@ const AddPatStock = ({ onClose, onSelect }) => {
     const columns = [
         { field: 'id', headerName: '#', width: 70 },
         { field: 'name', headerName: 'Stok Adı', flex: 1 },
-        { field: 'quantity', headerName: 'Mevcut Miktar', width: 130 },
+        { field: 'total_quantity', headerName: 'Mevcut Miktar', width: 130 },
         {
             field: 'price',
             headerName: 'Birim Fiyat',

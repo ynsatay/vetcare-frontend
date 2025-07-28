@@ -86,8 +86,8 @@ function StockInvoicePage() {
       id: stocks.length + index + 1,
       name: material.name,
       quantity: 1,
-      price: material.price || 0,
-      total: (material.price || 0) * 1,
+      price: material.purchase_price || 0,
+      total: (material.purchase_price || 0) * 1,
       material_id: material.id,
     }));
     setStocks((prev) => [...prev, ...newItems]);

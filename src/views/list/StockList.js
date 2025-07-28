@@ -44,7 +44,7 @@ const columns = [
         valueFormatter: (params) => params.value ? `${params.value} ₺` : '',
     },
     {
-        field: 'quantity',
+        field: 'total_quantity',
         headerName: 'Adet',
         width: 90,
         renderCell: (params) => {
@@ -100,7 +100,7 @@ const StockList = () => {
     const fetchMaterials = async () => {
         setLoading(true);
         try {
-            const res = await axiosInstance.get('/getMaterials');
+            const res = await axiosInstance.get('/getMaterialsWithQuantity');
             if (res.data && res.data.status === 'success' && res.data.data) {
                 setMaterialsList(res.data.data);
                 setFilteredList(res.data.data);

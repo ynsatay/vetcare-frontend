@@ -13,13 +13,17 @@ import { trTR } from '@mui/x-data-grid/locales';
 
 const MaterialSelectModal = ({ open, onClose, onSelect }) => {
     const [materials, setMaterials] = useState([]);
-    const [selected, setSelected] = useState(null);
-
+    const [selected, setSelected] = useState([]);
 
     useEffect(() => {
         if (open) {
-            axiosInstance.get("/getMaterials").then((res) => {
-                setMaterials(res.data.data || []);
+            axiosInstance.get("/getMaterialsWithPrice").then((res) => {
+                // API'den gelen data içinde fiyat purchase_price
+                const dataWithPrice = (res.data.data || []).map(item => ({
+                    ...item,
+                    price: Number(item.purchase_price) || 0, // price olarak ekle
+                }));
+                setMaterials(dataWithPrice);
             });
         }
     }, [open]);
@@ -43,6 +47,13 @@ const MaterialSelectModal = ({ open, onClose, onSelect }) => {
                 const unitObj = units.find((u) => u.value === params.value);
                 return unitObj ? unitObj.label : "-";
             }
+        },
+        {
+            field: "price",
+            headerName: "Fiyat (₺)",
+            width: 110,
+            type: "number",
+            valueFormatter: (params) => `${params.value?.toFixed(2) || "0.00"} ₺`
         }
     ];
 
@@ -83,7 +94,7 @@ const MaterialSelectModal = ({ open, onClose, onSelect }) => {
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>İptal</Button>
-                <Button variant="contained" onClick={handleAdd} disabled={!selected}>
+                <Button variant="contained" onClick={handleAdd} disabled={!selected.length}>
                     Ekle
                 </Button>
             </DialogActions>
