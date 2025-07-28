@@ -61,19 +61,42 @@ const ClinicList = () => {
   };
 
   const columns = [
-    { field: 'name', headerName: 'Klinik Adı', flex: 1 },
-    { field: 'email', headerName: 'E-Mail', flex: 1 },
-    { field: 'phone', headerName: 'Telefon', flex: 1 },
-    { field: 'admin_name', headerName: 'Yönetici', flex: 1 },
+    {
+      field: 'name',
+      headerName: 'Klinik Adı',
+      flex: 1,
+      minWidth: 150,
+    },
+    {
+      field: 'email',
+      headerName: 'E-Mail',
+      flex: 1.5,
+      minWidth: 180,
+    },
+    {
+      field: 'phone',
+      headerName: 'Telefon',
+      flex: 1,
+      minWidth: 130,
+    },
+    {
+      field: 'admin_name',
+      headerName: 'Yönetici',
+      flex: 1,
+      minWidth: 140,
+    },
     {
       field: 'package_type',
       headerName: 'Paket',
       flex: 1,
+      minWidth: 120,
       valueGetter: (params) => packageTypeLabels[params.row.package_type] || '-',
     },
     {
       field: 'actions',
       headerName: 'İşlem',
+      flex: 0.7,
+      minWidth: 100,
       renderCell: (params) => (
         <Button
           variant="outlined"
@@ -86,7 +109,6 @@ const ClinicList = () => {
       ),
       sortable: false,
       filterable: false,
-      width: 120,
     },
   ];
 
@@ -95,7 +117,7 @@ const ClinicList = () => {
       <Card>
         <CardBody>
           <CardTitle tag="h5">🏨 Klinik Listesi</CardTitle>
-          <div style={{ height: 500, width: '100%' }}>
+          <div style={{ height: 500, width: '100%', overflowX: 'auto' }}>
             <DataGrid
               rows={clinicList}
               columns={columns}

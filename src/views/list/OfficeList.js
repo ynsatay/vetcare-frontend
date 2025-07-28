@@ -81,15 +81,17 @@ const OfficeList = () => {
   };
 
   const columns = [
-    { field: 'clinic_name', headerName: 'Klinik Adı', flex: 1 },
-    { field: 'name', headerName: 'Şube Adı', flex: 1 },
-    { field: 'admin_name', headerName: 'Yönetici Adı', flex: 1 },
-    { field: 'email', headerName: 'Email', flex: 1 },
-    { field: 'phone', headerName: 'Telefon', flex: 1 },
+    { field: 'name', headerName: 'Şube Adı', flex: 1, minWidth: 150 },
+    { field: 'clinic_name', headerName: 'Klinik Adı', flex: 1, minWidth: 150 },
+    { field: 'admin_name', headerName: 'Yönetici Adı', flex: 1, minWidth: 130 },
+    { field: 'email', headerName: 'Email', flex: 1, minWidth: 180 },
+    { field: 'phone', headerName: 'Telefon', flex: 0.7, minWidth: 120 },
     {
       field: 'actions',
       headerName: 'Değiştir',
       sortable: false,
+      flex: 0.5,
+      minWidth: 100,
       renderCell: (params) => (
         <Button color="primary" size="sm" onClick={() => toggleModal(params.api.getRowIndex(params.id))}>
           Değiştir
@@ -105,7 +107,7 @@ const OfficeList = () => {
           <CardTitle tag="h5">🏛️ Ofis Listesi</CardTitle>
           <CardSubtitle className="mb-2 text-muted" tag="h6">Kliniğe Bağlı Ofisler</CardSubtitle>
 
-          <div style={{ height: 500, width: '100%' }}>
+          <div style={{ height: 500, width: '100%', overflowX: 'auto' }}>
             <DataGrid
               rows={officelist}
               columns={columns}

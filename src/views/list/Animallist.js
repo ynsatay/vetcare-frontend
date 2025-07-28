@@ -97,24 +97,10 @@ const Animalslist = () => {
   };
 
   const columns = [
-    {
-      field: 'picture',
-      headerName: 'Resim',
-      width: 70,
-      renderCell: (params) => (
-        <img
-          src={params.value || defaultAvatar}
-          alt="avatar"
-          className="rounded-circle"
-          width="35"
-          height="35"
-        />
-      ),
-    },
-    { field: 'user_name', headerName: 'Kullanıcı Adı', flex: 1 },
-    { field: 'animal_name', headerName: 'Hayvan Türü', flex: 1 },
-    { field: 'species_name', headerName: 'Hayvan Cinsi', flex: 1 },
-    { field: 'animalname', headerName: 'Hayvan Adı', flex: 1 },
+    { field: 'user_name', headerName: 'Kullanıcı Adı', flex: 1, minWidth: 130 },
+    { field: 'animal_name', headerName: 'Hayvan Türü', flex: 1, minWidth: 130 },
+    { field: 'species_name', headerName: 'Hayvan Cinsi', flex: 1, minWidth: 130 },
+    { field: 'animalname', headerName: 'Hayvan Adı', flex: 1, minWidth: 130 },
     {
       field: 'active',
       headerName: 'Aktif',
@@ -131,13 +117,14 @@ const Animalslist = () => {
         <span className={`p-2 rounded-circle d-inline-block ${params.value ? "bg-danger" : "bg-secondary"}`} />
       )
     },
-    { field: 'birthdate', headerName: 'Doğum Tarihi', flex: 1 },
-    { field: 'deathdate', headerName: 'Ölüm Tarihi', flex: 1 },
-    { field: 'animalidentnumber', headerName: 'Kimlik No', flex: 1 },
+    { field: 'birthdate', headerName: 'Doğum Tarihi', flex: 1, minWidth: 120 },
+    { field: 'deathdate', headerName: 'Ölüm Tarihi', flex: 1, minWidth: 120 },
+    { field: 'animalidentnumber', headerName: 'Kimlik No', flex: 1, minWidth: 140 },
     {
       field: 'actions',
       headerName: 'İşlemler',
       flex: 1,
+      minWidth: 150,
       renderCell: (params) => (
         <div className="d-flex gap-2">
           <Button size="sm" color="primary" onClick={() => toggleModal(params.row.index)}>Değiştir</Button>
@@ -181,7 +168,7 @@ const Animalslist = () => {
             </Button>
           </div>
 
-         <div style={{ height: 600, width: '100%' }}>
+          <div style={{ height: 600, width: '100%' }}>
             <DataGrid
               rows={animalslist}
               columns={columns}
