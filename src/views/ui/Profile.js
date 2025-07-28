@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   Button,
   Card,
@@ -32,7 +32,7 @@ function Profile() {
   const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef(null);
 
-  const { userName, userid, profileImage, setProfileImage } = useContext(AuthContext);
+  const { userid, profileImage, setProfileImage } = useContext(AuthContext);
   const [loading, setLoading] = useState(true);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
@@ -46,16 +46,47 @@ function Profile() {
   const [address, setAddress] = useState('');
   const [tcNo, setTcNo] = useState('');
   const [passportNo, setPassportNo] = useState('');
-  const [username, setUsername] = useState('');
+  const [userName, setUsername] = useState('');
+
   const [countries, setCountries] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState(null); // Seçilen ülke objesi
+  const [inputValue, setInputValue] = useState('');
+  const isCountryInitialized = useRef(false);
+
+  const GetCountry = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get('/getCountry');
+      const countryList = response.data.countries || [];
+      setCountries(countryList);
+
+      // Kullanıcı zaten yüklendiyse ve nationality varsa, selectedCountry'yi burada da set edelim
+      axiosInstance.get(`/getUser`, { params: { id: userid } }).then(res => {
+        const user = res.data.user;
+        if (user && user.nationality) {
+          const selected = countryList.find(c => c.id === user.nationality);
+          setSelectedCountry(selected || null);
+        }
+      });
+    } catch (error) {
+      console.error('Ülke listesi alınırken hata oluştu:', error);
+    }
+  }, [userid]);
 
   useEffect(() => {
     if (profileImage) {
       setLocalimage(profileImage);
       setLoading(false);
     }
+  }, [profileImage]);
+
+  useEffect(() => {
     if (userid) {
       GetCountry();
+    }
+  }, [userid, GetCountry]);
+
+  useEffect(() => {
+    if (!isCountryInitialized.current && countries.length > 0 && userid) {
       axiosInstance
         .get(`/getUser`, { params: { id: userid } })
         .then(response => {
@@ -70,16 +101,23 @@ function Profile() {
             setAddress(user.address || '');
             setTcNo(user.identity ? user.identity.toString() : '');
             setPassportNo(user.pass_number ? user.pass_number.toString() : '');
-            setUsername(user.uname || '');
+            setUsername(user.username || '');
+
+            if (user.nationality) {
+              const selected = countries.find(c => c.id === user.nationality);
+              setSelectedCountry(selected || null);
+              setInputValue(selected ? selected.name : '');
+            }
           }
           setLoading(false);
+          isCountryInitialized.current = true;  // Sadece bir kere çalıştır
         })
         .catch(error => {
           console.error('Kullanıcı bilgileri getirilirken bir hata oluştu:', error);
           setLoading(false);
         });
     }
-  }, [userid, profileImage]);
+  }, [countries, userid]);
 
   const handleFileSelect = () => {
     fileInputRef.current.click();
@@ -111,7 +149,12 @@ function Profile() {
     formData.append('address', address);
     formData.append('identity', tcNo);
     formData.append('pass_number', passportNo);
-    formData.append('uname', username);
+    formData.append('uname', userName);
+
+    // Burada sadece seçilen ülkenin id'si gönderiliyor
+    if (selectedCountry?.id) {
+      formData.append('nationality', selectedCountry.id);
+    }
 
     try {
       const response = await axiosInstance.post('/update-profile', formData);
@@ -128,15 +171,6 @@ function Profile() {
   };
 
   const togglePasswordModal = () => setIsPasswordModalOpen(!isPasswordModalOpen);
-
-  const GetCountry = async () => {
-    try {
-      const response = await axiosInstance.get('/getCountry');
-      setCountries(response.data.countries || []);
-    } catch (error) {
-      console.error('Ülke listesi alınırken hata oluştu:', error);
-    }
-  };
 
   if (loading) return null;
 
@@ -254,7 +288,7 @@ function Profile() {
                       label="Kullanıcı Adı"
                       variant="outlined"
                       margin="normal"
-                      value={username}
+                      value={userName}
                       onChange={(e) => setUsername(e.target.value)}
                     />
                   </Grid>
@@ -274,6 +308,20 @@ function Profile() {
                   style={{ width: '100%', marginTop: 15 }}
                   options={countries}
                   getOptionLabel={(option) => option.name}
+                  value={selectedCountry}
+                  onChange={(event, newValue) => {
+                    setSelectedCountry(newValue);
+                    setInputValue(newValue ? newValue.name : '');
+                  }}
+                  inputValue={inputValue}
+                  onInputChange={(event, newInputValue, reason) => {
+                    if (reason === 'input') {
+                      setInputValue(newInputValue);
+                    } else if (reason === 'clear') {
+                      setSelectedCountry(null);
+                      setInputValue('');
+                    }
+                  }}
                   renderInput={(params) => <TextField {...params} label="Ülke Seçin" variant="outlined" />}
                 />
 
