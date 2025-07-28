@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useContext, useRef, useCallback } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Label, Input, Card, CardBody, CardTitle, CardSubtitle } from "reactstrap";
 import { DataGrid } from '@mui/x-data-grid';
-import defaultAvatar from '../../assets/images/users/user5.jpg';
 import Animals from '../popup/Animals.js';
 import { AuthContext } from '../../context/usercontext.tsx';
 import MainModal from '../../components/MainModal.js';
