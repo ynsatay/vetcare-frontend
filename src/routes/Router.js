@@ -35,7 +35,7 @@ import StockInvoicePage from "../views/ui/StockInvoices.js";
 import VaccinationTracker from "../views/ui/VaccinationTracker.js";
 import ProviderFirmsList from "../views/ui/ProviderFirms.js";
 import ProviderPriceList from "../views/ui/ProviderPriceList.js";
-
+import CustometList from "../views/list/CustometList.js"; 
 const ThemeRoutes = [
   { path: "/login", element: <Login /> },
   { path: "/register", element: <Register /> },
@@ -69,6 +69,7 @@ const ThemeRoutes = [
       { path: "/vaccination-tracker", element: <VaccinationTracker /> },
       { path: "/providerfirms", element: <ProviderFirmsList /> },
       { path: "/providerpriceslist", element: <ProviderPriceList /> },
+      { path: "/customerlist", element: <CustometList /> }
 
     ],
   },

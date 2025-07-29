@@ -22,7 +22,8 @@ import {
   faFileInvoice,
   faSyringe,
   faTruck,
-  faMoneyBillWave 
+  faMoneyBillWave,
+  faUserTie
 } from '@fortawesome/free-solid-svg-icons';
 
 
@@ -161,15 +162,23 @@ const Sidebar = () => {
       href: "/Animalslist",
       icon: "",
       icon2: faCat,
-      rol: 0,
+      rol: 2,
+      modal: null,
+    },
+    {
+      title: "Müşteri Listesi",
+      href: "/CustomerList",
+      icon: "",
+      icon2: faUsers,
+      rol: 2,
       modal: null,
     },
     {
       title: "Personel Ekranı",
       href: "/PersonelManagment",
       icon: "",
-      icon2: faUsers,
-      rol: 2,
+      icon2: faUserTie,
+      rol: 3,
       modal: null,
     },
     {
