@@ -167,7 +167,7 @@ const Sidebar = () => {
     },
     {
       title: "Müşteri Listesi",
-      href: "/CustomerList",
+      href: "/customerlist",
       icon: "",
       icon2: faUsers,
       rol: 2,
