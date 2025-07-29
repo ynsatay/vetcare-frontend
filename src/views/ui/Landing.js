@@ -151,9 +151,18 @@ const Landing = () => {
                         {[
                             {
                                 title: "Başlangıç",
-                                price: "₺149 / ay",
-                                features: ["1 Kullanıcı", "Temel Hasta Takibi", "Stok Görüntüleme"],
-                                noFeatures: ["Randevu Takvimi"],
+                                price: "₺399 / ay",
+                                features: [
+                                    "Temel Hasta Takibi",
+                                    "Stok Görüntüleme",
+                                    "Aşı Takvimi",
+                                    "1 Şube",
+                                    "Randevu Takvimi",
+                                ],
+                                noFeatures: [
+                                    "Hatırlatma Maili",
+                                    "SMS Gönderimi"
+                                ],
                                 textColor: "success",
                                 btnColor: "success",
                                 btnOutline: false,
@@ -161,9 +170,18 @@ const Landing = () => {
                             },
                             {
                                 title: "Standart",
-                                price: "₺299 / ay",
-                                features: ["5 Kullanıcı", "Hasta + Stok Yönetimi", "Randevu Takvimi", "Erişim Yetkileri"],
-                                noFeatures: [],
+                                price: "599 / ay",
+                                features: [
+                                    "Hasta + Stok Yönetimi",
+                                    "Randevu Takvimi",
+                                    "Aşı Takvimi",
+                                    "Hatırlatma Maili",
+                                    "Erişim Yetkileri",
+                                    "2 Şube"
+                                ],
+                                noFeatures: [
+                                    "SMS Gönderimi"
+                                ],
                                 textColor: "primary",
                                 btnColor: "primary",
                                 btnOutline: true,
@@ -171,8 +189,16 @@ const Landing = () => {
                             },
                             {
                                 title: "Profesyonel",
-                                price: "499 / ay",
-                                features: ["Sınırsız Kullanıcı", "Gelişmiş Raporlama", "Tüm Modüller", "Öncelikli Destek"],
+                                price: "₺799 / ay",
+                                features: [
+                                    "Gelişmiş Raporlama",
+                                    "Tüm Modüller",
+                                    "Aşı Takvimi",
+                                    "Hatırlatma Maili + SMS",
+                                    "Öncelikli Destek",
+                                    "Sınırsız Şube",
+                                    "İsteğe Bağlı Raporlama Ekranı"
+                                ],
                                 noFeatures: [],
                                 textColor: "info",
                                 btnColor: "info",
@@ -182,17 +208,19 @@ const Landing = () => {
                         ].map(({ title, price, features, noFeatures, textColor, btnColor, btnOutline, btnText }) => (
                             <Col key={title} md="4" className="mb-4">
                                 <Card className="shadow-sm h-100 border-0 rounded">
-                                    <CardBody className="text-center bg-light rounded">
-                                        <h4 className={`fw-bold mb-3 text-${textColor}`}>{title}</h4>
-                                        <h2 className={`my-3 fw-bold text-${textColor}`}>{price}</h2>
-                                        <ul className="list-unstyled mb-4 text-muted" style={{ fontSize: "1rem" }}>
-                                            {features.map(f => (
-                                                <li key={f}>✔ {f}</li>
-                                            ))}
-                                            {noFeatures.map(nf => (
-                                                <li key={nf} style={{ opacity: 0.5 }}>✖ {nf}</li>
-                                            ))}
-                                        </ul>
+                                    <CardBody className="d-flex flex-column justify-content-between bg-light rounded text-center">
+                                        <div>
+                                            <h4 className={`fw-bold mb-3 text-${textColor}`}>{title}</h4>
+                                            <h2 className={`my-3 fw-bold text-${textColor}`}>{price}</h2>
+                                            <ul className="list-unstyled mb-4 text-muted" style={{ fontSize: "1rem" }}>
+                                                {features.map(f => (
+                                                    <li key={f}>✔ {f}</li>
+                                                ))}
+                                                {noFeatures.map(nf => (
+                                                    <li key={nf} style={{ opacity: 0.5 }}>✖ {nf}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
                                         <Button
                                             color={btnColor}
                                             outline={btnOutline}
