@@ -1,14 +1,14 @@
 export function printInvoice({ invNo, invDate, invType, stocks }) {
-    const INV_TYPES = [
-        { value: 1, label: "Alım" },
-        { value: 2, label: "İade" },
-        { value: 3, label: "Tüketim" },
-    ];
+  const INV_TYPES = [
+    { value: 1, label: "Alım" },
+    { value: 2, label: "İade" },
+    { value: 3, label: "Tüketim" },
+  ];
 
-    const invTypeLabel = INV_TYPES.find(t => t.value === Number(invType))?.label || '';
-    const total = stocks.reduce((acc, s) => acc + (s.price * s.quantity), 0).toFixed(2);
+  const invTypeLabel = INV_TYPES.find(t => t.value === Number(invType))?.label || '';
+  const total = stocks.reduce((acc, s) => acc + (s.price * s.quantity), 0).toFixed(2);
 
-    const printContent = `
+  const printContent = `
     <html>
       <head>
         <title>Stok Fatura</title>
@@ -84,8 +84,8 @@ export function printInvoice({ invNo, invDate, invType, stocks }) {
                 <td>${i + 1}</td>
                 <td>${s.name}</td>
                 <td>${s.quantity}</td>
-                <td>${s.price.toFixed(2)} ₺</td>
-                <td>${(s.price * s.quantity).toFixed(2)} ₺</td>
+                <td>${Number(s.price).toFixed(2)} ₺</td>
+                <td>${(Number(s.price) * Number(s.quantity)).toFixed(2)} ₺</td>
               </tr>
             `).join('')}
           </tbody>
@@ -100,10 +100,10 @@ export function printInvoice({ invNo, invDate, invType, stocks }) {
     </html>
   `;
 
-    const printWindow = window.open('', '', 'width=900,height=700');
-    printWindow.document.write(printContent);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-    // printWindow.close(); // Eğer otomatik kapanmasını istiyorsan aç
+  const printWindow = window.open('', '', 'width=900,height=700');
+  printWindow.document.write(printContent);
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.print();
+  // printWindow.close(); // Eğer otomatik kapanmasını istiyorsan aç
 }
