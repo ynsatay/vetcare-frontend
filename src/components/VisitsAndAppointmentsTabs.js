@@ -43,7 +43,14 @@ const visitColumns = (navigate) => [
             }
         }
     },
-
+    {
+        field: 'is_discharge',
+        headerName: 'Çıkış Durumu',
+        flex: 1,
+        valueFormatter: (params) => (params.value ? "Çıkış Yapıldı" : "Açık"),
+        cellClassName: (params) =>
+            params.value ? 'status-complete' : 'status-open',
+    },
     { field: 'arrival_reason', headerName: 'Şikayet / Geliş Nedeni', flex: 2 },
     //{ field: 'status', headerName: 'Durum', flex: 1 },
     {
