@@ -55,7 +55,7 @@ const NewVisitFileLayout = () => {
       headerName: 'İşlem',
       width: 100,
       renderCell: (params) => (
-        <Button color="danger" size="sm" onClick={() => handleDelete(params.row.id)}>
+        <Button color="danger" size="sm" onClick={() => handleDelete(params.row.id)} disabled={visitFile.is_discharge}>
           Sil
         </Button>
       ),
@@ -198,6 +198,32 @@ const NewVisitFileLayout = () => {
     }
   };
 
+  const handleDischarge = async () => {
+    const result = await confirm("Bu hastayı çıkış yapmak istiyor musunuz?", "Evet", "Hayır", "Onay");
+    if (!result) return;
+
+    try {
+      await axiosInstance.put(`/patient-arrival/${id}/discharge`);
+      setVisitFile(prev => ({ ...prev, is_discharge: true, discharge_time: new Date().toISOString() }));
+    } catch (err) {
+      const msg = err?.response?.data?.message || "Çıkış yapılırken bir hata oluştu.";
+      await confirm(msg, "Tamam", "", "Hata");
+    }
+  };
+
+
+  const handleUndoDischarge = async () => {
+    const result = await confirm("Çıkışı iptal etmek istiyor musunuz?", "Evet", "Hayır", "Onay");
+    if (!result) return;
+
+    try {
+      await axiosInstance.put(`/patient-arrival/${id}/undo-discharge`);
+      setVisitFile(prev => ({ ...prev, is_discharge: false, discharge_time: null }));
+    } catch (err) {
+      await confirm("Çıkış iptali sırasında hata oluştu.", "Tamam", "", "Hata");
+    }
+  };
+
 
   useEffect(() => {
     if (!id) return;
@@ -278,6 +304,16 @@ const NewVisitFileLayout = () => {
                 ← Kimlik Kartına Geri Dön
               </Button>
 
+              {!visitFile.is_discharge ? (
+                <Button color="danger" size="sm" onClick={handleDischarge} className="mb-2" block>
+                  Çıkış Yap
+                </Button>
+              ) : (
+                <Button color="warning" size="sm" onClick={handleUndoDischarge} className="mb-2" block>
+                  Çıkışı İptal Et
+                </Button>
+              )}
+
             </CardBody>
           </Card>
         </Col>
@@ -289,8 +325,12 @@ const NewVisitFileLayout = () => {
               <CardTitle tag="h5" className="d-flex justify-content-between align-items-center">
                 <span>İşlenen Stoklar / Hizmetler</span>
                 <div className="d-flex gap-2">
-                  <Button color="success" size="sm" onClick={toggleStockModal}>Stok Ekle</Button>
-                  <Button color="success" size="sm" onClick={toggleServiceModal}>Hizmet Ekle</Button>
+                  <Button color="success" size="sm" onClick={toggleStockModal} disabled={visitFile.is_discharge}>
+                    Stok Ekle
+                  </Button>
+                  <Button color="success" size="sm" onClick={toggleServiceModal} disabled={visitFile.is_discharge}>
+                    Hizmet Ekle
+                  </Button>
                 </div>
               </CardTitle>
 
@@ -346,7 +386,7 @@ const NewVisitFileLayout = () => {
               <div className="mb-3">
                 Kalan Borç: <strong>{paymentSummary.remaining.toFixed(2)} ₺</strong>
               </div>
-              <Button color="primary" onClick={togglePaymentModal}>
+              <Button color="primary" onClick={togglePaymentModal} disabled={visitFile.is_discharge}>
                 Tahsilat Ekranı
               </Button>
             </CardBody>
@@ -359,7 +399,9 @@ const NewVisitFileLayout = () => {
               <CardTitle tag="h5" className="d-flex justify-content-between align-items-center">
                 <span>Planlanan Aşılar</span>
                 <div className="d-flex gap-2">
-                  <Button color="success" size="sm" onClick={handleApplyVaccine}>Uygula</Button>
+                  <Button color="success" size="sm" onClick={handleApplyVaccine} disabled={visitFile.is_discharge}>
+                    Uygula
+                  </Button>
                 </div>
               </CardTitle>
 
