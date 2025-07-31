@@ -22,27 +22,28 @@ const Animals = React.forwardRef((props, ref) => {
   }));
 
   const handleSave = async () => {
-    try {
-      const response = await axiosInstance.post('/animalpost', {
-        user_id: userid,
-        animal_id: selectedAnimal,
-        animal_species_id: selectedanimalsspecies,
-        birthdate: birthdate,
-        // deathdate: deathdate,
-        deathdate: null,
-        animalidentnumber: animalIdentNumber,
-        // isdeath: deathdate ? true : false,
-        isdeath: false, 
-        animalname: animalname,
-        picture: ''
-      });
-      props.onClose();
-      console.log('Response:', response.data);
-      if (props.onSave) props.onSave();
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
+  try {
+    const response = await axiosInstance.post('/animalpost', {
+      user_id: userid,
+      animal_id: selectedAnimal,
+      animal_species_id: selectedanimalsspecies,
+      birthdate: birthdate,
+      deathdate: null,
+      animalidentnumber: animalIdentNumber,
+      isdeath: false,
+      animalname: animalname,
+      picture: ''
+    });
+
+    const newAnimalData = response.data; 
+    if (props.onSave) props.onSave(newAnimalData); 
+
+    props.onClose();
+    console.log('Response:', response.data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
 
   useEffect(() => {
     const fetchAnimals = async () => {

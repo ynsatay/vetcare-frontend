@@ -72,7 +72,7 @@ const IdentityInfo = () => {
         setOwnerInfo(null);
         setAnimalsList([]);
         setSelectedAnimal(null);
-        return;
+        return [];
       }
 
       let user = null;
@@ -88,7 +88,7 @@ const IdentityInfo = () => {
       if (!user) {
         setAnimalsList([]);
         setSelectedAnimal(null);
-        return;
+        return [];
       }
 
       const animalRes = await axiosInstance.get('/animalslist', { params: { user_id: user.id } });
@@ -101,11 +101,13 @@ const IdentityInfo = () => {
       } else {
         setSelectedAnimal(animals[0] || null);
       }
+      return animals;  // burası önemli
     } catch (err) {
       console.error('Veri çekme hatası:', err);
       setOwnerInfo(null);
       setAnimalsList([]);
       setSelectedAnimal(null);
+      return [];
     }
   }, [identity, userId, animalId]);
 
@@ -154,9 +156,22 @@ const IdentityInfo = () => {
   };
 
   // Yeni hayvan eklendikten sonra listeyi yenile
-  const onAddAnimalSave = () => {
+  const onAddAnimalSave = async (data) => {
+    const newIdent = data?.animalidentnumber;
     setIsAddModalOpen(false);
-    fetchData();
+
+    const animalRes = await axiosInstance.get('/animalslist', {
+      params: { user_id: ownerInfo?.id || userId },
+    });
+
+    const updatedAnimals = animalRes.data.response || [];
+    setAnimalsList(updatedAnimals);
+
+    const added = updatedAnimals.find(
+      a => a.animalidentnumber?.toString() === newIdent?.toString()
+    );
+    console.log("Added animal:", added);
+    setSelectedAnimal(added || null);
   };
 
   // Hayvan seçimi değişimi
@@ -339,7 +354,7 @@ const IdentityInfo = () => {
                 isOpen={isAddModalOpen}
                 toggle={handleAddAnimalClose}
                 title="Hayvan Ekle"
-                content={<Animals ident_user_id={userId} onClose={handleAddAnimalClose} />}
+                content={<Animals ident_user_id={userId} onClose={handleAddAnimalClose} onSave={onAddAnimalSave} />}
                 onSave={onAddAnimalSave}
                 saveButtonLabel="Ekle"
               />
