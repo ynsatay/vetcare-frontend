@@ -13,7 +13,7 @@ const Animals = React.forwardRef((props, ref) => {
   const { userid: contextUserid } = useContext(AuthContext);
   const userid = props.ident_user_id || contextUserid;
   const [birthdate, setBirthdate] = useState('');
-  const [deathdate, setDeathdate] = useState('');
+  // const [deathdate, setDeathdate] = useState('');
   const [animalIdentNumber, setanimalIdentNumber] = useState('');
   const [animalname, setanimalname] = useState('');
 
@@ -28,9 +28,11 @@ const Animals = React.forwardRef((props, ref) => {
         animal_id: selectedAnimal,
         animal_species_id: selectedanimalsspecies,
         birthdate: birthdate,
-        deathdate: deathdate,
+        // deathdate: deathdate,
+        deathdate: null,
         animalidentnumber: animalIdentNumber,
-        isdeath: deathdate ? true : false,
+        // isdeath: deathdate ? true : false,
+        isdeath: false, 
         animalname: animalname,
         picture: ''
       });
@@ -134,7 +136,7 @@ const Animals = React.forwardRef((props, ref) => {
           onChange={(e) => setBirthdate(e.target.value)}
         />
       </div>
-      <div className="ani-form-group">
+      {/* <div className="ani-form-group">
         <Label className="ani-form-label" for="deathdate">Ölüm Tarihi Seçin</Label>
         <Input
           type="date"
@@ -143,7 +145,7 @@ const Animals = React.forwardRef((props, ref) => {
           value={deathdate}
           onChange={(e) => setDeathdate(e.target.value)}
         />
-      </div>
+      </div> */}
       <div className="ani-form-group">
         <Label className="ani-form-label" for="animalIdentNumber">Hayvan Kimlik Numarası</Label>
         <Input
@@ -154,7 +156,7 @@ const Animals = React.forwardRef((props, ref) => {
           onChange={(e) => setanimalIdentNumber(e.target.value)}
         />
       </div>
-      <div className="ani-form-group">
+      {/* <div className="ani-form-group">
         <Label className="ani-form-label" for="animalPicture">Hayvan Resmi Seçin</Label>
         <Input
           type="file"
@@ -162,7 +164,7 @@ const Animals = React.forwardRef((props, ref) => {
           id="animalPicture"
         // onChange={(e) => setAnimalPicture(e.target.files[0])}
         />
-      </div>
+      </div> */}
     </form>
   );
 });
