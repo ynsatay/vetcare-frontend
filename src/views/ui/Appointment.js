@@ -4,30 +4,34 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import tr from "date-fns/locale/tr";
-import "../scss/_appointment.scss";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+import axiosInstance from "../../api/axiosInstance.ts";
 import MainModal from "../../components/MainModal";
 import AppointmentForm from "../popup/AppointmentForm";
 import AppointmentDetails from "../popup/AppDetail";
-import axiosInstance from "../../api/axiosInstance.ts";
-import { useConfirm } from '../../components/ConfirmContext';
+import { useConfirm } from "../../components/ConfirmContext";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const statusColors = {
-  0: "#4e73df",   // Beklemede → Mavi
-  1: "#f6c23e",   // Geldi → Sarı
-  2: "#1cc88a",   // Tamamlandı → Yeşil
-  3: "#e74a3b",   // İptal Edildi → Kırmızı
+  0: "#4e73df", // Beklemede → Mavi
+  1: "#f6c23e", // Geldi → Sarı
+  2: "#1cc88a", // Tamamlandı → Yeşil
+  3: "#e74a3b", // İptal Edildi → Kırmızı
 };
 
 const Appointment = () => {
-  const [showModal, setShowModal] = useState(false);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
-  const [initialName, setInitialName] = useState("");
-
   const [events, setEvents] = useState([]);
+  const [showModal, setShowModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
-
+  const [startDate, setStartDate] = useState(null); // UTC Date objesi
+  const [endDate, setEndDate] = useState(null);
+  const [initialName, setInitialName] = useState("");
   const [currentView, setCurrentView] = useState("dayGridMonth");
 
   const formRef = useRef();
@@ -35,93 +39,83 @@ const Appointment = () => {
 
   const { confirm } = useConfirm();
 
+  // Fetch appointments from backend and map dates as UTC Date objects
+  const fetchAppointments = useCallback(async () => {
+    try {
+      const res = await axiosInstance.get("/getappointment");
+      if (res.data.status === "success") {
+        const appts = res.data.data.map((item) => ({
+          id: item.id.toString(),
+          title: `${item.user_name} - ${item.animal_name || ""}`,
+          start: dayjs.utc(item.start_time).toDate(), // UTC Date object
+          end: dayjs.utc(item.end_time).toDate(), // UTC Date object
+          backgroundColor: statusColors[item.status] || "#4e73df",
+          borderColor: statusColors[item.status] || "#4e73df",
+          textColor: "#fff",
+          extendedProps: {
+            notes: item.notes,
+            app_type: item.app_type,
+            user_id: item.user_id,
+            status: item.status,
+          },
+        }));
+        setEvents(appts);
+      } else {
+        setEvents([]);
+        console.error("Randevu verisi alınamadı:", res.data);
+      }
+    } catch (err) {
+      setEvents([]);
+      console.error("Randevu verisi alma hatası:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAppointments();
+  }, [fetchAppointments]);
+
+  // Calendar event select (create new)
   const handleSelect = (selectInfo) => {
     const calendarApi = calendarRef.current?.getApi();
     const viewType = calendarApi?.view?.type;
+    const now = dayjs.utc();
+    const selectedStart = dayjs.utc(selectInfo.start);
 
-    const now = new Date();
-    const selectedStart = selectInfo.start;
-
-    if (viewType === 'dayGridMonth') {
-      // Ay görünümünde sadece tarih kontrolü yap
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const selectedDate = new Date(selectedStart.getFullYear(), selectedStart.getMonth(), selectedStart.getDate());
-
-      if (selectedDate < today) {
+    if (viewType === "dayGridMonth") {
+      // Ay görünümü sadece tarih kontrolü UTC olarak
+      if (selectedStart.isBefore(now.startOf("day"))) {
         confirm("Geçmiş bir güne randevu veremezsiniz.", "Tamam", "", "Uyarı");
         return;
       }
     } else {
-      // Saatli görünümde tam zaman kontrolü
-      if (selectedStart.getTime() < now.getTime()) {
+      if (selectedStart.isBefore(now)) {
         confirm("Geçmiş bir saate randevu veremezsiniz.", "Tamam", "", "Uyarı");
         return;
       }
     }
 
-    let end = selectInfo.end;
-    const isSameDay =
-      selectedStart.toDateString() === new Date(end.getTime() - 1).toDateString();
-
     let adjustedEnd;
+    const isSameDay = selectedStart.isSame(dayjs.utc(selectInfo.end).subtract(1, "ms"), "day");
+
     if (isSameDay) {
-      adjustedEnd = new Date(selectedStart.getTime() + 30 * 60 * 1000);
+      adjustedEnd = selectedStart.add(30, "minute");
     } else {
-      adjustedEnd = new Date(end.getTime() - 1); // end - 1 ms
-      adjustedEnd.setHours(23, 59, 59, 999);
+      adjustedEnd = dayjs.utc(selectInfo.end).subtract(1, "ms").endOf("day");
     }
 
-    setStartDate(selectedStart);
-    setEndDate(adjustedEnd);
+    setStartDate(selectedStart.toDate());
+    setEndDate(adjustedEnd.toDate());
     setInitialName("");
     setShowModal(true);
   };
 
-
-  const fetchAppointments = useCallback(async () => {
-    try {
-      const response = await axiosInstance.get("/getappointment");
-      if (response.data.status === "success") {
-        const rawData = response.data.data;
-
-        if (!rawData || rawData.length === 0) {
-          setEvents([]);
-          return;
-        }
-
-        const events = response.data.data.map((item) => {
-          const color = statusColors[item.status] || "#4e73df";
-          return {
-            id: item.id.toString(),
-            title: `${item.user_name} - ${item.animal_name || ""}`,
-            start: new Date(item.start_time),
-            end: new Date(item.end_time),
-            backgroundColor: color,
-            borderColor: color,
-            textColor: "#fff",
-            extendedProps: {
-              notes: item.notes,
-              app_type: item.app_type,
-              user_id: item.user_id,
-              status: item.status,
-            },
-          };
-        });
-        setEvents(events);
-      } else {
-        setEvents([]);
-        console.error("Randevu verisi alınamadı:", response.data);
-      }
-    } catch (error) {
-      setEvents([]);
-      console.error("Randevu verisi alma hatası:", error);
-    }
-  }, []);
-
-  const handleDatesSet = (arg) => {
-    setCurrentView(arg.view.type);
+  // Calendar event click (show detail)
+  const handleEventClick = (clickInfo) => {
+    setSelectedEvent(clickInfo.event);
+    setShowDetailModal(true);
   };
 
+  // Save new appointment
   const handleSave = async (newEvent) => {
 
     if (newEvent) {
@@ -204,25 +198,21 @@ const Appointment = () => {
     }
   };
 
-  const handleEventClick = (clickInfo) => {
-    setSelectedEvent(clickInfo.event);
-    setShowDetailModal(true);
+  // Calendar view change
+  const handleDatesSet = (arg) => {
+    setCurrentView(arg.view.type);
   };
-
-  useEffect(() => {
-    fetchAppointments();
-  }, [fetchAppointments]);
 
   return (
     <div style={{ backgroundColor: "#f7f9fc" }}>
-      <div style={{
-
-
-        padding: 20,
-        backgroundColor: "#fff",
-        borderRadius: 12,
-        boxShadow: "0 4px 25px rgba(0,0,0,0.1)"
-      }}>
+      <div
+        style={{
+          padding: 20,
+          backgroundColor: "#fff",
+          borderRadius: 12,
+          boxShadow: "0 4px 25px rgba(0,0,0,0.1)",
+        }}
+      >
         <h4 className="mb-4">📅 Randevu Takibi Ekranı</h4>
 
         <FullCalendar
@@ -236,6 +226,7 @@ const Appointment = () => {
           datesSet={handleDatesSet}
           eventDisplay="block"
           locale={tr}
+          timeZone="UTC" // Burada UTC ayarlı
           firstDay={1}
           height="auto"
           headerToolbar={{
@@ -248,28 +239,6 @@ const Appointment = () => {
             month: "Ay",
             week: "Hafta",
             day: "Gün",
-
-          }}
-          dateClick={(info) => {
-            const now = new Date();
-            const clickedDate = info.date;
-
-            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            const selected = new Date(clickedDate.getFullYear(), clickedDate.getMonth(), clickedDate.getDate());
-
-            if (selected < today) {
-              confirm("Geçmiş bir güne randevu veremezsiniz.", "Tamam", "", "Uyarı");
-              return;
-            }
-
-            const start = clickedDate;
-            const end = new Date(clickedDate);
-            end.setHours(start.getHours() + 0, start.getMinutes() + 30); // 30 dakika
-
-            setStartDate(start);
-            setEndDate(end);
-            setInitialName("");
-            setShowModal(true);
           }}
         />
 
@@ -313,7 +282,13 @@ const Appointment = () => {
           isOpen={showDetailModal}
           toggle={() => setShowDetailModal(false)}
           title="Randevu Detayı"
-          content={<AppointmentDetails event={selectedEvent} onClose={() => setShowDetailModal(false)} onUpdateSuccess={fetchAppointments} />}
+          content={
+            <AppointmentDetails
+              event={selectedEvent}
+              onClose={() => setShowDetailModal(false)}
+              onUpdateSuccess={fetchAppointments}
+            />
+          }
           saveButtonLabel="Tamam"
           onSave={() => setShowDetailModal(false)}
           ShowFooter={false}

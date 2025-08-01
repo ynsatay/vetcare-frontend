@@ -11,7 +11,7 @@ const columns = [
   { field: 'material_name', headerName: 'Malzeme', flex: 1, minWidth: 150 },
   { field: 'provider_firm_name', headerName: 'Tedarikçi Firma', flex: 1, minWidth: 150 },
   { field: 'purchase_price', headerName: 'Alım Fiyatı (₺)', width: 130, type: 'number' },
-  { field: 'vat_rate', headerName: 'KDV (%)', width: 100, type: 'number' },
+  // { field: 'vat_rate', headerName: 'KDV (%)', width: 100, type: 'number' },
   { 
     field: 'is_default', 
     headerName: 'Varsayılan', 

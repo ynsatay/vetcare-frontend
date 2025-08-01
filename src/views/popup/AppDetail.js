@@ -6,13 +6,20 @@ import {
   MenuItem,
   Button
 } from "@mui/material";
+
 import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import trLocale from 'date-fns/locale/tr';
-import axiosInstance from "../../api/axiosInstance.ts";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import tr from "dayjs/locale/tr";
+
+import axiosInstance from "../../api/axiosInstance.ts";
 import ConfirmDialog from "../../components/ConfirmDialog.js";
 import { useConfirm } from '../../components/ConfirmContext';
+
+dayjs.extend(utc);
+dayjs.locale(tr);
 
 const statusOptions = [
   { value: 0, label: "Beklemede" },
@@ -22,16 +29,16 @@ const statusOptions = [
 ];
 
 const AppointmentDetails = ({ event, onUpdateSuccess, onClose }) => {
-  const [start, setStart] = useState(null);
-  const [end, setEnd] = useState(null);
+  const [start, setStart] = useState(null); 
+  const [end, setEnd] = useState(null);     
   const [status, setStatus] = useState(0);
   const [showConfirm, setShowConfirm] = useState(false);
   const { confirm } = useConfirm();
 
   useEffect(() => {
     if (event) {
-      setStart(event.start ? new Date(event.start) : null);
-      setEnd(event.end ? new Date(event.end) : null);
+      setStart(event.start ? dayjs.utc(event.start) : null);
+      setEnd(event.end ? dayjs.utc(event.end) : null);
       setStatus(event.extendedProps?.status ?? 0);
     }
   }, [event]);
@@ -41,13 +48,15 @@ const AppointmentDetails = ({ event, onUpdateSuccess, onClose }) => {
       confirm("Başlangıç ve Bitiş tarihlerini doldurun.", "Tamam", "", "Uyarı");
       return;
     }
-    if (start > end) {
+    if (start.isAfter(end)) {
       confirm("Başlangıç tarihi, bitiş tarihinden büyük olamaz.", "Tamam", "", "Uyarı");
       return;
     }
+
     try {
-      const formattedStart = dayjs(start).format("YYYY-MM-DD HH:mm:ss");
-      const formattedEnd = dayjs(end).format("YYYY-MM-DD HH:mm:ss");
+      // Backend UTC string formatını kabul ediyor
+      const formattedStart = start.utc().format("YYYY-MM-DD HH:mm:ss");
+      const formattedEnd = end.utc().format("YYYY-MM-DD HH:mm:ss");
 
       const response = await axiosInstance.post("/updateappointment", {
         id: event.id,
@@ -89,7 +98,7 @@ const AppointmentDetails = ({ event, onUpdateSuccess, onClose }) => {
   if (!event) return <Typography>Etkinlik seçilmedi.</Typography>;
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={trLocale}>
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={tr}>
       <Grid container spacing={2}>
         <Grid item xs={5}>
           <Typography variant="subtitle1">Hasta - Hayvan Adı:</Typography>
@@ -104,9 +113,10 @@ const AppointmentDetails = ({ event, onUpdateSuccess, onClose }) => {
         <Grid item xs={7}>
           <DateTimePicker
             value={start}
-            onChange={(newValue) => setStart(newValue)}
+            onChange={(newVal) => setStart(newVal ? dayjs.utc(newVal) : null)}
             renderInput={(params) => <TextField fullWidth size="small" {...params} />}
             maxDateTime={end || undefined}
+            ampm={false}
           />
         </Grid>
 
@@ -116,9 +126,10 @@ const AppointmentDetails = ({ event, onUpdateSuccess, onClose }) => {
         <Grid item xs={7}>
           <DateTimePicker
             value={end}
-            onChange={(newValue) => setEnd(newValue)}
+            onChange={(newVal) => setEnd(newVal ? dayjs.utc(newVal) : null)}
             renderInput={(params) => <TextField fullWidth size="small" {...params} />}
             minDateTime={start || undefined}
+            ampm={false}
           />
         </Grid>
 

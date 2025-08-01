@@ -6,7 +6,7 @@ const EditProviderPrice = ({ initialData, onClose }) => {
     const [pfId, setPfId] = useState(initialData?.pf_id || '');
     const [materialId, setMaterialId] = useState(initialData?.material_id || '');
     const [purchasePrice, setPurchasePrice] = useState(initialData?.purchase_price || '');
-    const [vatRate, setVatRate] = useState(initialData?.vat_rate || 0);
+    const vatRate = useState(initialData?.vat_rate || 0);
     const [isDefault, setIsDefault] = useState(initialData?.is_default || false);
     const [active, setActive] = useState(initialData?.active !== undefined ? initialData.active : true);
 
@@ -136,7 +136,7 @@ const EditProviderPrice = ({ initialData, onClose }) => {
                 <FormFeedback>{errors.purchasePrice}</FormFeedback>
             </FormGroup>
 
-            <FormGroup>
+            {/* <FormGroup>
                 <Label for="vatRate">KDV (%)</Label>
                 <Input
                     type="number"
@@ -148,7 +148,7 @@ const EditProviderPrice = ({ initialData, onClose }) => {
                     step="0.01"
                 />
                 <FormFeedback>{errors.vatRate}</FormFeedback>
-            </FormGroup>
+            </FormGroup> */}
 
             <FormGroup check>
                 <Input

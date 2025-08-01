@@ -70,7 +70,7 @@ const EditStock = forwardRef(({ onClose, initialData }, ref) => {
                 //{ label: "Adet*", name: "quantity", type: "number" },  //Stok Alım Ekanı için kaldırıldı
                 { label: "Min. Stok", name: "min_stock_level", type: "number" },
                 { label: "Barkod", name: "barcode" },
-                { label: "Tedarikçi", name: "supplier_name" },
+                // { label: "Tedarikçi", name: "supplier_name" },
             ].map(({ label, name, type = "text" }) => (
                 <FormGroup key={name}>
                     <Row>

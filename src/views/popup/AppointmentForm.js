@@ -5,17 +5,23 @@ import '../../views/scss/_login.scss';
 import '../scss/_appointment.scss';
 
 import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import trLocale from 'date-fns/locale/tr';  // Türkçe locale
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import trLocale from 'dayjs/locale/tr';
 import { useConfirm } from '../../components/ConfirmContext';
 
+dayjs.extend(utc);
+dayjs.locale(trLocale);
+
 const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView }, ref) => {
-  const [startDate, setStartDate] = useState(startDateProp || null);
-  const [endDate, setEndDate] = useState(endDateProp || null);
+  // startDate ve endDate artık dayjs UTC objeleri
+  const [startDate, setStartDate] = useState(startDateProp ? dayjs.utc(startDateProp) : null);
+  const [endDate, setEndDate] = useState(endDateProp ? dayjs.utc(endDateProp) : null);
   const [patientName, setPatientName] = useState('');
   const [userAnimalId, setUserAnimalId] = useState(null);
   const [notes, setNotes] = useState('');
-  const [appType, setAppType] = useState(0); // default normal
+  const [appType, setAppType] = useState(0);
   const [showPatientSearch, setShowPatientSearch] = useState(false);
   const [appDay, setAppDay] = useState(true);
   const { confirm } = useConfirm();
@@ -23,32 +29,27 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
   const isCheckboxDisabled = currentView !== "dayGridMonth";
 
   useEffect(() => {
-    setStartDate(startDateProp);
-    setEndDate(endDateProp);
+    if (startDateProp) setStartDate(dayjs.utc(startDateProp));
+    if (endDateProp) setEndDate(dayjs.utc(endDateProp));
   }, [startDateProp, endDateProp]);
 
-  const toLocalISOString = (date) => {
-    const pad = (n) => n.toString().padStart(2, '0');
-    return date.getFullYear() + '-' +
-      pad(date.getMonth() + 1) + '-' +
-      pad(date.getDate()) + ' ' +
-      pad(date.getHours()) + ':' +
-      pad(date.getMinutes()) + ':' +
-      pad(date.getSeconds());
+  // UTC zaman formatını backend uyumlu stringe dönüştürür
+  const toUTCString = (date) => {
+    if (!date) return null;
+    return date.utc().format('YYYY-MM-DD HH:mm:ss');
   };
 
   useImperativeHandle(ref, () => ({
     handleSave: () => {
-      const now = new Date();
       if (!userAnimalId || !startDate || !endDate) {
         confirm("Lütfen tüm zorunlu alanları doldurun.", "Tamam", "", "Uyarı");
         return null;
       }
       return {
         user_animal_id: userAnimalId,
-        process_date: toLocalISOString(now),
-        start_time: toLocalISOString(startDate),
-        end_time: toLocalISOString(endDate),
+        process_date: dayjs.utc().format('YYYY-MM-DD HH:mm:ss'), // şimdiki zamanı UTC olarak yolla
+        start_time: toUTCString(startDate),
+        end_time: toUTCString(endDate),
         notes: notes || null,
         status: 0,
         app_type: appType,
@@ -61,13 +62,17 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
     }
   }));
 
-  const handleEndDate = (date) => {
-    if (date < startDate) {
+  // Tarih seçerken UTC modunda al, böylece saat farkı olmaz
+  const handleStartDateChange = (newValue) => {
+    setStartDate(newValue ? dayjs.utc(newValue) : null);
+  };
+
+  const handleEndDateChange = (newValue) => {
+    if (newValue && startDate && newValue.isBefore(startDate)) {
       confirm("Bitiş tarihi, başlangıç tarihinden önce olamaz.", "Tamam", "", "Uyarı");
-      const newEnd = new Date(startDate.getTime() + 30 * 60 * 1000);
-      setEndDate(newEnd);
+      setEndDate(startDate.add(30, 'minute')); // başlangıca 30 dakika ekle
     } else {
-      setEndDate(date);
+      setEndDate(newValue ? dayjs.utc(newValue) : null);
     }
   };
 
@@ -76,15 +81,13 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
   };
 
   const handlePatientSelect = (patient) => {
-  console.log("Seçilen hasta:", patient);
-  setPatientName(patient.name);
-  setUserAnimalId(patient.id);
-  setShowPatientSearch(false);
-};
+    setPatientName(patient.name);
+    setUserAnimalId(patient.id);
+    setShowPatientSearch(false);
+  };
 
   return (
     <Grid container spacing={1}>
-
       {/* Hasta */}
       <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Grid item xs={4}>
@@ -122,12 +125,13 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
           <Typography variant="subtitle1" gutterBottom>Başlangıç Tarihi :</Typography>
         </Grid>
         <Grid item xs={8}>
-          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={trLocale}>
+          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={trLocale}>
             <DateTimePicker
               value={startDate}
-              onChange={(newValue) => setStartDate(newValue)}
-              minDate={new Date()}
+              onChange={handleStartDateChange}
+              minDate={dayjs()}
               renderInput={(params) => <TextField fullWidth size="small" {...params} />}
+              ampm={false}
             />
           </LocalizationProvider>
         </Grid>
@@ -139,17 +143,19 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
           <Typography variant="subtitle1" gutterBottom>Bitiş Tarihi :</Typography>
         </Grid>
         <Grid item xs={8}>
-          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={trLocale}>
+          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={trLocale}>
             <DateTimePicker
               value={endDate}
-              onChange={handleEndDate}
-              minDate={startDate || new Date()}
+              onChange={handleEndDateChange}
+              minDate={startDate || dayjs()}
               renderInput={(params) => <TextField fullWidth size="small" {...params} />}
+              ampm={false}
             />
           </LocalizationProvider>
         </Grid>
       </Grid>
 
+      {/* Günlere Böl */}
       <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Grid item xs={4}>
           <Typography variant="subtitle1" gutterBottom>Günlere Böl :</Typography>

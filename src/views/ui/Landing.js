@@ -4,22 +4,18 @@ import { useNavigate } from 'react-router-dom';
 import heroImage from '../../assets/images/bg/bgmain3.png';
 import "../scss/_login.scss";
 import { useLocation } from "react-router-dom";
-import StockInvoice from '../../assets/screenshots/Screenshot_1.png';
-import randevuImg from '../../assets/screenshots/Screenshot_2.png';
-import dashboardImg from '../../assets/screenshots/Screenshot_3.png';
-import Vaccine from '../../assets/screenshots/Screenshot_4.png';
-import hastalarImg from '../../assets/screenshots/Screenshot_5.png';
-import hastalarImg2 from '../../assets/screenshots/Screenshot_6.png';
-
 const Landing = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const screenshots = [dashboardImg, hastalarImg, hastalarImg2, StockInvoice, randevuImg, Vaccine];
+
     const [modalOpen, setModalOpen] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [formModalOpen, setFormModalOpen] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState(null);
     const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
+
+    const importAll = (r) => r.keys().map(r);
+    const screenshots = importAll(require.context('../../assets/screenshots', false, /Screenshot_\d+\.png$/));
 
     const toggleModal = () => setFormModalOpen(!formModalOpen);
 
