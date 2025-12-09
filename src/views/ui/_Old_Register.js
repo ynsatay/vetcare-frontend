@@ -27,7 +27,7 @@ const Register = () => {
         }
 
         try {
-            await axios.post('http://31.40.198.64:3001/api/register', {
+            await axios.post('https://vetcaretr.com/api/register', {
                 name,
                 surname,
                 username,
@@ -36,7 +36,7 @@ const Register = () => {
                 email
             });
 
-            const responseLogin = await axios.post('http://31.40.198.64:3001/api/login', {
+            const responseLogin = await axios.post('https://vetcaretr.com/api/login', {
                 username,
                 password,
             });
