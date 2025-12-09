@@ -9,7 +9,7 @@ const CountrySelector = () => {
 
   const handleOpenModal = async () => {
     try {
-      const response = await axios.get('https://vatcare-backend-production.up.railway.app/api/getCountry');
+      const response = await axios.get('http://31.40.198.64:3001/api/getCountry');
       const countryList = response.data.user ? [response.data.user] : [];
       setCountries(countryList);
       setOpenModal(true);

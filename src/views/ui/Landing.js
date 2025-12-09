@@ -37,7 +37,7 @@ const Landing = () => {
         };
 
         try {
-            const res = await fetch('https://vatcare-backend-production.up.railway.app/api/sendDemoRequest', {
+            const res = await fetch('http://31.40.198.64:3001/api/sendDemoRequest', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),

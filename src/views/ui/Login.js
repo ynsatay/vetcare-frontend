@@ -20,7 +20,7 @@ const Login = () => {
     // API'den hr_offices listesini çek
     const fetchOffices = async () => {
       try {
-        const res = await axios.get('https://vatcare-backend-production.up.railway.app/api/hr_offices');
+        const res = await axios.get('http://31.40.198.64:3001/api/hr_offices');
         setOffices(res.data);
 
         // Eğer liste doluysa ilkini seçili yap
@@ -44,7 +44,7 @@ const Login = () => {
     }
 
     try {
-      const response = await axios.post('https://vatcare-backend-production.up.railway.app/api/login', {
+      const response = await axios.post('http://31.40.198.64:3001/api/login', {
         username,
         password,
         office_id: selectedOffice,  // office id gönderiyoruz
