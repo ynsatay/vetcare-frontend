@@ -5,6 +5,7 @@ import { Col, Input, Label, Row } from 'reactstrap';
 import "../scss/_animals.scss";
 import { AuthContext } from '../../context/usercontext.tsx';
 import Animalslist from '../list/Animallist.js';
+import { BASE_URL } from "../../config.js";
 
 const Animals = () => {
     const [animals, setAnimals] = useState([]);
@@ -20,7 +21,7 @@ const Animals = () => {
     useEffect(() => {
         const fetchAnimals = async () => {
             try {
-                const response = await axios.get('https://vetcaretr.com/api/animals');
+                const response = await axios.get(`${BASE_URL}/animals`);
                 const animalData = response.data.response;
                 setAnimals(animalData);
             } catch (error) {
@@ -39,7 +40,7 @@ const Animals = () => {
             return;
         }
         try {
-            const response = await axios.get('https://vetcaretr.com/api/animalsspecies', {
+             const response = await axios.get(`${BASE_URL}/animalsspecies`, {
                 params: {
                     animal_id: animal_id
                 }
@@ -58,7 +59,7 @@ const Animals = () => {
     }
     const animalpost = async () => {
         try {
-            const response = await axios.post('https://vetcaretr.com/api/animalpost', {
+                const response = await axios.get(`${BASE_URL}/animalpost`, {
                 user_id: userid,
                 animal_id: selectedAnimal,
                 animal_species_id: selectedanimalsspecies,

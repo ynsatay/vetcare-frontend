@@ -4,6 +4,7 @@ import { Button, TextField, Typography, Grid, Paper, Box } from '@mui/material';
 import axios from 'axios';
 import { AuthContext } from '../../context/usercontext.tsx';
 import MenuLogo from '../../assets/images/logos/vc2.png';
+import { BASE_URL } from "../../config.js";
 
 const Register = () => {
     const [name, setName] = useState('');
@@ -36,7 +37,7 @@ const Register = () => {
             return;
         }
         try {
-            await axios.post('https://vetcaretr.com/api/register', {
+            await axios.post(`${BASE_URL}/register`, {
                 name,
                 surname,
                 username,
@@ -45,8 +46,7 @@ const Register = () => {
                 email,
                 selectedPlan,
             });
-
-            const responseLogin = await axios.post('https://vetcaretr.com/api/login', {
+            const responseLogin = await axios.post(`${BASE_URL}/login`, {
                 username,
                 password,
             });

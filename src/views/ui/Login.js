@@ -6,6 +6,8 @@ import LoginBack from '../../assets/images/bg/login-bg2.png';
 import "../scss/_login.scss";
 import axios from 'axios';
 import { AuthContext } from '../../context/usercontext.tsx';
+import { BASE_URL } from "../../config.js";
+
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -20,7 +22,7 @@ const Login = () => {
     // API'den hr_offices listesini çek
     const fetchOffices = async () => {
       try {
-        const res = await axios.get('https://vetcaretr.com/api/hr_offices');
+        const res = await axios.get(`${BASE_URL}/hr_offices`);
         setOffices(res.data);
 
         // Eğer liste doluysa ilkini seçili yap
@@ -44,10 +46,10 @@ const Login = () => {
     }
 
     try {
-      const response = await axios.post('https://vetcaretr.com/api/login', {
+      const response = await axios.post(`${BASE_URL}/login`, {
         username,
         password,
-        office_id: selectedOffice,  // office id gönderiyoruz
+        office_id: selectedOffice,
       });
 
       setMessage(`Giriş başarılı: ${response.data.message}`);
@@ -145,7 +147,7 @@ const Login = () => {
               {message && <Typography color="error" style={{ marginTop: '16px' }}>{message}</Typography>}
 
               <div className='forgot-password-div'>
-                <Link to="/forgot-password" className='forgot-password'>Şifremi mi Unuttun?</Link>
+                 {/*<Link to="/forgot-password" className='forgot-password'>Şifremi mi Unuttun?</Link>*/}
               </div>
 
             </div>

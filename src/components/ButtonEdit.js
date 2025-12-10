@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Modal, TextField, List, ListItem, ListItemText } from '@material-ui/core';
 import axios from 'axios';
+import { BASE_URL } from "../config.js";
 
 const CountrySelector = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -9,7 +10,7 @@ const CountrySelector = () => {
 
   const handleOpenModal = async () => {
     try {
-      const response = await axios.get('https://vetcaretr.com/api/getCountry');
+      const response = await axios.get(`${BASE_URL}/getCountry`);
       const countryList = response.data.user ? [response.data.user] : [];
       setCountries(countryList);
       setOpenModal(true);
