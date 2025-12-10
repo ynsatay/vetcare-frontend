@@ -30,6 +30,7 @@ const IdentityInfo = () => {
 
   const [isSaving, setIsSaving] = useState(false);
   const [isSavingOwner, setIsSavingOwner] = useState(false);
+  const [isDeletingAnimal, setIsDeletingAnimal] = useState(false);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isPatientFileRegOpen, setIsPatientFileRegOpen] = useState(false);
@@ -238,6 +239,103 @@ const IdentityInfo = () => {
     }
   };
 
+  // Seçili hayvanı sil
+  const handleDeleteAnimal = async () => {
+    if (!selectedAnimal?.data_id) {
+      confirm("Silme işlemi yapılamadı: Seçili hayvan yok.", "Tamam", "", "Uyarı");
+      return;
+    }
+
+    setIsDeletingAnimal(true);
+    try {
+      // Check for upcoming/active appointments
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const upcomingAppointments = appointmentList.filter(apt => {
+        const aptDate = new Date(apt.process_date);
+        aptDate.setHours(0, 0, 0, 0);
+        return aptDate >= today && (apt.status === 0 || apt.status === 1); // 0=pending, 1=confirmed
+      });
+
+      if (upcomingAppointments.length > 0) {
+        setIsDeletingAnimal(false);
+        await confirm(
+          "Randevusu olan hayvan silinemez. Lütfen önce randevuyu iptal ediniz.",
+          "Tamam",
+          "",
+          "Uyarı"
+        );
+        return;
+      }
+
+      // Check for upcoming/unapplied vaccinations
+      let upcomingVaccinations = [];
+      try {
+        if (selectedAnimal?.id) {
+          const vaccRes = await axiosInstance.get(`/vaccine/plans/unapplied/${selectedAnimal.id}`);
+          const vaccinations = vaccRes.data.data || [];
+          
+          upcomingVaccinations = vaccinations.filter(vacc => {
+            if (vacc.is_applied) return false; // Skip if already applied
+            const vaccDate = new Date(vacc.planned_date);
+            vaccDate.setHours(0, 0, 0, 0);
+            return vaccDate >= today;
+          });
+        }
+      } catch (vaccErr) {
+        console.error('Vaccination check error:', vaccErr);
+        // Continue even if vaccine check fails
+      }
+
+      if (upcomingVaccinations.length > 0) {
+        setIsDeletingAnimal(false);
+        await confirm(
+          "Yaklaşan aşısı olan hayvan silinemez. Lütfen önce aşı planını iptal ediniz.",
+          "Tamam",
+          "",
+          "Uyarı"
+        );
+        return;
+      }
+
+      // All checks passed, proceed with deletion
+      const proceed = await confirm(
+        "Seçili hayvan kalıcı olarak silinecektir. Devam edilsin mi?",
+        "Evet",
+        "Hayır",
+        "Uyarı"
+      );
+      if (!proceed) {
+        setIsDeletingAnimal(false);
+        return;
+      }
+
+      const data_id = selectedAnimal.data_id;
+      const res = await axiosInstance.delete(`/animalslistDel/${data_id}`);
+
+      if (res.status === 200) {
+        await confirm("Hayvan silindi.", "Tamam", "", "Bilgi");
+
+        // Refresh animals list for the owner
+        const animalRes = await axiosInstance.get('/animalslist', { params: { user_id: ownerInfo?.id || userId } });
+        const updatedAnimals = animalRes.data.response || [];
+        setAnimalsList(updatedAnimals);
+
+        // Set next selected animal (first) or null
+        setSelectedAnimal(updatedAnimals[0] || null);
+      } else {
+        console.error('Delete response:', res);
+        confirm("Hayvan silinemedi.", "Tamam", "", "Uyarı");
+      }
+    } catch (err) {
+      console.error('Silme hatası:', err);
+      confirm("Silme sırasında hata oluştu.", "Tamam", "", "Uyarı");
+    } finally {
+      setIsDeletingAnimal(false);
+    }
+  };
+
   // Sahip bilgilerini kaydet
   const handleOwnerSave = async () => {
     if (!ownerInfo?.id) {
@@ -338,7 +436,30 @@ const IdentityInfo = () => {
         <Col md={6} sm={12} style={{ marginBottom: '20px' }}>
           <Card className="shadow-sm mb-4" style={{ height: '100%' }}>
             <CardBody>
-              <CardTitle tag="h5">Hayvan Kimlik Bilgileri</CardTitle>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <CardTitle tag="h5" style={{ margin: 0 }}>Hayvan Kimlik Bilgileri</CardTitle>
+                {selectedAnimal && (
+                  <Button
+                    color="danger"
+                    size="sm"
+                    onClick={handleDeleteAnimal}
+                    disabled={isDeletingAnimal || isSaving || !selectedAnimal?.data_id}
+                    style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600', position: 'relative' }}
+                    title="Hayvanı Sil"
+                  >
+                    {isDeletingAnimal ? (
+                      <span style={{ fontSize: '14px' }}>⏳</span>
+                    ) : (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'flex', alignItems: 'center' }}>
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                      </svg>
+                    )}
+                  </Button>
+                )}
+              </div>
               <FormGroup>
                 <Label>Hayvan Seç</Label>
                 <Input type="select" value={selectedAnimal?.id || ''} onChange={handleAnimalChange}>
