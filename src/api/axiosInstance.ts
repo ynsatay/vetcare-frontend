@@ -5,8 +5,8 @@ const isLocalhost = window.location.hostname === "localhost";
 
 const axiosInstance = axios.create({
   baseURL: isLocalhost 
-    ? "https://vetcaretr.com/api"
-    : "http://localhost:3001/api",
+    ? "http://localhost:3001/api"
+    : "https://vetcaretr.com/api",
 });
 
 axiosInstance.interceptors.request.use(
