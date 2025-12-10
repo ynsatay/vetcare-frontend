@@ -117,7 +117,6 @@ const Header = () => {
               <button
                 onClick={() => {
                   handleSidebarToggle();
-                  setIsOpen(!isOpen);
                 }}
                 style={{
                   background: 'rgba(255, 255, 255, 0.15)',
@@ -567,7 +566,7 @@ const Header = () => {
       </Navbar>
 
       {/* Mobil Overlay Menü */}
-      {isMobile && isOpen && (
+      {!isLogin && isMobile && isOpen && (
         <>
           <div
             style={{

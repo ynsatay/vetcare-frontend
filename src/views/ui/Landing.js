@@ -456,7 +456,7 @@ const Landing = () => {
                                         display: 'block',
                                         position: 'relative',
                                         zIndex: 0,
-                                        transform: `translateY(${scrollY * 0.15}px)`,
+                                        transform: `translateY(${isMobile ? scrollY * 0.03 : scrollY * 0.12}px)`,
                                         transition: 'transform 0.1s ease-out'
                                     }}
                                 />
