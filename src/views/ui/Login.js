@@ -274,7 +274,7 @@ const Login = () => {
                   style={{ 
                     position: 'absolute', 
                     left: 14, 
-                    top: 'center', 
+                    top: 20, 
                     zIndex: 1, 
                     color: '#59018b',
                     pointerEvents: 'none',
