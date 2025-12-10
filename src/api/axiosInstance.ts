@@ -23,12 +23,23 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-      window.alert("Oturumunuzun süresi doldu. Lütfen tekrar giriş yapın.");
-      localStorage.clear();
-      logoutRef();
-      window.location.href = "/login";
+    if (error.response) {
+      const status = error.response.status;
+      const code = error.response.data?.code;
+
+      if (code === "DEMO_USER_BLOCKED") {
+        window.alert("Demo hesabı ile bu işlemi yapamazsınız.");
+        return Promise.reject(error);
+      }
+
+      if (status === 401 || status === 403) {
+        window.alert("Oturumunuzun süresi doldu. Lütfen tekrar giriş yapın.");
+        localStorage.clear();
+        logoutRef();
+        window.location.href = "/login";
+      }
     }
+
     return Promise.reject(error);
   }
 );
