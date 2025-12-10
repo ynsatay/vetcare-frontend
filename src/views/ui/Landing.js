@@ -1,18 +1,22 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import { Container, Row, Col, Button, Modal, ModalBody, ModalHeader, Form, FormGroup, Label, Input } from 'reactstrap';
 import { useNavigate } from 'react-router-dom';
 import heroImage from '../../assets/images/bg/bgmain3.png';
 import "../scss/_login.scss";
 import { useLocation } from "react-router-dom";
 import { BASE_URL } from "../../config.js";
+import axios from 'axios';
+import { AuthContext } from '../../context/usercontext.tsx';
 
 const Landing = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const { login } = useContext(AuthContext);
 
     const [modalOpen, setModalOpen] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [formModalOpen, setFormModalOpen] = useState(false);
+    const [demoConfirmOpen, setDemoConfirmOpen] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState(null);
     const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -36,24 +40,52 @@ const Landing = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const autoLoginDemo = async () => {
+        try {
+            const officesRes = await axios.get(`${BASE_URL}/hr_offices`);
+            const defaultOffice = officesRes.data?.[0]?.id;
+            const loginRes = await axios.post(`${BASE_URL}/login`, {
+                username: 'test',
+                password: '123',
+                office_id: defaultOffice,
+            });
+
+            const data = loginRes.data;
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('userid', data.userid);
+            localStorage.setItem('off_id', data.off_id);
+            axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+            login({
+                token: data.token,
+                username: data.username,
+                userid: data.userid,
+                userRole: data.userRole,
+                offId: data.off_id
+            });
+            navigate('/');
+        } catch (error) {
+            console.error('Demo auto login failed:', error);
+            alert('Otomatik giriş yapılamadı. Lütfen Giriş sayfasından deneyin.');
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         const payload = { ...formData, plan: selectedPlan };
         try {
-            const res = await fetch(`${BASE_URL}/sendDemoRequest`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-            const data = await res.json();
-            if (data.success) {
-                alert("Talebiniz başarıyla gönderildi.");
+            const res = await axios.post(`${BASE_URL}/sendDemoRequest`, payload);
+            const data = res.data || {};
+            const success = data.success !== false; // backend success:true veya undefined olsa bile kabul
+
+            if (success) {
                 setFormData({ name: '', email: '', phone: '', message: '' });
                 setFormModalOpen(false);
+                setDemoConfirmOpen(true);
             } else {
-                alert("Bir hata oluştu.");
+                alert(data.message || "Bir hata oluştu.");
             }
         } catch (err) {
+            console.error('Demo talebi hatası:', err);
             alert("Sunucuya bağlanılamadı.");
         }
     };
@@ -1447,7 +1479,7 @@ const Landing = () => {
                                         </div>
                                         <div style={{ flex: 1 }}>
                                             <div style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '6px', color: '#1a1a1a' }}>Telefon</div>
-                                            <a href="tel:+905551234567" style={{
+                                            <a href="tel:++905419484385" style={{
                                                 color: '#6b7280',
                                                 textDecoration: 'none',
                                                 fontSize: '0.9375rem',
@@ -1535,61 +1567,112 @@ const Landing = () => {
                 </ModalBody>
             </Modal>
 
+            {/* Demo auto-login confirm modal */}
+            <Modal isOpen={demoConfirmOpen} toggle={() => setDemoConfirmOpen(false)} centered size="sm">
+                <ModalBody style={{ padding: '24px', textAlign: 'center' }}>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#111827', marginBottom: '12px' }}>
+                        Demo talebiniz onaylandı
+                    </div>
+                    <div style={{ color: '#4b5563', fontSize: '0.95rem', marginBottom: '20px' }}>
+                        Otomatik giriş yapmak ister misiniz?
+                    </div>
+                    <div className="d-flex justify-content-center gap-2">
+                        <Button
+                            style={{
+                                borderRadius: '10px',
+                                padding: '10px 20px',
+                                background: 'linear-gradient(135deg, #59018b 0%, #7a1fa8 100%)',
+                                border: 'none',
+                                fontWeight: 700
+                            }}
+                            onClick={async () => {
+                                setDemoConfirmOpen(false);
+                                await autoLoginDemo();
+                            }}
+                        >
+                            Evet
+                        </Button>
+                        <Button
+                            outline
+                            style={{
+                                borderRadius: '10px',
+                                padding: '10px 20px',
+                                borderColor: '#6b7280',
+                                color: '#6b7280',
+                                background: '#fff'
+                            }}
+                            onClick={() => setDemoConfirmOpen(false)}
+                        >
+                            Hayır
+                        </Button>
+                    </div>
+                </ModalBody>
+            </Modal>
+
             <Modal isOpen={formModalOpen} toggle={toggleModal} centered size="lg">
                 <ModalHeader toggle={toggleModal} style={{
-                    background: '#59018b',
-                    color: 'white', border: 'none', borderRadius: '10px 10px 0 0'
+                    background: 'linear-gradient(135deg, #59018b 0%, #7a1fa8 100%)',
+                    color: 'white', border: 'none', borderRadius: '14px 14px 0 0', padding: '18px 24px'
                 }}>
-                    {selectedPlan}
+                    Demo Talebi
                 </ModalHeader>
-                <ModalBody style={{ padding: '32px', background: '#ffffff' }}>
-                    <Form onSubmit={handleSubmit}>
-                        <FormGroup>
-                            <Label for="name" style={{ color: '#1a1a1a', fontWeight: 600, marginBottom: '8px' }}>Ad Soyad</Label>
-                            <Input name="name" value={formData.name} onChange={handleChange} required
-                                style={{ borderRadius: '8px', border: '1.5px solid #e5e7eb', padding: '12px', color: '#212529' }}
-                                onFocus={(e) => e.currentTarget.style.borderColor = '#59018b'}
-                                onBlur={(e) => e.currentTarget.style.borderColor = '#e5e7eb'}
-                            />
-                        </FormGroup>
-                        <FormGroup>
-                            <Label for="email" style={{ color: '#1a1a1a', fontWeight: 600, marginBottom: '8px' }}>E-Posta</Label>
-                            <Input type="email" name="email" value={formData.email} onChange={handleChange} required
-                                style={{ borderRadius: '8px', border: '1.5px solid #e5e7eb', padding: '12px', color: '#212529' }}
-                                onFocus={(e) => e.currentTarget.style.borderColor = '#59018b'}
-                                onBlur={(e) => e.currentTarget.style.borderColor = '#e5e7eb'}
-                            />
-                        </FormGroup>
-                        <FormGroup>
-                            <Label for="phone" style={{ color: '#1a1a1a', fontWeight: 600, marginBottom: '8px' }}>Telefon</Label>
-                            <Input name="phone" value={formData.phone} onChange={handleChange} required
-                                style={{ borderRadius: '8px', border: '1.5px solid #e5e7eb', padding: '12px', color: '#212529' }}
-                                onFocus={(e) => e.currentTarget.style.borderColor = '#59018b'}
-                                onBlur={(e) => e.currentTarget.style.borderColor = '#e5e7eb'}
-                            />
-                        </FormGroup>
-                        <FormGroup>
-                            <Label for="message" style={{ color: '#1a1a1a', fontWeight: 600, marginBottom: '8px' }}>Ek Mesaj</Label>
-                            <Input type="textarea" name="message" value={formData.message} onChange={handleChange} rows={4}
-                                style={{ borderRadius: '8px', border: '1.5px solid #e5e7eb', padding: '12px', color: '#212529' }}
-                                onFocus={(e) => e.currentTarget.style.borderColor = '#59018b'}
-                                onBlur={(e) => e.currentTarget.style.borderColor = '#e5e7eb'}
-                            />
-                        </FormGroup>
-                        <div className="d-flex justify-content-end gap-2 mt-4">
-                            <Button type="button" outline onClick={toggleModal}
-                                style={{ borderRadius: '8px', padding: '10px 24px', borderColor: '#6b7280', color: '#6b7280' }}>
-                                İptal
-                            </Button>
-                            <Button type="submit" style={{
-                                borderRadius: '8px', padding: '10px 28px',
-                                background: '#59018b',
-                                border: 'none', fontWeight: 600, color: '#ffffff'
-                            }}>
-                                Gönder
-                            </Button>
+                <ModalBody style={{
+                    padding: '0',
+                    background: 'linear-gradient(180deg,#f8f9ff 0%,#ffffff 60%)'
+                }}>
+                    <div style={{ padding: '24px', display: 'grid', gap: '18px' }}>
+                        <div style={{
+                            padding: '16px 18px',
+                            borderRadius: '12px',
+                            background: 'rgba(89,1,139,0.05)',
+                            border: '1px solid rgba(89,1,139,0.15)',
+                            color: '#4b5563',
+                            fontSize: '0.95rem'
+                        }}>
+                            VetCare demo talebi formunu doldurun. Onay sonrası otomatik giriş yapabilirsiniz.
                         </div>
-                    </Form>
+                        <Form onSubmit={handleSubmit}>
+                            <div style={{ display: 'grid', gap: '16px' }}>
+                                <FormGroup style={{ margin: 0 }}>
+                                    <Label for="name" style={{ color: '#111827', fontWeight: 600, marginBottom: '6px' }}>Ad Soyad</Label>
+                                    <Input name="name" value={formData.name} onChange={handleChange} required
+                                        style={{ borderRadius: '10px', border: '1.5px solid #e5e7eb', padding: '12px', color: '#212529' }}
+                                    />
+                                </FormGroup>
+                                <FormGroup style={{ margin: 0 }}>
+                                    <Label for="email" style={{ color: '#111827', fontWeight: 600, marginBottom: '6px' }}>E-Posta</Label>
+                                    <Input type="email" name="email" value={formData.email} onChange={handleChange} required
+                                        style={{ borderRadius: '10px', border: '1.5px solid #e5e7eb', padding: '12px', color: '#212529' }}
+                                    />
+                                </FormGroup>
+                                <FormGroup style={{ margin: 0 }}>
+                                    <Label for="phone" style={{ color: '#111827', fontWeight: 600, marginBottom: '6px' }}>Telefon</Label>
+                                    <Input name="phone" value={formData.phone} onChange={handleChange} required
+                                        style={{ borderRadius: '10px', border: '1.5px solid #e5e7eb', padding: '12px', color: '#212529' }}
+                                    />
+                                </FormGroup>
+                                <FormGroup style={{ margin: 0 }}>
+                                    <Label for="message" style={{ color: '#111827', fontWeight: 600, marginBottom: '6px' }}>Ek Mesaj</Label>
+                                    <Input type="textarea" name="message" value={formData.message} onChange={handleChange} rows={4}
+                                        style={{ borderRadius: '12px', border: '1.5px solid #e5e7eb', padding: '12px', color: '#212529', resize: 'vertical' }}
+                                    />
+                                </FormGroup>
+                            </div>
+                            <div className="d-flex justify-content-end gap-2 mt-4">
+                                <Button type="button" outline onClick={toggleModal}
+                                    style={{ borderRadius: '10px', padding: '10px 20px', borderColor: '#6b7280', color: '#6b7280', background: '#fff' }}>
+                                    İptal
+                                </Button>
+                                <Button type="submit" style={{
+                                    borderRadius: '10px', padding: '10px 24px',
+                                    background: 'linear-gradient(135deg, #59018b 0%, #7a1fa8 100%)',
+                                    border: 'none', fontWeight: 700, color: '#ffffff', boxShadow: '0 10px 30px rgba(89,1,139,0.25)'
+                                }}>
+                                    Demo Talebi Gönder
+                                </Button>
+                            </div>
+                        </Form>
+                    </div>
                 </ModalBody>
             </Modal>
 
@@ -1597,7 +1680,7 @@ const Landing = () => {
             {scrollY > 300 && (
                 <Button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                     style={{
-                        position: 'fixed', bottom: '24px', right: '24px',
+                        position: 'fixed', bottom: '24px', left: '20px',
                         width: '48px', height: '48px', borderRadius: '50%',
                         background: '#59018b',
                         border: 'none', zIndex: 1000, fontSize: '1.25rem', color: '#ffffff',
@@ -1619,6 +1702,45 @@ const Landing = () => {
                 </Button>
             )}
 
+            {/* WhatsApp Floating Button */}
+            <a
+                href="https://wa.me/905551234567"
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                    position: 'fixed',
+                    bottom: '40px',
+                    right: '20px',
+                    width: '58px',
+                    height: '58px',
+                    borderRadius: '50%',
+                    background: 'radial-gradient(circle at 30% 30%, #4be080, #1ebea5)',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.28)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#fff',
+                    zIndex: 1100,
+                    transition: 'transform 0.25s ease, box-shadow 0.25s ease',
+                    animation: 'wpPulse 2.2s ease-in-out infinite'
+                }}
+                onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-3px) scale(1.05)';
+                    e.currentTarget.style.boxShadow = '0 14px 36px rgba(0,0,0,0.32)';
+                }}
+                onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                    e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.28)';
+                }}
+            >
+                <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false">
+                    <path
+                        fill="#fff"
+                        d="M16 3C9.383 3 4 8.383 4 15c0 2.38.64 4.67 1.86 6.68L4 29l7.5-1.94A12.35 12.35 0 0 0 16 27c6.617 0 12-5.383 12-12S22.617 3 16 3Zm0 2c5.523 0 10 4.477 10 10s-4.477 10-10 10c-1.63 0-3.238-.41-4.667-1.19l-.333-.176-4.433 1.15 1.187-4.345-.196-.333A9.93 9.93 0 0 1 6 15c0-5.523 4.477-10 10-10Zm-5.15 5.125c-.137-.302-.28-.308-.41-.313-.106-.004-.227-.004-.35-.004s-.32.046-.488.227c-.168.183-.64.625-.64 1.523 0 .898.656 1.766.748 1.888.093.121 1.26 1.996 3.11 2.717 1.544.607 1.858.486 2.195.457.336-.03 1.08-.442 1.233-.868.152-.426.152-.793.106-.868-.046-.075-.168-.121-.351-.213-.183-.091-1.08-.53-1.246-.59-.168-.06-.29-.091-.41.092-.122.183-.473.59-.58.711-.105.121-.213.136-.396.045-.183-.091-.772-.284-1.47-.904-.544-.485-.91-1.084-1.017-1.267-.106-.183-.011-.282.08-.373.082-.082.183-.212.274-.319.091-.106.122-.182.183-.303.061-.122.03-.228-.015-.32-.046-.091-.4-.99-.546-1.356Z"
+                    />
+                </svg>
+            </a>
+
             {/* CSS Animations */}
             <style>{`
                 @keyframes float {
@@ -1626,6 +1748,11 @@ const Landing = () => {
                     25% { transform: translate(20px, -30px) rotate(90deg); }
                     50% { transform: translate(-15px, -50px) rotate(180deg); }
                     75% { transform: translate(-30px, -20px) rotate(270deg); }
+                }
+                @keyframes wpPulse {
+                    0% { box-shadow: 0 10px 30px rgba(0,0,0,0.22), 0 0 0 0 rgba(37,211,102,0.45); }
+                    50% { box-shadow: 0 12px 34px rgba(0,0,0,0.26), 0 0 0 10px rgba(37,211,102,0); }
+                    100% { box-shadow: 0 10px 30px rgba(0,0,0,0.22), 0 0 0 0 rgba(37,211,102,0.45); }
                 }
                 @keyframes fadeInDown {
                     from {
