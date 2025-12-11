@@ -33,6 +33,7 @@ const Appointment = () => {
   const [endDate, setEndDate] = useState(null);
   const [initialName, setInitialName] = useState("");
   const [currentView, setCurrentView] = useState("dayGridMonth");
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const formRef = useRef();
   const calendarRef = useRef();
@@ -74,6 +75,19 @@ const Appointment = () => {
     fetchAppointments();
   }, [fetchAppointments]);
 
+  // Backend update helper (drag/drop & resize)
+  const updateAppointmentTimes = async (event) => {
+    const startUtc = dayjs.utc(event.start);
+    const endUtc = dayjs.utc(event.end || event.start);
+    const payload = {
+      id: event.id,
+      start_time: startUtc.format("YYYY-MM-DD HH:mm:ss"),
+      end_time: endUtc.format("YYYY-MM-DD HH:mm:ss"),
+      status: event.extendedProps?.status ?? 0,
+    };
+    await axiosInstance.post("/updateappointment", payload);
+  };
+
   // Calendar event select (create new)
   const handleSelect = (selectInfo) => {
     const calendarApi = calendarRef.current?.getApi();
@@ -113,6 +127,23 @@ const Appointment = () => {
   const handleEventClick = (clickInfo) => {
     setSelectedEvent(clickInfo.event);
     setShowDetailModal(true);
+  };
+
+  // Drag-drop / resize handler
+  const handleEventChange = async (changeInfo) => {
+    const { event, revert } = changeInfo;
+    try {
+      setIsUpdating(true);
+      await updateAppointmentTimes(event);
+      await fetchAppointments();
+      confirm("Randevu tarihi güncellendi.", "Tamam", "", "Bilgi");
+    } catch (err) {
+      console.error("Randevu güncelleme hatası (sürükle-bırak):", err);
+      revert();
+      confirm("Güncelleme başarısız. Lütfen tekrar deneyin.", "Tamam", "", "Uyarı");
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   // Save new appointment
@@ -204,16 +235,29 @@ const Appointment = () => {
   };
 
   return (
-    <div style={{ backgroundColor: "#f7f9fc" }}>
+    <div style={{ background: "linear-gradient(180deg, #eef2ff 0%, #f8fafc 100%)", minHeight: "100vh", padding: "16px" }}>
       <div
         style={{
-          padding: 20,
-          backgroundColor: "#fff",
-          borderRadius: 12,
-          boxShadow: "0 4px 25px rgba(0,0,0,0.1)",
+          padding: "18px 20px",
+          background: "#fff",
+          borderRadius: 16,
+          boxShadow: "0 10px 30px rgba(15,23,42,0.08)",
+          border: "1px solid #e5e7eb",
         }}
       >
-        <h4 className="mb-4">📅 Randevu Takibi Ekranı</h4>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 16 }}>
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 24 }}>📅</span> Randevu Takvimi
+            </div>
+            <div style={{ fontSize: 13, color: "#6b7280", marginTop: 4 }}>
+              Sürükle-bırak ile randevuları başka güne veya saate taşıyın
+            </div>
+          </div>
+          {isUpdating && (
+            <div style={{ fontSize: 12, color: "#6b7280" }}>Kaydediliyor…</div>
+          )}
+        </div>
 
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -224,6 +268,10 @@ const Appointment = () => {
           eventClick={handleEventClick}
           events={events}
           datesSet={handleDatesSet}
+          editable={true}
+          eventDurationEditable={true}
+          eventDrop={handleEventChange}
+          eventResize={handleEventChange}
           eventDisplay="block"
           locale={tr}
           timeZone="UTC" // Burada UTC ayarlı
