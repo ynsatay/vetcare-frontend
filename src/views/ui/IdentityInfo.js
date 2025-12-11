@@ -269,6 +269,18 @@ const IdentityInfo = () => {
         return;
       }
 
+      // Check for visit records (geliş kayıtları)
+      if (visitList && visitList.length > 0) {
+        setIsDeletingAnimal(false);
+        await confirm(
+          "Bu hayvanın kayıtlı geliş (muayene) kaydı bulunduğu için silinemez.",
+          "Tamam",
+          "",
+          "Uyarı"
+        );
+        return;
+      }
+
       // Check for upcoming/unapplied vaccinations
       let upcomingVaccinations = [];
       try {
