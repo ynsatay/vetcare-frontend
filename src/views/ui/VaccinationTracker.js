@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -8,8 +8,10 @@ import trLocale from "@fullcalendar/core/locales/tr";
 import VaccinationPlanForm from "../popup/VaccinationPlanForm.js";
 import MainModal from "../../components/MainModal.js";
 import { useConfirm } from "../../components/ConfirmContext";
-import "../scss/_appointment.scss";
 import VaccinePlanEdit from "../popup/VaccinePlanEdit.js";
+import dayjs from "dayjs";
+import { ChevronLeft, ChevronRight, Plus, Syringe } from "lucide-react";
+import "./VaccinationTracker.css";
 
 const VaccinationTracker = () => {
   const calendarRef = useRef(null);
@@ -21,13 +23,52 @@ const VaccinationTracker = () => {
   const [showVaccineModal, setShowVaccineModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const [currentView, setCurrentView] = useState("dayGridMonth");
+  const [currentTitle, setCurrentTitle] = useState("");
+  const [miniCalendarDate, setMiniCalendarDate] = useState(dayjs());
 
   const [materialsList, setMaterialsList] = useState([]);
 
   const { confirm } = useConfirm();
 
+  const stats = useMemo(() => {
+    const applied = events.filter(e => e.backgroundColor === "#4caf50").length;
+    const pending = events.filter(e => e.backgroundColor === "#26a69a").length;
+    return { applied, pending };
+  }, [events]);
+
+  const miniCalendarDays = useMemo(() => {
+    const startOfMonth = miniCalendarDate.startOf('month');
+    const endOfMonth = miniCalendarDate.endOf('month');
+    const startDay = startOfMonth.day() === 0 ? 6 : startOfMonth.day() - 1;
+    
+    const days = [];
+    const prevMonth = startOfMonth.subtract(1, 'day');
+    
+    for (let i = startDay - 1; i >= 0; i--) {
+      days.push({ day: prevMonth.subtract(i, 'day').date(), isOtherMonth: true });
+    }
+    
+    for (let i = 1; i <= endOfMonth.date(); i++) {
+      const date = miniCalendarDate.date(i);
+      const hasEvent = events.some(e => dayjs(e.date).isSame(date, 'day'));
+      days.push({ 
+        day: i, 
+        isOtherMonth: false, 
+        isToday: date.isSame(dayjs(), 'day'),
+        hasEvent 
+      });
+    }
+    
+    const remaining = 42 - days.length;
+    for (let i = 1; i <= remaining; i++) {
+      days.push({ day: i, isOtherMonth: true });
+    }
+    
+    return days;
+  }, [miniCalendarDate, events]);
+
   useEffect(() => {
-    // Malzeme listesini çek
     axiosInstance.get("/vaccine/materials").then((res) => {
       if (res.data.status === "success") {
         setMaterialsList(res.data.data);
@@ -35,7 +76,6 @@ const VaccinationTracker = () => {
     });
   }, []);
 
-  // Takvimde tarih aralığına göre etkinlikleri çek
   const fetchEvents = async (startStr, endStr) => {
     try {
       const response = await axiosInstance.get("/vaccine/calendarEvents", {
@@ -44,7 +84,7 @@ const VaccinationTracker = () => {
 
       const formatted = response.data.map((event) => {
         const isApplied = event.is_applied === 1;
-        const backgroundColor = isApplied ? "#4caf50" : "#26a69a"; // uygulandı ise yeşil, plan ise turkuaz
+        const backgroundColor = isApplied ? "#4caf50" : "#26a69a";
 
         return {
           id: `${event.id}`,
@@ -52,7 +92,7 @@ const VaccinationTracker = () => {
           date: event.date,
           allDay: true,
           backgroundColor,
-          borderColor: "#ccc",
+          borderColor: backgroundColor,
           textColor: "#fff",
         };
       });
@@ -65,6 +105,8 @@ const VaccinationTracker = () => {
 
   const handleDatesSet = (dateInfo) => {
     setCurrentRange({ start: dateInfo.start, end: dateInfo.end });
+    setCurrentView(dateInfo.view.type);
+    setCurrentTitle(dateInfo.view.title);
     fetchEvents(dateInfo.startStr, dateInfo.endStr);
   };
 
@@ -78,9 +120,8 @@ const VaccinationTracker = () => {
     }
   };
 
-  // Etkinlik tıklanınca plan detaylarını çekip modal aç
   const handleEventClick = async ({ event }) => {
-    const realId = event.id; // artık id tek parça
+    const realId = event.id;
     const planData = await fetchVaccinationPlan(realId);
     if (planData) {
       setSelectedPlan(planData);
@@ -90,8 +131,6 @@ const VaccinationTracker = () => {
     }
   };
 
-
-  // Tarih seçilince modal açılır, geçmişe planlama engellenir
   const handleDateClick = (info) => {
     const clickedDate = new Date(info.date);
     const today = new Date();
@@ -116,7 +155,6 @@ const VaccinationTracker = () => {
     setSelectedPlan(null);
   };
 
-  // Kaydet butonuna basılınca çağrılır
   const handleSave = async () => {
     setShowVaccineModal(false);
     if (!currentRange.start || !currentRange.end) return;
@@ -130,90 +168,214 @@ const VaccinationTracker = () => {
     fetchEvents(startDate.toISOString(), endDate.toISOString());
   };
 
-  // Güncelleme başarılı olunca takvimi yenile
   const handleUpdateSuccess = () => {
     if (!currentRange.start || !currentRange.end) return;
     fetchEvents(currentRange.start.toISOString(), currentRange.end.toISOString());
   };
 
+  const handleEventDrop = async (info) => {
+    const { event, revert } = info;
+    const newDate = dayjs(event.start).format("YYYY-MM-DD");
+    
+    try {
+      const response = await axiosInstance.put(`/vaccine/plan/${event.id}`, {
+        planned_date: newDate,
+      });
+      
+      if (response.data.message) {
+        confirm("Aşı planı tarihi güncellendi.", "Tamam", "", "Bilgi");
+        handleUpdateSuccess();
+      } else {
+        revert();
+        confirm("Tarih güncellenemedi.", "Tamam", "", "Hata");
+      }
+    } catch (error) {
+      console.error("Aşı planı tarihi güncellenirken hata:", error);
+      revert();
+      const errorMsg = error.response?.data?.error || "Tarih güncellenirken hata oluştu.";
+      confirm(errorMsg, "Tamam", "", "Hata");
+    }
+  };
+
+  const handlePrev = () => calendarRef.current?.getApi()?.prev();
+  const handleNext = () => calendarRef.current?.getApi()?.next();
+  const handleToday = () => calendarRef.current?.getApi()?.today();
+  const handleViewChange = (view) => calendarRef.current?.getApi()?.changeView(view);
+
+  const openNewVaccineModal = () => {
+    setStartDate(new Date());
+    setShowVaccineModal(true);
+  };
+
   return (
-    <div style={{ backgroundColor: "#f7f9fc" }}>
-      <div
-        style={{
-          padding: 20,
-          backgroundColor: "#fff",
-          borderRadius: 12,
-          boxShadow: "0 4px 25px rgba(0,0,0,0.1)",
-        }}
-      >
-        <h4 className="mb-4">💉 Aşı Takibi Ekranı</h4>
-
-        <FullCalendar
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          initialView="dayGridMonth"
-          ref={calendarRef}
-          locale={trLocale}
-          selectable={true}
-          events={events}
-          eventClick={handleEventClick}
-          datesSet={handleDatesSet}
-          dateClick={handleDateClick}
-          eventDisplay="block"
-          firstDay={1}
-          height="auto"
-          headerToolbar={{
-            left: "prev,next today",
-            center: "title",
-            right: "dayGridMonth,timeGridWeek,timeGridDay",
-          }}
-          buttonText={{
-            today: "Bugün",
-            month: "Ay",
-            week: "Hafta",
-            day: "Gün",
-          }}
-        />
-
-        <div style={{ marginTop: 20, display: 'flex', gap: 20, alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ width: 20, height: 20, backgroundColor: '#4caf50', borderRadius: 4 }}></div>
-            <span>Uygulandı</span>
+    <div className="vaccination-page">
+      <aside className="vaccination-sidebar">
+        <div className="vaccination-sidebar-header">
+          <div className="vaccination-sidebar-logo">
+            <div className="vaccination-logo-icon">
+              <Syringe size={22} color="white" />
+            </div>
+            <div>
+              <div className="vaccination-logo-text">VetCare</div>
+              <div className="vaccination-logo-subtitle">Aşı Takibi</div>
+            </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ width: 20, height: 20, backgroundColor: '#26a69a', borderRadius: 4 }}></div>
-            <span>Uygulanmadı (Plan)</span>
+          
+          <button className="new-vaccine-btn" onClick={openNewVaccineModal}>
+            <Plus size={18} />
+            Yeni Aşı Planı
+          </button>
+        </div>
+
+        <div className="vaccination-sidebar-stats">
+          <div className="vaccination-stats-title">Aşı Durumları</div>
+          
+          <div className="vaccination-stat-item">
+            <div className="vaccination-stat-left">
+              <div className="vaccination-stat-indicator applied" />
+              <span className="vaccination-stat-name">Uygulandı</span>
+            </div>
+            <span className="vaccination-stat-count">{stats.applied}</span>
+          </div>
+          
+          <div className="vaccination-stat-item">
+            <div className="vaccination-stat-left">
+              <div className="vaccination-stat-indicator pending" />
+              <span className="vaccination-stat-name">Planlandı</span>
+            </div>
+            <span className="vaccination-stat-count">{stats.pending}</span>
           </div>
         </div>
 
-        <MainModal
-          isOpen={showVaccineModal}
-          toggle={handleModalClose}
-          title="Aşı Planlama"
-          content={
-            <VaccinationPlanForm
-              ref={formRef}
-              materialsList={materialsList}
-              initialDate={startDate}
-            />
-          }
-          onSave={handleSave}
-          saveButtonLabel="Kaydet"
-        />
+        <div className="vaccination-sidebar-mini-calendar">
+          <div className="vaccination-mini-calendar-header">
+            <span className="vaccination-mini-calendar-title">
+              {miniCalendarDate.format('MMMM YYYY')}
+            </span>
+            <div className="vaccination-mini-calendar-nav">
+              <button 
+                className="vaccination-mini-nav-btn" 
+                onClick={() => setMiniCalendarDate(d => d.subtract(1, 'month'))}
+              >
+                <ChevronLeft size={14} />
+              </button>
+              <button 
+                className="vaccination-mini-nav-btn"
+                onClick={() => setMiniCalendarDate(d => d.add(1, 'month'))}
+              >
+                <ChevronRight size={14} />
+              </button>
+            </div>
+          </div>
+          
+          <div className="vaccination-mini-calendar-grid">
+            {['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pa'].map(d => (
+              <div key={d} className="vaccination-mini-day-header">{d}</div>
+            ))}
+            {miniCalendarDays.map((d, i) => (
+              <div 
+                key={i} 
+                className={`vaccination-mini-day ${d.isOtherMonth ? 'other-month' : ''} ${d.isToday ? 'today' : ''} ${d.hasEvent ? 'has-event' : ''}`}
+                style={{ opacity: d.isOtherMonth ? 0.3 : 1 }}
+              >
+                {d.day}
+              </div>
+            ))}
+          </div>
+        </div>
+      </aside>
 
-        <MainModal
-          isOpen={showEditModal}
-          toggle={handleEditModalClose}
-          title="Aşı Planı Düzenle"
-          content={
-            <VaccinePlanEdit
-              plan={selectedPlan}
-              onClose={handleEditModalClose}
-              onUpdateSuccess={handleUpdateSuccess}
-            />
-          }
-          ShowFooter={false}
-        />
-      </div>
+      <main className="vaccination-main">
+        <header className="vaccination-main-header">
+          <div className="vaccination-header-left">
+            <div className="vaccination-nav-buttons">
+              <button className="vaccination-nav-btn" onClick={handlePrev}>
+                <ChevronLeft size={20} />
+              </button>
+              <button className="vaccination-nav-btn" onClick={handleNext}>
+                <ChevronRight size={20} />
+              </button>
+            </div>
+            <button className="vaccination-today-btn" onClick={handleToday}>
+              Bugün
+            </button>
+            <h1 className="vaccination-current-date">{currentTitle}</h1>
+          </div>
+
+          <div className="vaccination-header-right">
+            <div className="vaccination-view-switcher">
+              <button
+                className={`vaccination-view-btn ${currentView === "dayGridMonth" ? "active" : ""}`}
+                onClick={() => handleViewChange("dayGridMonth")}
+              >
+                Ay
+              </button>
+              <button
+                className={`vaccination-view-btn ${currentView === "timeGridWeek" ? "active" : ""}`}
+                onClick={() => handleViewChange("timeGridWeek")}
+              >
+                Hafta
+              </button>
+              <button
+                className={`vaccination-view-btn ${currentView === "timeGridDay" ? "active" : ""}`}
+                onClick={() => handleViewChange("timeGridDay")}
+              >
+                Gün
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <div className="vaccination-calendar-container">
+          <FullCalendar
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            initialView="dayGridMonth"
+            ref={calendarRef}
+            locale={trLocale}
+            selectable={true}
+            editable={true}
+            eventDrop={handleEventDrop}
+            events={events}
+            eventClick={handleEventClick}
+            datesSet={handleDatesSet}
+            dateClick={handleDateClick}
+            eventDisplay="block"
+            firstDay={1}
+            height="auto"
+            dayMaxEvents={3}
+            headerToolbar={false}
+          />
+        </div>
+      </main>
+
+      <MainModal
+        isOpen={showVaccineModal}
+        toggle={handleModalClose}
+        title="Aşı Planlama"
+        content={
+          <VaccinationPlanForm
+            ref={formRef}
+            materialsList={materialsList}
+            initialDate={startDate}
+          />
+        }
+        onSave={handleSave}
+        saveButtonLabel="Kaydet"
+      />
+
+      <MainModal
+        isOpen={showEditModal}
+        toggle={handleEditModalClose}
+        title="Aşı Planı Düzenle"
+        content={
+          <VaccinePlanEdit
+            plan={selectedPlan}
+            onClose={handleEditModalClose}
+            onUpdateSuccess={handleUpdateSuccess}
+          />
+        }
+        ShowFooter={false}
+      />
     </div>
   );
 };

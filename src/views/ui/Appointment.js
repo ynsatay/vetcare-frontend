@@ -428,7 +428,7 @@ const Appointment = () => {
             locale={tr}
             timeZone="local"
             firstDay={1}
-            height="90%"
+            height="auto"
             dayMaxEvents={3}
             headerToolbar={false}
             nowIndicator={true}
