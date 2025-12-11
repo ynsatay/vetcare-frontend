@@ -15,9 +15,9 @@ dayjs.extend(utc);
 dayjs.locale(trLocale);
 
 const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView }, ref) => {
-  // startDate ve endDate artık dayjs UTC objeleri
-  const [startDate, setStartDate] = useState(startDateProp ? dayjs.utc(startDateProp) : null);
-  const [endDate, setEndDate] = useState(endDateProp ? dayjs.utc(endDateProp) : null);
+  // startDate ve endDate artık dayjs local objeleri
+  const [startDate, setStartDate] = useState(startDateProp ? dayjs(startDateProp) : null);
+  const [endDate, setEndDate] = useState(endDateProp ? dayjs(endDateProp) : null);
   const [patientName, setPatientName] = useState('');
   const [userAnimalId, setUserAnimalId] = useState(null);
   const [notes, setNotes] = useState('');
@@ -29,14 +29,14 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
   const isCheckboxDisabled = currentView !== "dayGridMonth";
 
   useEffect(() => {
-    if (startDateProp) setStartDate(dayjs.utc(startDateProp));
-    if (endDateProp) setEndDate(dayjs.utc(endDateProp));
+    if (startDateProp) setStartDate(dayjs(startDateProp));
+    if (endDateProp) setEndDate(dayjs(endDateProp));
   }, [startDateProp, endDateProp]);
 
-  // UTC zaman formatını backend uyumlu stringe dönüştürür
-  const toUTCString = (date) => {
+  // Local zaman formatını backend uyumlu stringe dönüştürür
+  const toLocalString = (date) => {
     if (!date) return null;
-    return date.utc().format('YYYY-MM-DD HH:mm:ss');
+    return date.format('YYYY-MM-DD HH:mm:ss');
   };
 
   useImperativeHandle(ref, () => ({
@@ -47,9 +47,9 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
       }
       return {
         user_animal_id: userAnimalId,
-        process_date: dayjs.utc().format('YYYY-MM-DD HH:mm:ss'), // şimdiki zamanı UTC olarak yolla
-        start_time: toUTCString(startDate),
-        end_time: toUTCString(endDate),
+        process_date: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+        start_time: toLocalString(startDate),
+        end_time: toLocalString(endDate),
         notes: notes || null,
         status: 0,
         app_type: appType,
@@ -62,17 +62,17 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
     }
   }));
 
-  // Tarih seçerken UTC modunda al, böylece saat farkı olmaz
+  // Tarih seçerken local modunda al
   const handleStartDateChange = (newValue) => {
-    setStartDate(newValue ? dayjs.utc(newValue) : null);
+    setStartDate(newValue ? dayjs(newValue) : null);
   };
 
   const handleEndDateChange = (newValue) => {
     if (newValue && startDate && newValue.isBefore(startDate)) {
       confirm("Bitiş tarihi, başlangıç tarihinden önce olamaz.", "Tamam", "", "Uyarı");
-      setEndDate(startDate.add(30, 'minute')); // başlangıca 30 dakika ekle
+      setEndDate(startDate.add(30, 'minute'));
     } else {
-      setEndDate(newValue ? dayjs.utc(newValue) : null);
+      setEndDate(newValue ? dayjs(newValue) : null);
     }
   };
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -7,21 +7,29 @@ import tr from "date-fns/locale/tr";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import { 
+  Calendar, 
+  ChevronLeft, 
+  ChevronRight, 
+  Plus,
+  PawPrint
+} from "lucide-react";
 
 import axiosInstance from "../../api/axiosInstance.ts";
 import MainModal from "../../components/MainModal";
 import AppointmentForm from "../popup/AppointmentForm";
 import AppointmentDetails from "../popup/AppDetail";
 import { useConfirm } from "../../components/ConfirmContext";
+import "./Appointment.css";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const statusColors = {
-  0: "#4e73df", // Beklemede → Mavi
-  1: "#f6c23e", // Geldi → Sarı
-  2: "#1cc88a", // Tamamlandı → Yeşil
-  3: "#e74a3b", // İptal Edildi → Kırmızı
+  0: "#7c3aed",
+  1: "#d97706",
+  2: "#059669",
+  3: "#dc2626",
 };
 
 const Appointment = () => {
@@ -29,18 +37,58 @@ const Appointment = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [startDate, setStartDate] = useState(null); // UTC Date objesi
+  const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [initialName, setInitialName] = useState("");
   const [currentView, setCurrentView] = useState("dayGridMonth");
   const [isUpdating, setIsUpdating] = useState(false);
+  const [currentTitle, setCurrentTitle] = useState("");
+  const [miniCalendarDate, setMiniCalendarDate] = useState(dayjs());
 
   const formRef = useRef();
   const calendarRef = useRef();
 
   const { confirm } = useConfirm();
 
-  // Fetch appointments from backend and map dates as UTC Date objects
+  const stats = useMemo(() => {
+    const pending = events.filter(e => e.extendedProps?.status === 0).length;
+    const arrived = events.filter(e => e.extendedProps?.status === 1).length;
+    const completed = events.filter(e => e.extendedProps?.status === 2).length;
+    const cancelled = events.filter(e => e.extendedProps?.status === 3).length;
+    return { pending, arrived, completed, cancelled };
+  }, [events]);
+
+  const miniCalendarDays = useMemo(() => {
+    const startOfMonth = miniCalendarDate.startOf('month');
+    const endOfMonth = miniCalendarDate.endOf('month');
+    const startDay = startOfMonth.day() === 0 ? 6 : startOfMonth.day() - 1;
+    
+    const days = [];
+    const prevMonth = startOfMonth.subtract(1, 'day');
+    
+    for (let i = startDay - 1; i >= 0; i--) {
+      days.push({ day: prevMonth.subtract(i, 'day').date(), isOtherMonth: true });
+    }
+    
+    for (let i = 1; i <= endOfMonth.date(); i++) {
+      const date = miniCalendarDate.date(i);
+      const hasEvent = events.some(e => dayjs(e.start).isSame(date, 'day'));
+      days.push({ 
+        day: i, 
+        isOtherMonth: false, 
+        isToday: date.isSame(dayjs(), 'day'),
+        hasEvent 
+      });
+    }
+    
+    const remaining = 42 - days.length;
+    for (let i = 1; i <= remaining; i++) {
+      days.push({ day: i, isOtherMonth: true });
+    }
+    
+    return days;
+  }, [miniCalendarDate, events]);
+
   const fetchAppointments = useCallback(async () => {
     try {
       const res = await axiosInstance.get("/getappointment");
@@ -48,10 +96,10 @@ const Appointment = () => {
         const appts = res.data.data.map((item) => ({
           id: item.id.toString(),
           title: `${item.user_name} - ${item.animal_name || ""}`,
-          start: dayjs.utc(item.start_time).toDate(), // UTC Date object
-          end: dayjs.utc(item.end_time).toDate(), // UTC Date object
-          backgroundColor: statusColors[item.status] || "#4e73df",
-          borderColor: statusColors[item.status] || "#4e73df",
+          start: dayjs(item.start_time).toDate(),
+          end: dayjs(item.end_time).toDate(),
+          backgroundColor: statusColors[item.status] || "#7c3aed",
+          borderColor: statusColors[item.status] || "#7c3aed",
           textColor: "#fff",
           extendedProps: {
             notes: item.notes,
@@ -63,7 +111,6 @@ const Appointment = () => {
         setEvents(appts);
       } else {
         setEvents([]);
-        console.error("Randevu verisi alınamadı:", res.data);
       }
     } catch (err) {
       setEvents([]);
@@ -75,28 +122,25 @@ const Appointment = () => {
     fetchAppointments();
   }, [fetchAppointments]);
 
-  // Backend update helper (drag/drop & resize)
   const updateAppointmentTimes = async (event) => {
-    const startUtc = dayjs.utc(event.start);
-    const endUtc = dayjs.utc(event.end || event.start);
+    const startLocal = dayjs(event.start);
+    const endLocal = dayjs(event.end || event.start);
     const payload = {
       id: event.id,
-      start_time: startUtc.format("YYYY-MM-DD HH:mm:ss"),
-      end_time: endUtc.format("YYYY-MM-DD HH:mm:ss"),
+      start_time: startLocal.format("YYYY-MM-DD HH:mm:ss"),
+      end_time: endLocal.format("YYYY-MM-DD HH:mm:ss"),
       status: event.extendedProps?.status ?? 0,
     };
     await axiosInstance.post("/updateappointment", payload);
   };
 
-  // Calendar event select (create new)
   const handleSelect = (selectInfo) => {
     const calendarApi = calendarRef.current?.getApi();
     const viewType = calendarApi?.view?.type;
-    const now = dayjs.utc();
-    const selectedStart = dayjs.utc(selectInfo.start);
+    const now = dayjs();
+    const selectedStart = dayjs(selectInfo.start);
 
     if (viewType === "dayGridMonth") {
-      // Ay görünümü sadece tarih kontrolü UTC olarak
       if (selectedStart.isBefore(now.startOf("day"))) {
         confirm("Geçmiş bir güne randevu veremezsiniz.", "Tamam", "", "Uyarı");
         return;
@@ -109,12 +153,12 @@ const Appointment = () => {
     }
 
     let adjustedEnd;
-    const isSameDay = selectedStart.isSame(dayjs.utc(selectInfo.end).subtract(1, "ms"), "day");
+    const isSameDay = selectedStart.isSame(dayjs(selectInfo.end).subtract(1, "ms"), "day");
 
     if (isSameDay) {
       adjustedEnd = selectedStart.add(30, "minute");
     } else {
-      adjustedEnd = dayjs.utc(selectInfo.end).subtract(1, "ms").endOf("day");
+      adjustedEnd = dayjs(selectInfo.end).subtract(1, "ms").endOf("day");
     }
 
     setStartDate(selectedStart.toDate());
@@ -123,13 +167,11 @@ const Appointment = () => {
     setShowModal(true);
   };
 
-  // Calendar event click (show detail)
   const handleEventClick = (clickInfo) => {
     setSelectedEvent(clickInfo.event);
     setShowDetailModal(true);
   };
 
-  // Drag-drop / resize handler
   const handleEventChange = async (changeInfo) => {
     const { event, revert } = changeInfo;
     try {
@@ -138,7 +180,7 @@ const Appointment = () => {
       await fetchAppointments();
       confirm("Randevu tarihi güncellendi.", "Tamam", "", "Bilgi");
     } catch (err) {
-      console.error("Randevu güncelleme hatası (sürükle-bırak):", err);
+      console.error("Randevu güncelleme hatası:", err);
       revert();
       confirm("Güncelleme başarısız. Lütfen tekrar deneyin.", "Tamam", "", "Uyarı");
     } finally {
@@ -146,18 +188,9 @@ const Appointment = () => {
     }
   };
 
-  // Save new appointment
   const handleSave = async (newEvent) => {
-
     if (newEvent) {
-      let {
-        user_animal_id,
-        start_time,
-        end_time,
-        notes,
-        app_type,
-        appDay
-      } = newEvent;
+      let { user_animal_id, start_time, end_time, notes, app_type, appDay } = newEvent;
 
       if (currentView !== "dayGridMonth") {
         appDay = false;
@@ -167,25 +200,15 @@ const Appointment = () => {
       const endDate = new Date(end_time);
       const oneDay = 24 * 60 * 60 * 1000;
 
-      // const setTimeToDate = (date, timeRef) => {
-      //   const newDate = new Date(date);
-      //   newDate.setHours(timeRef.getHours(), timeRef.getMinutes(), 0, 0);
-      //   return newDate;
-      // };
-
       try {
         const dayCount = Math.floor((endDate - startDate) / oneDay) + 1;
-        if (appDay && (dayCount > 1)) {
-          // Çok günlük randevu ise günlere böl
+        if (appDay && dayCount > 1) {
           for (let i = 0; i < dayCount; i++) {
             const currentDate = new Date(startDate.getTime() + i * oneDay);
-
-            // Her güne özel sabit saat verelim örnek: 09:00 - 17:00
             const currentStart = new Date(currentDate);
-            currentStart.setHours(9, 0, 0, 0); // 09:00
-
+            currentStart.setHours(9, 0, 0, 0);
             const currentEnd = new Date(currentDate);
-            currentEnd.setHours(17, 0, 0, 0); // 17:00
+            currentEnd.setHours(17, 0, 0, 0);
 
             const response = await axiosInstance.post("/addappointment", {
               user_animal_id,
@@ -198,7 +221,6 @@ const Appointment = () => {
             });
 
             if (response.data.status !== "success") {
-              console.error("Error saving appointment:", response.data.message);
               confirm("Randevu kaydı başarısız: " + response.data.message, "Tamam", "", "Uyarı");
               break;
             }
@@ -215,7 +237,6 @@ const Appointment = () => {
           });
 
           if (response.data.status !== "success") {
-            console.error("Error saving appointment:", response.data.message);
             confirm("Randevu kaydı başarısız: " + response.data.message, "Tamam", "", "Uyarı");
           }
         }
@@ -229,119 +250,224 @@ const Appointment = () => {
     }
   };
 
-  // Calendar view change
   const handleDatesSet = (arg) => {
     setCurrentView(arg.view.type);
+    setCurrentTitle(arg.view.title);
+  };
+
+  const handlePrev = () => calendarRef.current?.getApi()?.prev();
+  const handleNext = () => calendarRef.current?.getApi()?.next();
+  const handleToday = () => calendarRef.current?.getApi()?.today();
+  const handleViewChange = (view) => calendarRef.current?.getApi()?.changeView(view);
+
+  const openNewAppointmentModal = () => {
+    const now = dayjs();
+    setStartDate(now.toDate());
+    setEndDate(now.add(30, 'minute').toDate());
+    setInitialName("");
+    setShowModal(true);
   };
 
   return (
-    <div style={{ background: "linear-gradient(180deg, #eef2ff 0%, #f8fafc 100%)", minHeight: "100vh", padding: "16px" }}>
-      <div
-        style={{
-          padding: "18px 20px",
-          background: "#fff",
-          borderRadius: 16,
-          boxShadow: "0 10px 30px rgba(15,23,42,0.08)",
-          border: "1px solid #e5e7eb",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 16 }}>
-          <div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 24 }}>📅</span> Randevu Takvimi
+    <div className="appointment-page">
+      <aside className="appointment-sidebar">
+        <div className="sidebar-header">
+          <div className="sidebar-logo">
+            <div className="logo-icon">
+              <PawPrint />
             </div>
-            <div style={{ fontSize: 13, color: "#6b7280", marginTop: 4 }}>
-              Sürükle-bırak ile randevuları başka güne veya saate taşıyın
+            <div>
+              <div className="logo-text">VetCare</div>
+              <div className="logo-subtitle">Randevu Yönetimi</div>
             </div>
           </div>
-          {isUpdating && (
-            <div style={{ fontSize: 12, color: "#6b7280" }}>Kaydediliyor…</div>
-          )}
+          
+          <button className="new-appointment-btn" onClick={openNewAppointmentModal}>
+            <Plus size={20} />
+            Yeni Randevu
+          </button>
         </div>
 
-        <FullCalendar
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          initialView="dayGridMonth"
-          ref={calendarRef}
-          selectable={true}
-          select={handleSelect}
-          eventClick={handleEventClick}
-          events={events}
-          datesSet={handleDatesSet}
-          editable={true}
-          eventDurationEditable={true}
-          eventDrop={handleEventChange}
-          eventResize={handleEventChange}
-          eventDisplay="block"
-          locale={tr}
-          timeZone="UTC" // Burada UTC ayarlı
-          firstDay={1}
-          height="auto"
-          headerToolbar={{
-            left: "prev,next today",
-            center: "title",
-            right: "dayGridMonth,timeGridWeek,timeGridDay",
-          }}
-          buttonText={{
-            today: "Bugün",
-            month: "Ay",
-            week: "Hafta",
-            day: "Gün",
-          }}
-        />
-
-        <div style={{ marginTop: 20, display: 'flex', gap: 20, alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ width: 20, height: 20, backgroundColor: '#4e73df', borderRadius: 4 }}></div>
-            <span>Beklemede</span>
+        <div className="sidebar-stats">
+          <div className="stats-title">Randevu Durumları</div>
+          
+          <div className="stat-item">
+            <div className="stat-left">
+              <div className="stat-indicator pending" />
+              <span className="stat-name">Beklemede</span>
+            </div>
+            <span className="stat-count">{stats.pending}</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ width: 20, height: 20, backgroundColor: '#f6c23e', borderRadius: 4 }}></div>
-            <span>Geldi</span>
+          
+          <div className="stat-item">
+            <div className="stat-left">
+              <div className="stat-indicator arrived" />
+              <span className="stat-name">Geldi</span>
+            </div>
+            <span className="stat-count">{stats.arrived}</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ width: 20, height: 20, backgroundColor: '#1cc88a', borderRadius: 4 }}></div>
-            <span>Tamamlandı</span>
+          
+          <div className="stat-item">
+            <div className="stat-left">
+              <div className="stat-indicator completed" />
+              <span className="stat-name">Tamamlandı</span>
+            </div>
+            <span className="stat-count">{stats.completed}</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ width: 20, height: 20, backgroundColor: '#e74a3b', borderRadius: 4 }}></div>
-            <span>İptal Edildi</span>
+          
+          <div className="stat-item">
+            <div className="stat-left">
+              <div className="stat-indicator cancelled" />
+              <span className="stat-name">İptal Edildi</span>
+            </div>
+            <span className="stat-count">{stats.cancelled}</span>
           </div>
         </div>
 
-        <MainModal
-          isOpen={showModal}
-          toggle={() => setShowModal(false)}
-          title="Randevu Oluştur"
-          content={
-            <AppointmentForm
-              ref={formRef}
-              startDateProp={startDate}
-              endDateProp={endDate}
-              initialName={initialName}
-              currentView={currentView}
-            />
-          }
-          onSave={handleSave}
-          saveButtonLabel="Kaydet"
-        />
+        <div className="sidebar-mini-calendar">
+          <div className="mini-calendar-header">
+            <span className="mini-calendar-title">
+              {miniCalendarDate.format('MMMM YYYY')}
+            </span>
+            <div className="mini-calendar-nav">
+              <button 
+                className="mini-nav-btn" 
+                onClick={() => setMiniCalendarDate(d => d.subtract(1, 'month'))}
+              >
+                <ChevronLeft size={14} />
+              </button>
+              <button 
+                className="mini-nav-btn"
+                onClick={() => setMiniCalendarDate(d => d.add(1, 'month'))}
+              >
+                <ChevronRight size={14} />
+              </button>
+            </div>
+          </div>
+          
+          <div className="mini-calendar-grid">
+            {['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pa'].map(d => (
+              <div key={d} className="mini-day-header">{d}</div>
+            ))}
+            {miniCalendarDays.map((d, i) => (
+              <div 
+                key={i} 
+                className={`mini-day ${d.isOtherMonth ? 'other-month' : ''} ${d.isToday ? 'today' : ''} ${d.hasEvent ? 'has-event' : ''}`}
+                style={{ opacity: d.isOtherMonth ? 0.3 : 1 }}
+              >
+                {d.day}
+              </div>
+            ))}
+          </div>
+        </div>
+      </aside>
 
-        <MainModal
-          isOpen={showDetailModal}
-          toggle={() => setShowDetailModal(false)}
-          title="Randevu Detayı"
-          content={
-            <AppointmentDetails
-              event={selectedEvent}
-              onClose={() => setShowDetailModal(false)}
-              onUpdateSuccess={fetchAppointments}
-            />
-          }
-          saveButtonLabel="Tamam"
-          onSave={() => setShowDetailModal(false)}
-          ShowFooter={false}
-        />
-      </div>
+      <main className="appointment-main">
+        <header className="main-header">
+          <div className="header-left">
+            <div className="nav-buttons">
+              <button className="nav-btn" onClick={handlePrev}>
+                <ChevronLeft size={20} />
+              </button>
+              <button className="nav-btn" onClick={handleNext}>
+                <ChevronRight size={20} />
+              </button>
+            </div>
+            <button className="today-btn" onClick={handleToday}>
+              Bugün
+            </button>
+            <h1 className="current-date">{currentTitle}</h1>
+          </div>
+
+          <div className="header-right">
+            {isUpdating && (
+              <div className="updating-badge">
+                <div className="updating-dot" />
+                Kaydediliyor...
+              </div>
+            )}
+            
+            <div className="view-switcher">
+              <button
+                className={`view-btn ${currentView === "dayGridMonth" ? "active" : ""}`}
+                onClick={() => handleViewChange("dayGridMonth")}
+              >
+                Ay
+              </button>
+              <button
+                className={`view-btn ${currentView === "timeGridWeek" ? "active" : ""}`}
+                onClick={() => handleViewChange("timeGridWeek")}
+              >
+                Hafta
+              </button>
+              <button
+                className={`view-btn ${currentView === "timeGridDay" ? "active" : ""}`}
+                onClick={() => handleViewChange("timeGridDay")}
+              >
+                Gün
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <div className="calendar-container">
+          <FullCalendar
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            initialView="dayGridMonth"
+            ref={calendarRef}
+            selectable={true}
+            select={handleSelect}
+            eventClick={handleEventClick}
+            events={events}
+            datesSet={handleDatesSet}
+            editable={true}
+            eventDurationEditable={true}
+            eventDrop={handleEventChange}
+            eventResize={handleEventChange}
+            eventDisplay="block"
+            locale={tr}
+            timeZone="local"
+            firstDay={1}
+            height="90%"
+            dayMaxEvents={3}
+            headerToolbar={false}
+            nowIndicator={true}
+          />
+        </div>
+      </main>
+
+      <MainModal
+        isOpen={showModal}
+        toggle={() => setShowModal(false)}
+        title="Randevu Oluştur"
+        content={
+          <AppointmentForm
+            ref={formRef}
+            startDateProp={startDate}
+            endDateProp={endDate}
+            initialName={initialName}
+            currentView={currentView}
+          />
+        }
+        onSave={handleSave}
+        saveButtonLabel="Kaydet"
+      />
+
+      <MainModal
+        isOpen={showDetailModal}
+        toggle={() => setShowDetailModal(false)}
+        title="Randevu Detayı"
+        content={
+          <AppointmentDetails
+            event={selectedEvent}
+            onClose={() => setShowDetailModal(false)}
+            onUpdateSuccess={fetchAppointments}
+          />
+        }
+        saveButtonLabel="Tamam"
+        onSave={() => setShowDetailModal(false)}
+        ShowFooter={false}
+      />
     </div>
   );
 };
