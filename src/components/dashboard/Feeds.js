@@ -101,7 +101,7 @@ const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
                 f.title,
                 f.icon,
                 f.color,
-                dayjs(f.created_at).local().format("DD.MM.YYYY HH:mm"),
+                dayjs(f.created_at).format("DD.MM.YYYY HH:mm"),
               ]);
               const csv = [header, ...rows].map((r) => r.join(",")).join("\n");
               const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
