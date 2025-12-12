@@ -11,6 +11,11 @@ import {
   Button,
 } from "reactstrap";
 import "../../views/ui/IdentityInfo.css";
+import timezone from "dayjs/plugin/timezone";
+import tr from "dayjs/locale/tr";
+
+dayjs.extend(timezone);
+dayjs.locale(tr);
 
 const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
   const [feeds, setFeeds] = useState([]);
@@ -101,7 +106,7 @@ const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
                 f.title,
                 f.icon,
                 f.color,
-                dayjs(f.created_at).format("DD.MM.YYYY HH:mm"),
+                dayjs(f.created_at).local(),
               ]);
               const csv = [header, ...rows].map((r) => r.join(",")).join("\n");
               const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
