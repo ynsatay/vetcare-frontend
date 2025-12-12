@@ -82,6 +82,7 @@ const EditProviderPrice = ({ initialData, onClose }) => {
             }
             onClose();
         } catch (err) {
+            if (err.__demo_blocked) return; 
             alert(err.response?.data?.message || err.message || 'Kayıt işlemi başarısız.');
         }
     };

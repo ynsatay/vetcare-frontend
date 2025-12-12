@@ -1,14 +1,16 @@
 import axios from 'axios';
 import { logoutRef } from "../context/usercontext.tsx";
+import { toast } from "react-toastify";
 
 const isLocalhost = window.location.hostname === "localhost";
 
 const axiosInstance = axios.create({
-  baseURL: isLocalhost 
+  baseURL: isLocalhost
     ? "http://localhost:3001/api"
     : "https://vetcaretr.com/api",
 });
 
+// REQUEST
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -20,6 +22,7 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// RESPONSE
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -27,16 +30,19 @@ axiosInstance.interceptors.response.use(
       const status = error.response.status;
       const code = error.response.data?.code;
 
+      // ⭐ DEMO USER BLOCK — bu işlem hiçbir yere gitmesin
       if (code === "DEMO_USER_BLOCKED") {
-        window.alert("Demo hesabı ile bu işlemi yapamazsınız.");
-        return Promise.reject(error);
+        toast.info("Demo hesabı ile bu işlemi yapamazsınız.");
+        return Promise.reject({ __demo_blocked: true });   // ❗ özel işaret
       }
 
+      // ⭐ TOKEN EXPIRED
       if (status === 401 || status === 403) {
-        window.alert("Oturumunuzun süresi doldu. Lütfen tekrar giriş yapın.");
+        toast.error("Oturumunuzun süresi doldu. Lütfen tekrar giriş yapın.");
         localStorage.clear();
         logoutRef();
         window.location.href = "/login";
+        return Promise.reject({ __auth_error: true });
       }
     }
 

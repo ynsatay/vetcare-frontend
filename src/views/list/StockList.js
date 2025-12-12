@@ -155,6 +155,7 @@ const StockList = () => {
             await fetchMaterials();
             setSelectedRow(null);
         } catch (error) {
+            if (error.__demo_blocked) return; 
             await new Promise(resolve => setTimeout(resolve, 300));
             await confirm(
                 error.response?.data?.message || error.message || "Bir hata oluştu",

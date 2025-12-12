@@ -12,7 +12,7 @@ const AddStock = forwardRef(({ onClose }, ref) => {
         name: '',
         price: 0,
         //quantity: '', //Stok Alım Ekanı için kaldırıldı. 
-        unit: 0,
+        unit: "",
         category: 0,
         min_stock_level: 0,
         barcode: 0,
@@ -119,6 +119,7 @@ const AddStock = forwardRef(({ onClose }, ref) => {
                             name="unit"
                             value={formData.unit}
                             onChange={handleChange}
+
                         >
                             <option value="">Seçiniz</option>
                             {units.map(opt => (

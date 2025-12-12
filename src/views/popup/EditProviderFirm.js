@@ -67,6 +67,8 @@ const EditProviderFirm = ({ initialData = null, onClose }) => {
       }
       onClose();
     } catch (error) {
+      if (error.__demo_blocked) return; 
+      
       console.error('Firma kaydetme hatası:', error);
       toast.error('Firma kaydedilirken hata oluştu.');
     }

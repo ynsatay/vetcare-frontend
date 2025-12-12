@@ -169,6 +169,7 @@ function StockInvoicePage() {
       setIsNewInv(false);
 
     } catch (err) {
+      if (err.__demo_blocked) return; 
       console.error("Kaydetme hatası:", err);
       await confirm(
         err.response?.data?.message ||
