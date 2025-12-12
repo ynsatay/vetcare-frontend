@@ -12,6 +12,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import tr from "dayjs/locale/tr";
 
 import axiosInstance from "../../api/axiosInstance.ts";
@@ -19,6 +20,7 @@ import ConfirmDialog from "../../components/ConfirmDialog.js";
 import { useConfirm } from '../../components/ConfirmContext';
 
 dayjs.extend(utc);
+dayjs.extend(timezone);
 dayjs.locale(tr);
 
 const statusOptions = [
@@ -37,8 +39,8 @@ const AppointmentDetails = ({ event, onUpdateSuccess, onClose }) => {
 
   useEffect(() => {
     if (event) {
-      setStart(event.start ? dayjs.utc(event.start) : null);
-      setEnd(event.end ? dayjs.utc(event.end) : null);
+      setStart(event.start ? dayjs(event.start).local() : null);
+      setEnd(event.end ? dayjs(event.end).local() : null);
       setStatus(event.extendedProps?.status ?? 0);
     }
   }, [event]);
@@ -54,9 +56,8 @@ const AppointmentDetails = ({ event, onUpdateSuccess, onClose }) => {
     }
 
     try {
-      // Backend UTC string formatını kabul ediyor
-      const formattedStart = start.utc().format("YYYY-MM-DD HH:mm:ss");
-      const formattedEnd = end.utc().format("YYYY-MM-DD HH:mm:ss");
+      const formattedStart = start.format("YYYY-MM-DD HH:mm:ss");
+      const formattedEnd = end.format("YYYY-MM-DD HH:mm:ss");
 
       const response = await axiosInstance.post("/updateappointment", {
         id: event.id,
@@ -115,7 +116,7 @@ const AppointmentDetails = ({ event, onUpdateSuccess, onClose }) => {
         <Grid item xs={7}>
           <DateTimePicker
             value={start}
-            onChange={(newVal) => setStart(newVal ? dayjs.utc(newVal) : null)}
+            onChange={(newVal) => setStart(newVal ? dayjs(newVal).local() : null)}
             renderInput={(params) => <TextField fullWidth size="small" {...params} />}
             maxDateTime={end || undefined}
             ampm={false}
@@ -128,7 +129,7 @@ const AppointmentDetails = ({ event, onUpdateSuccess, onClose }) => {
         <Grid item xs={7}>
           <DateTimePicker
             value={end}
-            onChange={(newVal) => setEnd(newVal ? dayjs.utc(newVal) : null)}
+            onChange={(newVal) => setEnd(newVal ? dayjs(newVal).local() : null)}
             renderInput={(params) => <TextField fullWidth size="small" {...params} />}
             minDateTime={start || undefined}
             ampm={false}

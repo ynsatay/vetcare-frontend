@@ -8,16 +8,18 @@ import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import trLocale from 'dayjs/locale/tr';
 import { useConfirm } from '../../components/ConfirmContext';
 
 dayjs.extend(utc);
+dayjs.extend(timezone);
 dayjs.locale(trLocale);
 
 const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView }, ref) => {
   // startDate ve endDate artık dayjs local objeleri
-  const [startDate, setStartDate] = useState(startDateProp ? dayjs(startDateProp) : null);
-  const [endDate, setEndDate] = useState(endDateProp ? dayjs(endDateProp) : null);
+  const [startDate, setStartDate] = useState(startDateProp ? dayjs(startDateProp).local() : null);
+  const [endDate, setEndDate] = useState(endDateProp ? dayjs(endDateProp).local() : null);
   const [patientName, setPatientName] = useState('');
   const [userAnimalId, setUserAnimalId] = useState(null);
   const [notes, setNotes] = useState('');
@@ -29,8 +31,8 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
   const isCheckboxDisabled = currentView !== "dayGridMonth";
 
   useEffect(() => {
-    if (startDateProp) setStartDate(dayjs(startDateProp));
-    if (endDateProp) setEndDate(dayjs(endDateProp));
+    if (startDateProp) setStartDate(dayjs(startDateProp).local());
+    if (endDateProp) setEndDate(dayjs(endDateProp).local());
   }, [startDateProp, endDateProp]);
 
   // Local zaman formatını backend uyumlu stringe dönüştürür
@@ -64,7 +66,7 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
 
   // Tarih seçerken local modunda al
   const handleStartDateChange = (newValue) => {
-    setStartDate(newValue ? dayjs(newValue) : null);
+    setStartDate(newValue ? dayjs(newValue).local() : null);
   };
 
   const handleEndDateChange = (newValue) => {
@@ -72,7 +74,7 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
       confirm("Bitiş tarihi, başlangıç tarihinden önce olamaz.", "Tamam", "", "Uyarı");
       setEndDate(startDate.add(30, 'minute'));
     } else {
-      setEndDate(newValue ? dayjs(newValue) : null);
+      setEndDate(newValue ? dayjs(newValue).local() : null);
     }
   };
 
