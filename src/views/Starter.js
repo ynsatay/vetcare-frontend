@@ -162,7 +162,7 @@ const Starter = () => {
         <button className={`identity-tab ${activeTab === 'genel' ? 'active' : ''}`} onClick={() => setActiveTab('genel')}>Aşı Kullanım</button>
         <button className={`identity-tab ${activeTab === 'stok' ? 'active' : ''}`} onClick={() => setActiveTab('stok')}>Stok Kullanım</button>
         <button className={`identity-tab ${activeTab === 'hizmet' ? 'active' : ''}`} onClick={() => setActiveTab('hizmet')}>Hizmet Kullanım</button>
-        <button className={`identity-tab ${activeTab === 'ozet' ? 'active' : ''}`} onClick={() => setActiveTab('ozet')}>Özet/Akış</button>
+        <button className={`identity-tab ${activeTab === 'ozet' ? 'active' : ''}`} onClick={() => setActiveTab('ozet')}>Özet/Akışlar</button>
       </div>
 
       {activeTab === 'genel' ? (
