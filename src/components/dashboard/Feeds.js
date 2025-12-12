@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import axiosInstance from "../../api/axiosInstance.ts";
 import {
   Card,
@@ -9,23 +9,49 @@ import {
   ListGroupItem,
   Button,
 } from "reactstrap";
+import "../../views/ui/IdentityInfo.css";
 
-const Feeds = () => {
+const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
   const [feeds, setFeeds] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [localTab, setLocalTab] = useState("payments");
+  const [search, setSearch] = useState("");
+  const [isMobile, setIsMobile] = useState(false);
+  const activeTab = controlledTab ?? localTab;
 
   useEffect(() => {
+    setLoading(true);
     axiosInstance
-      .get("/feeds")  // Backend api adresin
+      .get(`/feeds?category=${activeTab}`)
       .then((res) => {
         setFeeds(res.data);
+        if (onData) onData(res.data);
         setLoading(false);
       })
-      .catch((err) => {
-        console.error("Feeds yüklenirken hata:", err);
+      .catch(() => {
         setLoading(false);
       });
+  }, [activeTab]);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const handler = () => setIsMobile(mq.matches);
+    handler();
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
   }, []);
+
+  const kpi = useMemo(() => {
+    const total = feeds.length;
+    const last = feeds[0];
+    const users = new Set(feeds.map((f) => f.user_name)).size;
+    return {
+      total,
+      lastTitle: last?.title ?? "",
+      lastTime: last ? new Date(last.created_at).toLocaleString() : "",
+      users,
+    };
+  }, [feeds]);
 
   if (loading) {
     return (
@@ -44,22 +70,72 @@ const Feeds = () => {
     <Card>
       <CardBody>
         <CardTitle tag="h5">Akışlar</CardTitle>
-        <CardSubtitle className="mb-2 text-muted" tag="h6">
-          Akış Listesi
-        </CardSubtitle>
+        <div className="identity-tabs" style={{ marginTop: 8, marginBottom: 8 }}>
+          <button className={`identity-tab ${activeTab === 'payments' ? 'active' : ''}`} onClick={() => (onTabChange ? onTabChange('payments') : setLocalTab('payments'))}>Tahsilat</button>
+          <button className={`identity-tab ${activeTab === 'vaccine' ? 'active' : ''}`} onClick={() => (onTabChange ? onTabChange('vaccine') : setLocalTab('vaccine'))}>Aşı</button>
+          <button className={`identity-tab ${activeTab === 'stock' ? 'active' : ''}`} onClick={() => (onTabChange ? onTabChange('stock') : setLocalTab('stock'))}>Stok</button>
+          <button className={`identity-tab ${activeTab === 'service' ? 'active' : ''}`} onClick={() => (onTabChange ? onTabChange('service') : setLocalTab('service'))}>Hizmet</button>
+          <button className={`identity-tab ${activeTab === 'appointment' ? 'active' : ''}`} onClick={() => (onTabChange ? onTabChange('appointment') : setLocalTab('appointment'))}>Randevu</button>
+        </div>
+        <div className="identity-owner-actions" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
+          <span className="identity-chip info">Toplam: {kpi.total}</span>
+          <span className="identity-chip success">Kullanıcı: {kpi.users}</span>
+          {kpi.lastTitle && <span className="identity-chip">Son: {kpi.lastTitle}</span>}
+          {kpi.lastTime && <span className="identity-chip warning">Zaman: {kpi.lastTime}</span>}
+        </div>
+        <div className="identity-input-group" style={{ marginBottom: 10 }}>
+          <input
+            className="identity-owner-input"
+            placeholder="Akışlarda ara..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ fontSize: "0.9rem" }}
+          />
+          <button
+            className="identity-btn identity-btn-xs"
+            onClick={() => {
+              const header = ["Kullanıcı", "Başlık", "İkon", "Renk", "Tarih"];
+              const rows = feeds.map((f) => [
+                f.user_name,
+                f.title,
+                f.icon,
+                f.color,
+                new Date(f.created_at).toLocaleString(),
+              ]);
+              const csv = [header, ...rows].map((r) => r.join(",")).join("\n");
+              const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `feeds-${activeTab}.csv`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            }}
+            style={{ marginLeft: 8 }}
+          >
+            Dışa Aktar
+          </button>
+        </div>
         <ListGroup
           flush
-          className="mt-4"
-          style={{
-            height: "380px",
-            maxHeight: "380px",
-            overflowY: "auto",
-          }}
+          className="mt-3"
+          style={{ height: isMobile ? "300px" : "380px", maxHeight: isMobile ? "300px" : "380px", overflowY: "auto" }}
         >
           {feeds.length === 0 ? (
             <ListGroupItem className="text-center">Akış yok</ListGroupItem>
           ) : (
-            feeds.map((feed, index) => (
+            feeds
+              .filter((f) => {
+                const s = search.trim().toLowerCase();
+                if (!s) return true;
+                return (
+                  (f.title || "").toLowerCase().includes(s) ||
+                  (f.user_name || "").toLowerCase().includes(s)
+                );
+              })
+              .map((feed, index) => (
               <ListGroupItem
                 key={index}
                 className="d-flex justify-content-between align-items-center p-3 border-0"

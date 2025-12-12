@@ -1,0 +1,438 @@
+import { useEffect, useMemo, useState } from "react";
+import Chart from "react-apexcharts";
+import axiosInstance from "../../api/axiosInstance.ts";
+import { Layers, Percent, Download, ChevronLeft, ChevronRight, Search, X } from "lucide-react";
+import "../../views/ui/IdentityInfo.css";
+
+const monthNames = [
+  "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+  "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık",
+];
+
+const ServiceUsageChartYear = () => {
+  const [series, setSeries] = useState([]);
+  const [serviceNames, setServiceNames] = useState([]);
+  const [selectedServices, setSelectedServices] = useState([]);
+  const [windowStart, setWindowStart] = useState(0);
+  const [windowSize, setWindowSize] = useState(12);
+  const [stacked, setStacked] = useState(false);
+  const [normalized, setNormalized] = useState(false);
+  const [grandTotal, setGrandTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [isMobile, setIsMobile] = useState(false);
+  const [serviceFilter, setServiceFilter] = useState("");
+
+  const clampWindow = (start, size) => {
+    const s = Math.max(0, Math.min(12 - size, start));
+    const e = Math.min(11, s + size - 1);
+    return { min: s, max: e };
+  };
+
+  const windowRange = useMemo(() => clampWindow(windowStart, windowSize), [windowStart, windowSize]);
+
+  const baseColors = ["#667eea", "#10b981", "#f59e0b", "#ef4444", "#7c3aed", "#0ea5e9"];
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1024px)");
+    const handler = () => setIsMobile(mq.matches);
+    handler();
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  useEffect(() => {
+    setLoading(true);
+    setError("");
+    axiosInstance.get("/simple-service-usage").then((res) => {
+      const raw = res.data || [];
+      const map = {};
+      for (const item of raw) {
+        const m = (item.month || 1) - 1;
+        const name = item.service_name || "Bilinmiyor";
+        if (!map[name]) map[name] = new Array(12).fill(0);
+        map[name][m] = Number(item.usage || 0);
+      }
+      const names = Object.keys(map);
+      const allSeries = names.map((n) => ({ name: n, data: map[n] }));
+      const total = allSeries.reduce((acc, s) => acc + s.data.reduce((a, b) => a + b, 0), 0);
+      setSeries(allSeries);
+      setServiceNames(names);
+      setSelectedServices(names);
+      setGrandTotal(total);
+    }).catch(() => {
+      setError("Veri alınamadı");
+    }).finally(() => setLoading(false));
+  }, []);
+
+  const areaOptions = useMemo(() => ({
+    chart: { type: "area", stacked, toolbar: { show: false } },
+    dataLabels: { enabled: false },
+    stroke: { curve: "smooth", width: 2 },
+    legend: { show: true },
+    grid: { strokeDashArray: 3 },
+    theme: { mode: "light" },
+    colors: baseColors,
+    xaxis: { categories: monthNames.slice(windowRange.min, windowRange.max + 1) },
+    yaxis: { labels: { formatter: (v) => normalized ? `${Math.round(v)}%` : Math.round(v).toString() } },
+    tooltip: { shared: true, intersect: false },
+    markers: { size: 0 },
+    responsive: [
+      { breakpoint: 1200, options: { legend: { position: "bottom" }, chart: { height: 320 }, xaxis: { labels: { rotate: -10 } } } },
+      { breakpoint: 992, options: { legend: { position: "bottom" }, chart: { height: 300 }, xaxis: { labels: { rotate: -20 } } } },
+      { breakpoint: 768, options: { legend: { show: false }, chart: { height: 260 }, xaxis: { labels: { rotate: -30 } } } },
+      { breakpoint: 480, options: { legend: { show: false }, chart: { height: 220 }, xaxis: { labels: { show: false } } } }
+    ],
+  }), [stacked, normalized, windowRange]);
+
+  const barOptions = useMemo(() => ({
+    chart: { type: "bar", stacked: false, toolbar: { show: false } },
+    dataLabels: { enabled: false },
+    grid: { strokeDashArray: 3 },
+    theme: { mode: "light" },
+    colors: ["#0ea5e9"],
+    xaxis: { categories: monthNames.slice(windowRange.min, windowRange.max + 1) },
+    yaxis: { labels: { formatter: (v) => Math.round(v).toString() } },
+    tooltip: { shared: true, intersect: false },
+    responsive: [
+      { breakpoint: 992, options: { legend: { position: "bottom" }, chart: { height: 200 }, xaxis: { labels: { rotate: -15 } } } },
+      { breakpoint: 768, options: { legend: { show: false }, chart: { height: 180 }, xaxis: { labels: { rotate: -30 } } } },
+      { breakpoint: 480, options: { legend: { show: false }, chart: { height: 160 }, xaxis: { labels: { show: false } } } }
+    ],
+  }), [windowRange]);
+
+  const filteredSeries = useMemo(() => {
+    const names = new Set(selectedServices);
+    return series.filter((s) => names.has(s.name));
+  }, [series, selectedServices]);
+
+  const trendSeries = useMemo(() => {
+    const { min, max } = windowRange;
+    const datas = filteredSeries.map(s => s.data.slice(min, max + 1));
+    if (!normalized) return filteredSeries.map((s, idx) => ({ name: s.name, data: datas[idx] }));
+    const len = max - min + 1;
+    const totals = new Array(len).fill(0);
+    datas.forEach(a => a.forEach((v, i) => { totals[i] += v; }));
+    const normalizedDatas = datas.map(a => a.map((v, i) => totals[i] ? (v / totals[i]) * 100 : 0));
+    return filteredSeries.map((s, idx) => ({ name: s.name, data: normalizedDatas[idx] }));
+  }, [filteredSeries, windowRange, normalized]);
+
+  const distributionSeries = useMemo(() => {
+    const { min, max } = windowRange;
+    const sums = filteredSeries.map(s => ({ name: s.name, value: s.data.slice(min, max + 1).reduce((a, b) => a + b, 0) }));
+    const labels = sums.map(s => s.name);
+    const values = sums.map(s => s.value);
+    return { labels, values };
+  }, [filteredSeries, windowRange]);
+
+  const totalsSeries = useMemo(() => {
+    const { min, max } = windowRange;
+    const len = max - min + 1;
+    const totals = new Array(len).fill(0);
+    filteredSeries.forEach(s => s.data.slice(min, max + 1).forEach((v, i) => { totals[i] += v; }));
+    return [{ name: "Toplam", data: totals }];
+  }, [filteredSeries, windowRange]);
+
+  const currentMonthIndex = new Date().getMonth();
+  const currentMonthTotal = series.reduce((acc, s) => acc + (s.data[currentMonthIndex] || 0), 0);
+  const prevMonthTotal = series.reduce((acc, s) => acc + (s.data[Math.max(0, currentMonthIndex - 1)] || 0), 0);
+  const growth = prevMonthTotal ? (((currentMonthTotal - prevMonthTotal) / prevMonthTotal) * 100) : 0;
+  const topService = useMemo(() => {
+    let best = null;
+    let bestSum = -1;
+    series.forEach(s => {
+      const sum = s.data.reduce((a, b) => a + b, 0);
+      if (sum > bestSum) { bestSum = sum; best = s.name; }
+    });
+    return best || "-";
+  }, [series]);
+
+  const topServiceTrend = useMemo(() => {
+    const found = series.find(s => s.name === topService);
+    return found ? found.data : new Array(12).fill(0);
+  }, [series, topService]);
+
+  const selectTopN = (n) => {
+    const sorted = [...series].sort((a, b) => b.data.reduce((x, y) => x + y, 0) - a.data.reduce((x, y) => x + y, 0));
+    const names = sorted.slice(0, n).map(s => s.name);
+    setSelectedServices(names);
+  };
+
+  const toggleService = (name) => {
+    setSelectedServices((prev) => prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]);
+  };
+  const selectAll = () => setSelectedServices(serviceNames);
+  const clearSelection = () => setSelectedServices([]);
+
+  const exportCsv = () => {
+    const { min, max } = windowRange;
+    const cats = monthNames.slice(min, max + 1);
+    const header = ["Hizmet", ...cats];
+    const rows = filteredSeries.map(s => [s.name, ...s.data.slice(min, max + 1)]);
+    const csv = [header, ...rows].map(r => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "service-usage.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div className="identity-section-card">
+      <div className="identity-panel-banner" style={{ 
+        background: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #0ea5e9 100%)",
+        boxShadow: "0 4px 20px rgba(79, 70, 229, 0.3)"
+      }}>
+        <div>
+          <div className="identity-panel-title" style={{ fontSize: "1.75rem", fontWeight: 700, marginBottom: 4 }}>
+            🛠️ Yıllık Hizmet Kullanımı
+          </div>
+          <div className="identity-panel-sub" style={{ fontSize: "1rem", opacity: 0.9 }}>
+            Detaylı analiz ve performans eğilimleri
+          </div>
+        </div>
+        <div className="identity-header-stats" style={{ gap: 12 }}>
+          <div className="identity-stat-pill" style={{ background: "rgba(255, 255, 255, 0.2)", border: "none" }}>
+            🛠️ Toplam: <strong style={{ color: "#fff", fontSize: "1.1em" }}>{grandTotal}</strong>
+          </div>
+          <div className="identity-stat-pill" style={{ background: "rgba(255, 255, 255, 0.2)", border: "none" }}>
+            📅 Bu Ay: <strong style={{ color: "#fff", fontSize: "1.1em" }}>{Math.round(currentMonthTotal)}</strong>
+          </div>
+          <div className="identity-stat-pill" style={{ 
+            background: growth >= 0 ? "rgba(16, 185, 129, 0.3)" : "rgba(239, 68, 68, 0.3)",
+            border: "none",
+            color: growth >= 0 ? "#10b981" : "#ef4444"
+          }}>
+            📈 Değişim: <strong>{growth >= 0 ? "+" : ""}{Math.round(growth)}%</strong>
+          </div>
+          <div className="identity-stat-pill" style={{ background: "rgba(255, 255, 255, 0.2)", border: "none" }}>
+            🏆 En Çok: <strong style={{ color: "#fff", fontSize: "1.1em" }}>{topService}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div className="identity-action-bar" style={{ flexWrap: "wrap", rowGap: 10, columnGap: 10 }}>
+        <div className="identity-action-group" style={{ gap: 8 }}>
+          <button className="identity-btn identity-btn-xs" onClick={() => setWindowStart(s => Math.max(0, s - 1))}><ChevronLeft size={14} /> Önceki</button>
+          <button className="identity-btn identity-btn-xs" onClick={() => setWindowStart(s => Math.min(12 - windowSize, s + 1))}>Sonraki <ChevronRight size={14} /></button>
+          <button className={`identity-btn identity-btn-xs ${windowSize === 3 ? "identity-btn-primary" : ""}`} onClick={() => setWindowSize(3)}>3 Ay</button>
+          <button className={`identity-btn identity-btn-xs ${windowSize === 6 ? "identity-btn-primary" : ""}`} onClick={() => setWindowSize(6)}>6 Ay</button>
+          <button className={`identity-btn identity-btn-xs ${windowSize === 12 ? "identity-btn-primary" : ""}`} onClick={() => setWindowSize(12)}>12 Ay</button>
+          <button className={`identity-btn identity-btn-xs ${stacked ? "identity-btn-warning" : ""}`} onClick={() => setStacked(s => !s)}><Layers size={14} /> Yığılmış</button>
+          <button className={`identity-btn identity-btn-xs ${normalized ? "identity-btn-accent" : ""}`} onClick={() => setNormalized(n => !n)}><Percent size={14} /> %100</button>
+        </div>
+        <div className="identity-action-group" style={{ marginLeft: "auto", gap: 8 }}>
+          <button className="identity-btn identity-btn-primary identity-btn-xs" onClick={exportCsv}><Download size={14} /> Dışa Aktar</button>
+          <button className="identity-btn identity-btn-xs" onClick={() => selectTopN(5)}>Top 5</button>
+        </div>
+      </div>
+
+      {loading && (
+        <div style={{ padding: 16 }}>
+          <div style={{ height: 390, borderRadius: 12, background: "#f3f4f6" }} />
+        </div>
+      )}
+      {!loading && error && (
+        <div style={{ padding: 16 }}>
+          <div className="identity-owner-actions"><span className="identity-chip warning">{error}</span></div>
+        </div>
+      )}
+      {!loading && !error && (
+        <div style={{ padding: 12 }}>
+          <div className="identity-layout" style={{ gap: 20 }}>
+            <aside className="identity-sidebar" style={{ alignSelf: "stretch", position: "static", height: "100%" }}>
+              <div className="identity-section-card compact" style={{ 
+                background: "linear-gradient(135deg, #faf7ff 0%, #f3e8ff 100%)",
+                border: "1px solid #e9d5ff",
+                boxShadow: "0 4px 20px rgba(139, 92, 246, 0.08)",
+                height: isMobile ? 520 : 640,
+                display: "flex",
+                flexDirection: "column"
+              }}>
+                <div className="identity-section-header">
+                  <h3 className="identity-card-title" style={{ color: "#6b21a8", fontSize: "1.1rem" }}>
+                    🛠️ Hizmet İsimleri
+                  </h3>
+                </div>
+                <div className="identity-input-group" style={{ 
+                  marginBottom: 12,
+                  background: "#ffffff",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: 8
+                }}>
+                  <Search className="identity-input-icon" size={16} color="#64748b" />
+                  <input 
+                    className="identity-owner-input" 
+                    placeholder="Hizmet ara..." 
+                    value={serviceFilter} 
+                    onChange={(e) => setServiceFilter(e.target.value)}
+                    style={{ fontSize: "0.9rem" }}
+                  />
+                </div>
+                <div className="identity-checkbox-grid" style={{ 
+                  flex: 1,
+                  minHeight: 0,
+                  overflowY: "auto",
+                  padding: 4,
+                  background: "rgba(255, 255, 255, 0.6)",
+                  borderRadius: 8,
+                  gridTemplateColumns: "1fr"
+                }}>
+                  {serviceNames.filter(n => n.toLowerCase().includes(serviceFilter.toLowerCase())).map((n) => (
+                    <label key={n} className="identity-checkbox-card" style={{ 
+                      padding: "8px 12px",
+                      borderRadius: 6,
+                      border: "1px solid #f1f5f9",
+                      background: selectedServices.includes(n) ? "#f1f5f9" : "transparent"
+                    }}>
+                      <input type="checkbox" checked={selectedServices.includes(n)} onChange={() => toggleService(n)} />
+                      <span style={{ 
+                        fontSize: "0.9rem",
+                        color: selectedServices.includes(n) ? "#3b82f6" : "#475569"
+                      }}>{n}</span>
+                    </label>
+                  ))}
+                </div>
+                <div className="identity-owner-actions" style={{ 
+                  paddingTop: 12,
+                  borderTop: "1px solid #f1f5f9",
+                  marginTop: 8
+                }}>
+                  <button className="identity-btn identity-btn-primary identity-btn-xs" onClick={selectAll}>
+                    ✅ Hepsini Seç
+                  </button>
+                  <button className="identity-btn identity-btn-ghost identity-btn-xs" onClick={clearSelection}>
+                    🗑️ Temizle
+                  </button>
+                  <button className="identity-btn identity-btn-accent identity-btn-xs" onClick={() => selectTopN(5)}>
+                    🏆 Top 5
+                  </button>
+                </div>
+                <div style={{ 
+                  display: "flex", 
+                  flexWrap: "wrap", 
+                  gap: 8, 
+                  marginTop: 12,
+                  padding: 12,
+                  background: "rgba(255, 255, 255, 0.8)",
+                  borderRadius: 8,
+                  border: "1px solid #f1f5f9",
+                  maxHeight: 140,
+                  overflowY: "auto",
+                  alignContent: "flex-start"
+                }}>
+                  <div style={{ fontSize: "0.8rem", color: "#64748b", marginBottom: 4 }}>
+                    Seçilen Hizmetler ({selectedServices.length}):
+                  </div>
+                  {selectedServices.map((n) => (
+                    <span key={n} className="identity-stat-pill" style={{ 
+                      background: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
+                      color: "white",
+                      border: "none",
+                      fontSize: "0.8rem",
+                      padding: "4px 8px"
+                    }}>
+                      🛠️ {n}
+                      <button className="identity-icon-btn" onClick={() => toggleService(n)} style={{ 
+                        marginLeft: 4,
+                        color: "white",
+                        opacity: 0.8
+                      }}>
+                        <X size={12} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </aside>
+            <main className="identity-content">
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 20, alignItems: "stretch" }}>
+                <div className="identity-section-card compact" style={{ 
+                  height: "100%",
+                  display: "grid",
+                  gridTemplateRows: "1fr 1fr",
+                  gap: 16
+                }}>
+                  <div className="identity-section-card compact" style={{ 
+                    background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+                    border: "1px solid #e2e8f0",
+                    boxShadow: "0 2px 12px rgba(0, 0, 0, 0.05)",
+                    display: "flex",
+                    flexDirection: "column"
+                  }}>
+                    <div className="identity-section-header">
+                      <h3 className="identity-card-title" style={{ color: "#334155", fontSize: "1.1rem" }}>
+                        📊 Aylık Toplamlar
+                      </h3>
+                    </div>
+                    <div style={{ flex: 1, display: "flex", alignItems: "center" }}>
+                      <Chart type="bar" width="100%" height={isMobile ? 180 : 260} options={barOptions} series={totalsSeries} />
+                    </div>
+                  </div>
+                  <div className="identity-section-card compact" style={{ 
+                    background: "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)",
+                    border: "1px solid #bae6fd",
+                    boxShadow: "0 2px 12px rgba(14, 165, 233, 0.1)",
+                    display: "flex",
+                    flexDirection: "column"
+                  }}>
+                    <div className="identity-section-header">
+                      <h3 className="identity-card-title" style={{ color: "#0c4a6e", fontSize: "1.1rem" }}>
+                        🎯 Hizmet Dağılımı
+                      </h3>
+                    </div>
+                    <div style={{ flex: 1, display: "flex", alignItems: "center" }}>
+                      <Chart type="donut" width="100%" height={isMobile ? 220 : 260} options={{ 
+                        labels: distributionSeries.labels, 
+                        legend: { position: "bottom" }, 
+                        colors: baseColors,
+                        plotOptions: { pie: { donut: { size: '65%' } } }
+                      }} series={distributionSeries.values} />
+                    </div>
+                  </div>
+                </div>
+                <div className="identity-section-card" style={{ 
+                  alignSelf: "start",
+                  background: "#ffffff",
+                  border: "1px solid #f1f5f9",
+                  boxShadow: "0 4px 20px rgba(0, 0, 0, 0.06)",
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column"
+                }}>
+                  <Chart type="area" width="100%" height={isMobile ? 300 : 380} options={areaOptions} series={trendSeries} />
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16, marginTop: 20 }}>
+                    <div className="identity-section-card compact" style={{ 
+                      background: "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)",
+                      border: "1px solid #bbf7d0",
+                      boxShadow: "0 2px 12px rgba(16, 185, 129, 0.1)"
+                    }}>
+                      <div className="identity-section-header">
+                        <h3 className="identity-card-title" style={{ color: "#166534", fontSize: "1rem" }}>
+                          🥇 En Çok Kullanılan Hizmet
+                        </h3>
+                      </div>
+                      <Chart type="line" width="100%" height={120} options={{ 
+                        chart: { sparkline: { enabled: true } }, 
+                        stroke: { curve: "smooth", width: 3 }, 
+                        colors: ["#10b981"], 
+                        tooltip: { enabled: true },
+                        markers: { size: 4 }
+                      }} series={[{ name: topService, data: topServiceTrend }]} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </main>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ServiceUsageChartYear;

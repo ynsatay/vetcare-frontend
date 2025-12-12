@@ -3,7 +3,7 @@ import Chart from "react-apexcharts";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../api/axiosInstance.ts";
 
-const VaccineUsageChart = () => {
+const ServiceUsageChartMonth = () => {
   const [chartData, setChartData] = useState({
     series: [],
     options: {
@@ -24,7 +24,7 @@ const VaccineUsageChart = () => {
 
   useEffect(() => {
     axiosInstance
-      .get("/vaccine-usage-last-month")
+      .get("/service-usage-last-month")
       .then((res) => {
         const data = res.data;
         setChartData((prev) => ({
@@ -43,17 +43,16 @@ const VaccineUsageChart = () => {
           },
         }));
       })
-      .catch((error) => {
-        console.error("Aşı grafiği verisi alınamadı", error);
-      });
+      .catch(() => {})
+      ;
   }, []);
 
   return (
     <Card>
       <CardBody>
-        <CardTitle tag="h5">Aşı Kullanım Özeti</CardTitle>
+        <CardTitle tag="h5">Hizmet Kullanım Özeti</CardTitle>
         <CardSubtitle className="text-muted" tag="h6">
-          Son 30 Gün İçinde Kullanılan Aşılar
+          Son 30 Gün İçinde Kullanılan Hizmetler
         </CardSubtitle>
         <Chart type="area" width="100%" height="300" options={chartData.options} series={chartData.series} />
       </CardBody>
@@ -61,4 +60,4 @@ const VaccineUsageChart = () => {
   );
 };
 
-export default VaccineUsageChart;
+export default ServiceUsageChartMonth;
