@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import dayjs from 'dayjs';
 import { Box, Tabs, Tab, Button } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { useNavigate } from 'react-router-dom';  // <-- Bunu ekle
@@ -17,13 +18,7 @@ const visitColumns = (navigate) => [
         flex: 1,
         valueFormatter: (params) =>
             params.value
-                ? new Date(params.value).toLocaleString('tr-TR', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                })
+                ? dayjs(params.value).local().format('DD.MM.YYYY HH:mm')
                 : '',
     },
     {
@@ -77,13 +72,7 @@ const appointmentColumns = [
         flex: 1.5,
         valueFormatter: (params) =>
             params.value
-                ? new Date(params.value).toLocaleString('tr-TR', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                })
+                ? dayjs(params.value).local().format('DD.MM.YYYY HH:mm')
                 : '',
     },
     {
@@ -92,13 +81,7 @@ const appointmentColumns = [
         flex: 1.5,
         valueFormatter: (params) =>
             params.value
-                ? new Date(params.value).toLocaleString('tr-TR', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                })
+                ? dayjs(params.value).local().format('DD.MM.YYYY HH:mm')
                 : '',
     },
     { field: 'user_name', headerName: 'Sahip', flex: 1 },

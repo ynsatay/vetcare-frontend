@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import dayjs from "dayjs";
 import axiosInstance from "../../api/axiosInstance.ts";
 import {
   Card,
@@ -48,7 +49,7 @@ const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
     return {
       total,
       lastTitle: last?.title ?? "",
-      lastTime: last ? new Date(last.created_at).toLocaleString() : "",
+      lastTime: last ? dayjs(last.created_at).local().format("DD.MM.YYYY HH:mm") : "",
       users,
     };
   }, [feeds]);
@@ -100,7 +101,7 @@ const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
                 f.title,
                 f.icon,
                 f.color,
-                new Date(f.created_at).toLocaleString(),
+                dayjs(f.created_at).local().format("DD.MM.YYYY HH:mm"),
               ]);
               const csv = [header, ...rows].map((r) => r.join(",")).join("\n");
               const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -153,7 +154,7 @@ const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
                   </div>
                 </div>
                 <small className="text-muted text-small" style={{ whiteSpace: "nowrap" }}>
-                  {new Date(feed.created_at).toLocaleString()}
+                  {dayjs(feed.created_at).local().format("DD.MM.YYYY HH:mm")}
                 </small>
               </ListGroupItem>
             ))
