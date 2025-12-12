@@ -73,6 +73,7 @@ const AppointmentDetails = ({ event, onUpdateSuccess, onClose }) => {
         confirm("Güncelleme başarısız: " + response.data.message, "Tamam", "", "Uyarı");
       }
     } catch (error) {
+      if (error.__demo_blocked) return; 
       console.error("Güncelleme hatası:", error);
       confirm("Bir hata oluştu. Lütfen tekrar deneyin.", "Tamam", "", "Uyarı");
     }
@@ -90,6 +91,7 @@ const AppointmentDetails = ({ event, onUpdateSuccess, onClose }) => {
         confirm("Silme başarısız: " + response.data.message, "Tamam", "", "Uyarı");
       }
     } catch (error) {
+      if (error.__demo_blocked) return; 
       console.error("Silme hatası:", error);
       confirm("Silme işleminde hata oluştu.", "Tamam", "", "Uyarı");
     }

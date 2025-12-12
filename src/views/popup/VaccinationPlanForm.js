@@ -6,7 +6,7 @@ import {
   TextField,
   Autocomplete
 } from "@mui/material";
-import { DateTimePicker } from "@mui/x-date-pickers";
+import { DatePicker } from "@mui/x-date-pickers";
 import { useConfirm } from "../../components/ConfirmContext";
 import axiosInstance from "../../api/axiosInstance.ts";
 import dayjs from "dayjs";
@@ -84,6 +84,7 @@ const VaccinationPlanForm = forwardRef(({ materialsList = [], initialDate }, ref
         return { success: false };
       }
     } catch (error) {
+      if (error.__demo_blocked) return;
       console.error("Kayıt hatası:", error);
       confirm("Sunucu hatası: Kayıt işlemi gerçekleştirilemedi.", "Tamam", "", "Hata");
       return { success: false };
@@ -130,13 +131,15 @@ const VaccinationPlanForm = forwardRef(({ materialsList = [], initialDate }, ref
 
         {/* Planlanan Tarih */}
         <Grid item xs={12}>
-          <DateTimePicker
+          <DatePicker
             label="Planlanan Tarih"
             value={plannedDate}
             onChange={setPlannedDate}
+            format="DD.MM.YYYY"
             disablePast
-            ampm={false}
-            renderInput={(params) => <TextField {...params} fullWidth size="small" />}
+            renderInput={(params) => (
+              <TextField {...params} fullWidth size="small" />
+            )}
           />
         </Grid>
 

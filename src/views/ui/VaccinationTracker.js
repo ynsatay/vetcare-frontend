@@ -190,6 +190,7 @@ const VaccinationTracker = () => {
         confirm("Tarih güncellenemedi.", "Tamam", "", "Hata");
       }
     } catch (error) {
+      if (error.__demo_blocked) return; 
       console.error("Aşı planı tarihi güncellenirken hata:", error);
       revert();
       const errorMsg = error.response?.data?.error || "Tarih güncellenirken hata oluştu.";

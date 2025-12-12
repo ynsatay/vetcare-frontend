@@ -180,6 +180,7 @@ const Appointment = () => {
       await fetchAppointments();
       confirm("Randevu tarihi güncellendi.", "Tamam", "", "Bilgi");
     } catch (err) {
+      if (err.__demo_blocked) return; 
       console.error("Randevu güncelleme hatası:", err);
       revert();
       confirm("Güncelleme başarısız. Lütfen tekrar deneyin.", "Tamam", "", "Uyarı");

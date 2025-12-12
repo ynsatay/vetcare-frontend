@@ -157,6 +157,7 @@ function Profile() {
         throw new Error(response.data?.error || 'Güncelleme başarısız');
       }
     } catch (err) {
+      if (err.__demo_blocked) return; 
       console.error('Profil güncelleme hatası:', err);
       toast.error('Profil güncellenirken hata oluştu', { autoClose: 3000 });
     } finally {

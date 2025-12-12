@@ -83,6 +83,7 @@ const ProviderFirmsList = () => {
             await fetchFirms();
             setSelectedRow(null);
         } catch (error) {
+            if (error.__demo_blocked) return; 
             await confirm(
                 error.response?.data?.message || error.message || "Bir hata oluştu",
                 "Tamam",

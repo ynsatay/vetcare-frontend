@@ -88,6 +88,7 @@ const ProviderPriceList = () => {
       await fetchPriceList();
       setSelectedRow(null);
     } catch (err) {
+      if (err.__demo_blocked) return; 
       await confirm(err.response?.data?.message || err.message || "Bir hata oluştu", "Tamam", "", "Uyarı");
     }
   };
