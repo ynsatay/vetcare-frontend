@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Button, TextField, Box } from '@mui/material';
+import { Button, TextField } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import axiosInstance from '../../api/axiosInstance.ts';
 import { trTR } from '@mui/x-data-grid/locales';
+import "./AddPatStock.css";
 
 const AddPatStock = ({ onClose, onSelect }) => {
     const [stocks, setStocks] = useState([]);
@@ -61,72 +62,79 @@ const AddPatStock = ({ onClose, onSelect }) => {
     if (error) return <div>{error}</div>;
 
     return (
-        <Box sx={{ height: 400, width: '100%' }}>
-            <TextField
-                label="Ara..."
-                variant="outlined"
-                size="small"
-                fullWidth
-                margin="normal"
-                value={searchTerm}
-                onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    setSelectedRow(null);
-                    setQuantity(1);
-                }}
-            />
-            <DataGrid
-                rows={filteredStocks}
-                columns={columns}
-                
-                hideFooter={true}
-                loading={loading}
-                disableSelectionOnClick={false}
-                onRowClick={(params) => {
-                    setSelectedRow(params.row);
-                    setQuantity(1);
-                }}
-                selectionModel={selectedRow ? [selectedRow.id] : []}
-                sx={{
-                    cursor: 'pointer',
-                    '& .MuiDataGrid-row.Mui-selected': {
-                        backgroundColor: '#d0f0fd !important',
-                    },
-                }}
-                autoHeight={false}
-                style={{ height: 290 }}  // burada yüksekliği sabit veriyoruz
-                localeText={{
-                                        ...trTR.components.MuiDataGrid.defaultProps.localeText,
-                                        footerRowSelected: (count) =>
-                                            count > 1
-                                                ? `${count.toLocaleString()} satır seçildi`
-                                                : `${count.toLocaleString()} satır seçildi`,
-                                    }}
-            />
+        <div className="select-modal">
+            <div className="select-card">
+                <div className="select-header">
+                    <h3>Stok Seç</h3>
+                </div>
 
-            <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
                 <TextField
-                    label="Miktar"
-                    type="number"
-                    inputProps={{ min: 1 }}
-                    value={quantity}
-                    onChange={handleQuantityChange}
+                    className="select-search"
+                    label="Ara..."
+                    variant="outlined"
                     size="small"
-                    sx={{ width: 100 }}
-                    disabled={!selectedRow}  // Satır seçilmediyse pasif
+                    fullWidth
+                    margin="normal"
+                    value={searchTerm}
+                    onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setSelectedRow(null);
+                        setQuantity(1);
+                    }}
                 />
-                <Button
-                    variant="contained"
-                    onClick={handleAddClick}
-                    disabled={!selectedRow || quantity < 1} // Satır yoksa veya miktar <1 pasif
-                >
-                    Ekle
-                </Button>
-                <Button variant="outlined" onClick={onClose} alignItems="right">
-                    Vazgeç
-                </Button>
-            </Box>
-        </Box>
+
+                <div className="select-data-grid">
+                    <DataGrid
+                        rows={filteredStocks}
+                        columns={columns}
+                        hideFooter={true}
+                        loading={loading}
+                        disableSelectionOnClick={false}
+                        onRowClick={(params) => {
+                            setSelectedRow(params.row);
+                            setQuantity(1);
+                        }}
+                        selectionModel={selectedRow ? [selectedRow.id] : []}
+                        sx={{
+                            cursor: 'pointer',
+                            '& .MuiDataGrid-row.Mui-selected': {
+                                backgroundColor: '#d0f0fd !important',
+                            },
+                        }}
+                        autoHeight
+                        localeText={{
+                            ...trTR.components.MuiDataGrid.defaultProps.localeText,
+                            footerRowSelected: (count) =>
+                                count > 1
+                                    ? `${count.toLocaleString()} satır seçildi`
+                                    : `${count.toLocaleString()} satır seçildi`,
+                        }}
+                    />
+                </div>
+
+                <div className="select-footer">
+                    <TextField
+                        label="Miktar"
+                        type="number"
+                        inputProps={{ min: 1 }}
+                        value={quantity}
+                        onChange={handleQuantityChange}
+                        size="small"
+                        disabled={!selectedRow}
+                    />
+                    <Button
+                        variant="contained"
+                        onClick={handleAddClick}
+                        disabled={!selectedRow || quantity < 1}
+                    >
+                        Ekle
+                    </Button>
+                    <Button variant="outlined" onClick={onClose}>
+                        Vazgeç
+                    </Button>
+                </div>
+            </div>
+        </div>
     );
 };
 

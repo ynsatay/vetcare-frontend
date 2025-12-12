@@ -1,23 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-  Card,
-  CardBody,
-  CardTitle,
-  FormGroup,
-  Label,
-  Input,
-  Button,
-  Row,
-  Col
-} from "reactstrap";
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axiosInstance from "../../api/axiosInstance.ts";
 import Animals from '../popup/Animals.js';
 import MainModal from '../../components/MainModal.js';
-import { Grid } from '@mui/material';
 import PatientFileReg from '../popup/PatientFileReg.js';
-import VisitsAndAppointmentsTabs from '../../components/VisitsAndAppointmentsTabs.js';
 import { useConfirm } from '../../components/ConfirmContext';
+import { 
+  User, PawPrint, Mail, Phone, MapPin, Calendar, Hash, Trash2, Plus, Save, 
+  FolderPlus, ClipboardList, Syringe, CalendarCheck, CreditCard
+} from 'lucide-react';
+import './IdentityInfo.css';
 
 const IdentityInfo = () => {
   const location = useLocation();
@@ -27,6 +19,8 @@ const IdentityInfo = () => {
   const [selectedAnimal, setSelectedAnimal] = useState(null);
   const [ownerInfo, setOwnerInfo] = useState(null);
   const [visitList, setVisitList] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [vaccinationList, setVaccinationList] = useState([]);
 
   const [isSaving, setIsSaving] = useState(false);
   const [isSavingOwner, setIsSavingOwner] = useState(false);
@@ -37,42 +31,55 @@ const IdentityInfo = () => {
 
   const [appointmentList, setAppointmentList] = useState([]);
   const { confirm } = useConfirm();
+  const [activeTab, setActiveTab] = useState('detay');
+  const [ownerCollapsed, setOwnerCollapsed] = useState(true);
+  const navigate = useNavigate();
+  const [filterText, setFilterText] = useState('');
 
-  // TC Kimlik No doğrulama
   const isValidTC = (tc) => {
     tc = tc.toString();
     if (!/^[1-9][0-9]{10}$/.test(tc)) return false;
-
     const digits = tc.split('').map(Number);
     const sumOdd = digits[0] + digits[2] + digits[4] + digits[6] + digits[8];
     const sumEven = digits[1] + digits[3] + digits[5] + digits[7];
     const digit10 = (sumOdd * 7 - sumEven) % 10;
     const digit11 = digits.slice(0, 10).reduce((a, b) => a + b, 0) % 10;
-
     return digit10 === digits[9] && digit11 === digits[10];
   };
 
-  const fetchAppointmentList = async (animalId) => {
+  const fetchAppointmentList = async (userAnimalId) => {
     try {
-      if (!animalId) {
-        setAppointmentList([]);
-        return;
-      }
-
-      const appointmentRes = await axiosInstance.get('/getappointment', { params: { animal_id: animalId } });
-      setAppointmentList(appointmentRes.data.data || []);
+      if (!userAnimalId) { setAppointmentList([]); return; }
+      const res = await axiosInstance.get('/getappointment');
+      const all = res.data.data || [];
+      const filtered = all.filter(a => {
+        const ua = a.user_animal_id || a.userAnimalId || a.useranimalid;
+        return ua && ua.toString() === userAnimalId.toString();
+      });
+      setAppointmentList(filtered);
     } catch (err) {
-      console.error('Randevu verisi çekme hatası:', err);
       setAppointmentList([]);
     }
   };
-  // Sahip ve hayvan listesini çek
+
+  const fetchVaccinationList = async (animalId) => {
+    try {
+      if (!animalId) { setVaccinationList([]); return; }
+      const [unapplied, applied] = await Promise.all([
+        axiosInstance.get(`/vaccine/plans/unapplied/${animalId}`).catch(() => ({ data: [] })),
+        axiosInstance.get(`/vaccine/plans/applied/${animalId}`).catch(() => ({ data: [] }))
+      ]);
+      setVaccinationList([...(unapplied.data || []), ...(applied.data || [])]);
+    } catch (err) {
+      setVaccinationList([]);
+    }
+  };
+
   const fetchData = useCallback(async () => {
+    setIsLoading(true);
     try {
       if (!identity && !userId) {
-        setOwnerInfo(null);
-        setAnimalsList([]);
-        setSelectedAnimal(null);
+        setOwnerInfo(null); setAnimalsList([]); setSelectedAnimal(null);
         return [];
       }
 
@@ -81,16 +88,12 @@ const IdentityInfo = () => {
         const res = await axiosInstance.get('/getpersonelsearch', { params: { tc: identity } });
         user = res.data.user || null;
       } else if (userId) {
-        const ownerRes = await axiosInstance.get('/getpersonelsearchuid', { params: { user_id: userId } });
-        user = ownerRes.data.user || null;
+        const res = await axiosInstance.get('/getpersonelsearchuid', { params: { user_id: userId } });
+        user = res.data.user || null;
       }
       setOwnerInfo(user);
 
-      if (!user) {
-        setAnimalsList([]);
-        setSelectedAnimal(null);
-        return [];
-      }
+      if (!user) { setAnimalsList([]); setSelectedAnimal(null); return []; }
 
       const animalRes = await axiosInstance.get('/animalslist', { params: { user_id: user.id } });
       const animals = animalRes.data.response || [];
@@ -102,516 +105,514 @@ const IdentityInfo = () => {
       } else {
         setSelectedAnimal(animals[0] || null);
       }
-      return animals;  // burası önemli
+      return animals;
     } catch (err) {
-      console.error('Veri çekme hatası:', err);
-      setOwnerInfo(null);
-      setAnimalsList([]);
-      setSelectedAnimal(null);
+      setOwnerInfo(null); setAnimalsList([]); setSelectedAnimal(null);
       return [];
+    } finally {
+      setIsLoading(false);
     }
   }, [identity, userId, animalId]);
 
-  // Seçilen hayvanın gelişlerini çek
   const fetchVisitList = async (animalId) => {
     try {
-      if (!animalId) {
-        setVisitList([]);
-        return;
-      }
-
-      const visitRes = await axiosInstance.get("/arrivals", {
-        params: { animalId: animalId }
-      });
-
-      if (visitRes.data.status === 'success') {
-        setVisitList(visitRes.data.data || []);
-      } else {
-        setVisitList([]);
-        console.warn('Backend geliş verisi yok veya hata:', visitRes.data);
-      }
+      if (!animalId) { setVisitList([]); return; }
+      const res = await axiosInstance.get("/arrivals", { params: { animalId } });
+      setVisitList(res.data.status === 'success' ? res.data.data || [] : []);
     } catch (err) {
-      console.error('Geliş verisi çekme hatası:', err);
       setVisitList([]);
     }
   };
-  // Hayvan seçimi değiştiğinde gelişleri çek
+
   useEffect(() => {
-    if (selectedAnimal?.id) {
-      fetchVisitList(selectedAnimal.id);
-      fetchAppointmentList(selectedAnimal.id);
+    const uaId = selectedAnimal?.data_id || selectedAnimal?.id;
+    const baseId = selectedAnimal?.id;
+    if (uaId || baseId) {
+      fetchVisitList(baseId);
+      fetchAppointmentList(uaId);
+      fetchVaccinationList(baseId);
     } else {
-      setVisitList([]);
-      setAppointmentList([]);
+      setVisitList([]); setAppointmentList([]); setVaccinationList([]);
     }
   }, [selectedAnimal]);
 
-  // Sayfa açıldığında veya identity/userId değiştiğinde veri çek
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
-  // Modal kapatma fonksiyonu
-  const handleAddAnimalClose = () => {
-    setIsAddModalOpen(false);
-  };
+  const handleAddAnimalClose = () => setIsAddModalOpen(false);
 
-  // Yeni hayvan eklendikten sonra listeyi yenile
   const onAddAnimalSave = async (data) => {
     const newIdent = data?.animalidentnumber;
     setIsAddModalOpen(false);
-
-    const animalRes = await axiosInstance.get('/animalslist', {
-      params: { user_id: ownerInfo?.id || userId },
-    });
-
-    const updatedAnimals = animalRes.data.response || [];
-    setAnimalsList(updatedAnimals);
-
-    const added = updatedAnimals.find(
-      a => a.animalidentnumber?.toString() === newIdent?.toString()
-    );
-    console.log("Added animal:", added);
+    const res = await axiosInstance.get('/animalslist', { params: { user_id: ownerInfo?.id || userId } });
+    const animals = res.data.response || [];
+    setAnimalsList(animals);
+    const added = animals.find(a => a.animalidentnumber?.toString() === newIdent?.toString());
     setSelectedAnimal(added || null);
   };
 
-  // Hayvan seçimi değişimi
-  const handleAnimalChange = (e) => {
-    const value = e.target.value;
-
-    if (value === '__add__') {
-      setIsAddModalOpen(true);
-      setSelectedAnimal(null);
-    } else {
-      const selectedId = Number(value);
-      const animal = animalsList.find(a => a.id === selectedId) || null;
-      setSelectedAnimal(animal);
-    }
-  };
-
-  // Hayvan form inputları kontrolü
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-
-    setSelectedAnimal((prev) => {
-      let updated = {
-        ...prev,
-        [name]: type === 'checkbox' ? checked : value,
-      };
-
-      if (name === 'deathdate') {
-        updated.isdeath = value ? true : false;
-      }
-
+    setSelectedAnimal(prev => {
+      let updated = { ...prev, [name]: type === 'checkbox' ? checked : value };
+      if (name === 'deathdate') updated.isdeath = !!value;
       return updated;
     });
   };
 
-  // Sahip form inputları kontrolü
   const handleOwnerInputChange = (e) => {
     const { name, value } = e.target;
-    setOwnerInfo(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setOwnerInfo(prev => ({ ...prev, [name]: value }));
   };
 
-  // Hayvan bilgilerini kaydet
   const handleSave = async () => {
     if (!selectedAnimal?.data_id) {
-      confirm("Kayıt güncellenemedi: Hayvan seçili değil.", "Tamam", "", "Uyarı");
+      confirm("Hayvan seçili değil.", "Tamam", "", "Uyarı");
       return;
     }
     setIsSaving(true);
     try {
       const { data_id, ...payload } = selectedAnimal;
-      const response = await axiosInstance.put(`/animalslistUpdate/${data_id}`, payload);
-      if (response.status === 200) {
-        confirm("Hayvan bilgileri güncellendi.", "Tamam", "", "Uyarı");
-      } else {
-        confirm("Hayvan bilgileri güncellenemedi.", "Tamam", "", "Uyarı");
-      }
-    } catch (error) {
-      console.error('Güncelleme hatası:', error);
-      confirm("Hayvan bilgileri güncellenemedi.", "Tamam", "", "Uyarı");
+      const res = await axiosInstance.put(`/animalslistUpdate/${data_id}`, payload);
+      confirm(res.status === 200 ? "Güncellendi." : "Hata.", "Tamam", "", res.status === 200 ? "Bilgi" : "Uyarı");
+    } catch (err) {
+      confirm("Hata.", "Tamam", "", "Uyarı");
     } finally {
       setIsSaving(false);
     }
   };
 
-  // Seçili hayvanı sil
   const handleDeleteAnimal = async () => {
-    if (!selectedAnimal?.data_id) {
-      confirm("Silme işlemi yapılamadı: Seçili hayvan yok.", "Tamam", "", "Uyarı");
-      return;
-    }
-
+    if (!selectedAnimal?.data_id) return;
     setIsDeletingAnimal(true);
     try {
-      // Check for upcoming/active appointments
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const upcomingAppointments = appointmentList.filter(apt => {
-        const aptDate = new Date(apt.process_date);
-        aptDate.setHours(0, 0, 0, 0);
-        return aptDate >= today && (apt.status === 0 || apt.status === 1); // 0=pending, 1=confirmed
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const upcoming = appointmentList.filter(a => {
+        const d = new Date(a.process_date); d.setHours(0, 0, 0, 0);
+        return d >= today && (a.status === 0 || a.status === 1);
       });
-
-      if (upcomingAppointments.length > 0) {
-        setIsDeletingAnimal(false);
-        await confirm(
-          "Randevusu olan hayvan silinemez. Lütfen önce randevuyu iptal ediniz.",
-          "Tamam",
-          "",
-          "Uyarı"
-        );
+      if (upcoming.length > 0) {
+        await confirm("Randevusu olan hayvan silinemez.", "Tamam", "", "Uyarı");
         return;
       }
-
-      // Check for visit records (geliş kayıtları)
-      if (visitList && visitList.length > 0) {
-        setIsDeletingAnimal(false);
-        await confirm(
-          "Bu hayvanın kayıtlı geliş (muayene) kaydı bulunduğu için silinemez.",
-          "Tamam",
-          "",
-          "Uyarı"
-        );
+      if (visitList?.length > 0) {
+        await confirm("Geliş kaydı olan hayvan silinemez.", "Tamam", "", "Uyarı");
         return;
       }
-
-      // Check for upcoming/unapplied vaccinations
-      let upcomingVaccinations = [];
-      try {
-        if (selectedAnimal?.id) {
-          const vaccRes = await axiosInstance.get(`/vaccine/plans/unapplied/${selectedAnimal.id}`);
-          const vaccinations = vaccRes.data.data || [];
-          
-          upcomingVaccinations = vaccinations.filter(vacc => {
-            if (vacc.is_applied) return false; // Skip if already applied
-            const vaccDate = new Date(vacc.planned_date);
-            vaccDate.setHours(0, 0, 0, 0);
-            return vaccDate >= today;
-          });
-        }
-      } catch (vaccErr) {
-        console.error('Vaccination check error:', vaccErr);
-        // Continue even if vaccine check fails
-      }
-
-      if (upcomingVaccinations.length > 0) {
-        setIsDeletingAnimal(false);
-        await confirm(
-          "Yaklaşan aşısı olan hayvan silinemez. Lütfen önce aşı planını iptal ediniz.",
-          "Tamam",
-          "",
-          "Uyarı"
-        );
-        return;
-      }
-
-      // All checks passed, proceed with deletion
-      const proceed = await confirm(
-        "Seçili hayvan kalıcı olarak silinecektir. Devam edilsin mi?",
-        "Evet",
-        "Hayır",
-        "Uyarı"
-      );
-      if (!proceed) {
-        setIsDeletingAnimal(false);
-        return;
-      }
-
-      const data_id = selectedAnimal.data_id;
-      const res = await axiosInstance.delete(`/animalslistDel/${data_id}`);
-
+      const proceed = await confirm("Hayvan silinecek. Devam?", "Evet", "Hayır", "Uyarı");
+      if (!proceed) return;
+      const res = await axiosInstance.delete(`/animalslistDel/${selectedAnimal.data_id}`);
       if (res.status === 200) {
-        await confirm("Hayvan silindi.", "Tamam", "", "Bilgi");
-
-        // Refresh animals list for the owner
-        const animalRes = await axiosInstance.get('/animalslist', { params: { user_id: ownerInfo?.id || userId } });
-        const updatedAnimals = animalRes.data.response || [];
-        setAnimalsList(updatedAnimals);
-
-        // Set next selected animal (first) or null
-        setSelectedAnimal(updatedAnimals[0] || null);
-      } else {
-        console.error('Delete response:', res);
-        confirm("Hayvan silinemedi.", "Tamam", "", "Uyarı");
+        await confirm("Silindi.", "Tamam", "", "Bilgi");
+        const aRes = await axiosInstance.get('/animalslist', { params: { user_id: ownerInfo?.id || userId } });
+        const animals = aRes.data.response || [];
+        setAnimalsList(animals);
+        setSelectedAnimal(animals[0] || null);
       }
     } catch (err) {
-      console.error('Silme hatası:', err);
-      confirm("Silme sırasında hata oluştu.", "Tamam", "", "Uyarı");
+      confirm("Hata.", "Tamam", "", "Uyarı");
     } finally {
       setIsDeletingAnimal(false);
     }
   };
 
-  // Sahip bilgilerini kaydet
   const handleOwnerSave = async () => {
-    if (!ownerInfo?.id) {
-      confirm("Kayıt güncellenemedi: Sahip bilgisi yok.", "Tamam", "", "Uyarı");
-      return;
-    }
+    if (!ownerInfo?.id) return;
     setIsSavingOwner(true);
     try {
-      // Backend beklentisine göre property mapping yapılabilir
       const { picture, sex, uname, ...rest } = ownerInfo;
-      const payload = {
-        ...rest,
-        sexuality: ownerInfo.sex || '',
-        username: ownerInfo.uname || '',
-      };
-
-      const response = await axiosInstance.put(`/updatepersonel/${ownerInfo.id}`, payload);
-      if (response.status === 200 && response.data.status === 'success') {
-        confirm("Sahip bilgileri güncellendi.", "Tamam", "", "Uyarı");
-      } else {
-        confirm("Sahip bilgileri güncellenemedi.", "Tamam", "", "Uyarı");
-      }
+      const payload = { ...rest, sex: sex || '', username: uname || '' };
+      const res = await axiosInstance.put(`/updatepersonel/${ownerInfo.id}`, payload);
+      confirm(res.status === 200 && res.data.status === 'success' ? "Güncellendi." : "Hata.", "Tamam", "", "Bilgi");
     } catch (err) {
-      console.error('Sahip güncelleme hatası:', err);
-      confirm("Sahip bilgileri güncellenemedi.", "Tamam", "", "Uyarı");
+      confirm("Hata.", "Tamam", "", "Uyarı");
     } finally {
       setIsSavingOwner(false);
     }
   };
 
+  const handleOwnerDelete = async () => {
+    if (!ownerInfo?.id) return;
+    if (animalsList?.length > 0) {
+      await confirm("Sahibe bağlı hayvanlar bulunduğu için silinemez.", "Tamam", "", "Uyarı");
+      return;
+    }
+    await confirm("Sahip silme özelliği bu sürümde devre dışı.", "Tamam", "", "Bilgi");
+  };
+
+  const getAnimalStatus = (animal) => {
+    if (animal?.isdeath) return { text: 'Vefat', class: 'deceased' };
+    if (animal?.active) return { text: 'Aktif', class: 'active' };
+    return { text: 'Pasif', class: 'inactive' };
+  };
+
+  const getAnimalEmoji = (type) => {
+    const t = (type || '').toLowerCase();
+    if (t.includes('köpek') || t.includes('dog')) return '🐕';
+    if (t.includes('kedi') || t.includes('cat')) return '🐈';
+    if (t.includes('kuş') || t.includes('bird')) return '🐦';
+    return '🐾';
+  };
+
+  const getInitials = (name, surname) => {
+    return `${(name || '')[0] || ''}${(surname || '')[0] || ''}`.toUpperCase();
+  };
+
+  const formatDate = (date) => {
+    if (!date) return '-';
+    return new Date(date).toLocaleDateString('tr-TR');
+  };
+
+  const getAppointmentStatus = (status) => {
+    const map = { 0: { text: 'Bekliyor', class: 'pending' }, 1: { text: 'Geldi', class: 'pending' }, 2: { text: 'Tamamlandı', class: 'completed' }, 3: { text: 'İptal', class: 'cancelled' } };
+    return map[status] || { text: 'Bilinmiyor', class: 'pending' };
+  };
+
+  if (isLoading) {
+    return (
+      <div className="identity-page">
+        <div className="identity-loading">
+          <div className="identity-spinner" />
+          <span style={{ color: 'var(--id-text-muted)' }}>Yükleniyor...</span>
+        </div>
+      </div>
+    );
+  }
+
+  const filteredAnimals = animalsList.filter(a => {
+    const q = filterText.toLowerCase();
+    return [a.animalname, a.animal_name, a.species_name].some(v => (v || '').toLowerCase().includes(q));
+  });
+
+  const appointmentStatusCounts = {
+    beklemede: appointmentList.filter(a => a.status === 0).length,
+    geldi: appointmentList.filter(a => a.status === 1).length,
+    tamamlandi: appointmentList.filter(a => a.status === 2).length,
+    iptal: appointmentList.filter(a => a.status === 3).length,
+  };
+
+  const visitStatusCounts = {
+    aktif: visitList.filter(v => !v.is_discharge).length,
+    tamamlandi: visitList.filter(v => !!v.is_discharge).length,
+  };
+
   return (
-    <div className="p-3">
-      <Row style={{ paddingBottom: '20px' }}>
-        {/* Sahip Bilgileri */}
-        <Col md={6} sm={12} style={{ marginBottom: '20px' }}>
-          <Card className="shadow-sm mb-4" style={{ height: '100%' }}>
-            <CardBody>
-              <CardTitle tag="h5">Sahip Kimlik Bilgileri</CardTitle>
-              {ownerInfo ? (
-                <>
-                  <FormGroup>
-                    <Label>Adı</Label>
-                    <Input type="text" name="name" value={ownerInfo.name || ''} onChange={handleOwnerInputChange} />
-                  </FormGroup>
-                  <FormGroup>
-                    <Label>Soyadı</Label>
-                    <Input type="text" name="surname" value={ownerInfo.surname || ''} onChange={handleOwnerInputChange} />
-                  </FormGroup>
-                  <FormGroup>
-                    <Label>Kullanıcı Adı</Label>
-                    <Input type="text" name="uname" value={ownerInfo.uname || ''} onChange={handleOwnerInputChange} />
-                  </FormGroup>
-                  <FormGroup>
-                    <Label>Email</Label>
-                    <Input type="email" name="email" value={ownerInfo.email || ''} onChange={handleOwnerInputChange} />
-                  </FormGroup>
-                  <FormGroup>
-                    <Label>Telefon</Label>
-                    <Input type="text" name="phone" value={ownerInfo.phone || ''} onChange={handleOwnerInputChange} />
-                  </FormGroup>
-                  <FormGroup>
-                    <Label>Adres</Label>
-                    <Input type="text" name="address" value={ownerInfo.address || ''} onChange={handleOwnerInputChange} />
-                  </FormGroup>
-                  <FormGroup>
-                    <Label>Doğum Tarihi</Label>
-                    <Input type="date" name="birthdate" value={ownerInfo.birthdate || ''} onChange={handleOwnerInputChange} />
-                  </FormGroup>
-                  <FormGroup>
-                    <Label for="sex">Cinsiyet</Label>
-                    <Input
-                      type="select"
-                      name="sex"
-                      id="sex"
-                      value={ownerInfo.sex || ''}
-                      onChange={handleOwnerInputChange}
-                    >
-                      <option value="">Seçiniz</option>
-                      <option value="ERKEK">ERKEK</option>
-                      <option value="KADIN">KADIN</option>
-                    </Input>
-                  </FormGroup>
+    <div className="identity-page">
+      <div className="identity-container">
+        <div className="identity-header">
+          <div className="identity-header-left">
+            <div className="identity-header-avatar">
+              {ownerInfo ? getInitials(ownerInfo.name, ownerInfo.surname) : '?'}
+            </div>
+            <div className="identity-header-info">
+              <h1>{ownerInfo ? `${ownerInfo.name} ${ownerInfo.surname}` : 'Bilgi Yok'}</h1>
+              <div className="identity-header-meta"><CreditCard size={14} /> TC: {ownerInfo?.tc || 'Belirtilmemiş'}</div>
+            </div>
+          </div>
+          <div className="identity-header-stats">
+            <div className="identity-stat-pill"><PawPrint size={16} /> {animalsList.length}</div>
+            <div className="identity-stat-pill"><ClipboardList size={16} /> {visitList.length}</div>
+            <div className="identity-stat-pill"><CalendarCheck size={16} /> {appointmentList.length}</div>
+            <div className="identity-stat-pill"><Syringe size={16} /> {vaccinationList.length}</div>
+          </div>
+        </div>
 
-                  <div className="text-end mt-3">
-                    <Button color="primary" onClick={handleOwnerSave} disabled={isSavingOwner}>
-                      {isSavingOwner ? 'Kaydediliyor...' : 'Bilgileri Kaydet'}
-                    </Button>
+        <div className="identity-layout">
+          <aside className="identity-sidebar">
+            <div className="identity-animals-header">
+              <h3 className="identity-animals-title"><PawPrint size={18} /> Hayvanlar</h3>
+              <button className="identity-add-btn" onClick={() => setIsAddModalOpen(true)}><Plus size={18} /></button>
+            </div>
+            <div className="identity-search">
+              <input className="identity-search-input" placeholder="Ara..." value={filterText} onChange={(e) => setFilterText(e.target.value)} />
+            </div>
+            <div className="identity-animals-list">
+              {filteredAnimals.map(animal => (
+                <div key={animal.id} className={`identity-animal-item ${selectedAnimal?.id === animal.id ? 'active' : ''}`} onClick={() => setSelectedAnimal(animal)}>
+                  <div className="identity-animal-emoji">{getAnimalEmoji(animal.animal_name)}</div>
+                  <div className="identity-animal-details">
+                    <h4 className="identity-animal-name">{animal.animalname}</h4>
+                    <p className="identity-animal-breed">{animal.animal_name}</p>
                   </div>
-                </>
-              ) : (
-                <p>Yükleniyor...</p>
-              )}
-            </CardBody>
-          </Card>
-        </Col>
+                  <span className={`identity-animal-badge ${getAnimalStatus(animal).class}`}>{getAnimalStatus(animal).text}</span>
+                </div>
+              ))}
+              {filteredAnimals.length === 0 && <div className="identity-empty"><div className="identity-empty-icon">🐾</div><p>Sonuç yok</p></div>}
+            </div>
 
-        {/* Hayvan Bilgileri */}
-        <Col md={6} sm={12} style={{ marginBottom: '20px' }}>
-          <Card className="shadow-sm mb-4" style={{ height: '100%' }}>
-            <CardBody>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <CardTitle tag="h5" style={{ margin: 0 }}>Hayvan Kimlik Bilgileri</CardTitle>
-                {selectedAnimal && (
-                  <Button
-                    color="danger"
-                    size="sm"
-                    onClick={handleDeleteAnimal}
-                    disabled={isDeletingAnimal || isSaving || !selectedAnimal?.data_id}
-                    style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600', position: 'relative' }}
-                    title="Hayvanı Sil"
-                  >
-                    {isDeletingAnimal ? (
-                      <span style={{ fontSize: '14px' }}>⏳</span>
-                    ) : (
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'flex', alignItems: 'center' }}>
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        <line x1="10" y1="11" x2="10" y2="17"></line>
-                        <line x1="14" y1="11" x2="14" y2="17"></line>
-                      </svg>
-                    )}
-                  </Button>
-                )}
+            <div className="identity-section-card" style={{ marginTop: 16 }}>
+              <div className="identity-section-header">
+                <h4>Randevu Durumları</h4>
+                <span className="identity-history-count">{appointmentList.length}</span>
               </div>
-              <FormGroup>
-                <Label>Hayvan Seç</Label>
-                <Input type="select" value={selectedAnimal?.id || ''} onChange={handleAnimalChange}>
-                  <option value="">Seçiniz</option>
-                  {animalsList.map((animal) => (
-                    <option key={animal.id} value={animal.id}>{animal.animal_name + " - " + animal.animalname}</option>
-                  ))}
-                  <option value="__add__">➕ Yeni Hayvan Ekle</option>
-                </Input>
-              </FormGroup>
+              <div className="identity-status-list">
+                <div className="identity-status-item"><span className="dot pending"></span><span>Beklemede</span><strong>{appointmentStatusCounts.beklemede}</strong></div>
+                <div className="identity-status-item"><span className="dot arrived"></span><span>Geldi</span><strong>{appointmentStatusCounts.geldi}</strong></div>
+                <div className="identity-status-item"><span className="dot completed"></span><span>Tamamlandı</span><strong>{appointmentStatusCounts.tamamlandi}</strong></div>
+                <div className="identity-status-item"><span className="dot cancelled"></span><span>İptal</span><strong>{appointmentStatusCounts.iptal}</strong></div>
+              </div>
+            </div>
 
-              <MainModal
-                isOpen={isAddModalOpen}
-                toggle={handleAddAnimalClose}
-                title="Hayvan Ekle"
-                content={<Animals ident_user_id={userId} onClose={handleAddAnimalClose} onSave={onAddAnimalSave} />}
-                onSave={onAddAnimalSave}
-                saveButtonLabel="Ekle"
-              />
+            <div className="identity-section-card" style={{ marginTop: 16 }}>
+              <div className="identity-section-header">
+                <h4>Geliş Durumları</h4>
+                <span className="identity-history-count">{visitList.length}</span>
+              </div>
+              <div className="identity-status-list">
+                <div className="identity-status-item"><span className="dot pending"></span><span>Aktif</span><strong>{visitStatusCounts.aktif}</strong></div>
+                <div className="identity-status-item"><span className="dot completed"></span><span>Tamamlandı</span><strong>{visitStatusCounts.tamamlandi}</strong></div>
+              </div>
+            </div>
+          </aside>
 
-              {selectedAnimal && (
-                <>
-                  <FormGroup>
-                    <Label>Hayvan Adı</Label>
-                    <Input
-                      type="text"
-                      name="animalname"
-                      value={selectedAnimal.animalname || ''}
-                      onChange={handleInputChange}
-                    />
-                  </FormGroup>
-                  <FormGroup>
-                    <Label>Türü</Label>
-                    <Input
-                      type="text"
-                      name="animal_name"
-                      value={selectedAnimal.animal_name || ''}
-                      onChange={handleInputChange}
-                    />
-                  </FormGroup>
-                  <FormGroup>
-                    <Label>Cinsi</Label>
-                    <Input
-                      type="text"
-                      name="species_name"
-                      value={selectedAnimal.species_name || ''}
-                      disabled
-                    />
-                  </FormGroup>
-                  <FormGroup>
-                    <Label>Doğum Tarihi</Label>
-                    <Input
-                      type="date"
-                      name="birthdate"
-                      value={selectedAnimal.birthdate || ''}
-                      onChange={handleInputChange}
-                    />
-                  </FormGroup>
-                  <FormGroup>
-                    <Label>Ölüm Tarihi</Label>
-                    <Input
-                      type="date"
-                      name="deathdate"
-                      value={selectedAnimal.deathdate || ''}
-                      onChange={handleInputChange}
-                    />
-                  </FormGroup>
-                  <FormGroup>
-                    <Label>Kimlik No</Label>
-                    <Input
-                      type="text"
-                      name="animalidentnumber"
-                      value={selectedAnimal.animalidentnumber || ''}
-                      onChange={handleInputChange}
-                    />
-                  </FormGroup>
-                  <FormGroup check>
-                    <Label check>
-                      <Input
-                        type="checkbox"
-                        name="active"
-                        checked={!!selectedAnimal.active}
-                        onChange={handleInputChange}
-                      /> Aktif
-                    </Label>
-                  </FormGroup>
-                  <FormGroup check>
-                    <Label check>
-                      <Input
-                        type="checkbox"
-                        name="isdeath"
-                        checked={!!selectedAnimal.isdeath}
-                        disabled
-                        onChange={handleInputChange}
-                      /> Ölü (Ölüm Tarihi seçilmelidir.)
-                    </Label>
-                  </FormGroup>
-
-                  <Grid
-                    className="text-end mt-3"
-                    sx={{ display: "flex", justifyContent: "space-between" }}
-                  >
-                    <Button
-                      color="primary"
-                      disabled={selectedAnimal?.isdeath || !selectedAnimal?.active}
-                      onClick={() => setIsPatientFileRegOpen(true)}>
-                      Yeni Geliş Dosyası Aç
-                    </Button>
-                    <Button color="primary" onClick={handleSave} disabled={isSaving}>
-                      {isSaving ? 'Kaydediliyor...' : 'Bilgileri Kaydet'}
-                    </Button>
-                  </Grid>
-                </>
+          <main className="identity-content">
+            <div className="identity-section-card">
+              <div className="identity-section-header">
+                <h3>Sahip Bilgileri</h3>
+                <button className="identity-collapse-toggle" onClick={() => setOwnerCollapsed(c => !c)}>
+                  {ownerCollapsed ? 'Düzenle' : 'Gizle'}
+                </button>
+              </div>
+              {!ownerCollapsed ? (
+              <div className="identity-owner-grid">
+                <div className="identity-owner-field">
+                  <label className="identity-owner-label">Adı</label>
+                  <div className="identity-input-group">
+                    <User className="identity-input-icon" size={16} />
+                    <input className="identity-owner-input" name="name" value={ownerInfo?.name || ''} onChange={handleOwnerInputChange} />
+                  </div>
+                </div>
+                <div className="identity-owner-field">
+                  <label className="identity-owner-label">Soyadı</label>
+                  <div className="identity-input-group">
+                    <User className="identity-input-icon" size={16} />
+                    <input className="identity-owner-input" name="surname" value={ownerInfo?.surname || ''} onChange={handleOwnerInputChange} />
+                  </div>
+                </div>
+                <div className="identity-owner-field">
+                  <label className="identity-owner-label">Telefon</label>
+                  <div className="identity-input-group">
+                    <Phone className="identity-input-icon" size={16} />
+                    <input className="identity-owner-input" name="phone" value={ownerInfo?.phone || ''} onChange={handleOwnerInputChange} />
+                  </div>
+                </div>
+                <div className="identity-owner-field">
+                  <label className="identity-owner-label">E-posta</label>
+                  <div className="identity-input-group">
+                    <Mail className="identity-input-icon" size={16} />
+                    <input className="identity-owner-input" name="email" value={ownerInfo?.email || ''} onChange={handleOwnerInputChange} />
+                  </div>
+                </div>
+                <div className="identity-owner-field full">
+                  <label className="identity-owner-label">Adres</label>
+                  <div className="identity-input-group">
+                    <MapPin className="identity-input-icon" size={16} />
+                    <input className="identity-owner-input" name="address" value={ownerInfo?.address || ''} onChange={handleOwnerInputChange} />
+                  </div>
+                </div>
+                <div className="identity-owner-field">
+                  <label className="identity-owner-label">Doğum Tarihi</label>
+                  <div className="identity-input-group">
+                    <Calendar className="identity-input-icon" size={16} />
+                    <input type="date" className="identity-owner-input" name="birthdate" value={ownerInfo?.birthdate || ''} onChange={handleOwnerInputChange} />
+                  </div>
+                </div>
+                <div className="identity-owner-field">
+                  <label className="identity-owner-label">Cinsiyet</label>
+                  <div className="identity-input-group">
+                    <User className="identity-input-icon" size={16} />
+                    <select className="identity-owner-select" name="sex" value={ownerInfo?.sex || ''} onChange={handleOwnerInputChange}>
+                      <option value="">Seçiniz</option>
+                      <option value="ERKEK">Erkek</option>
+                      <option value="KADIN">Kadın</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              ) : (
+                <div className="identity-owner-summary">
+                  <div className="summary-row"><span>Ad Soyad</span><strong>{ownerInfo ? `${ownerInfo.name} ${ownerInfo.surname}` : '-'}</strong></div>
+                  <div className="summary-row"><span>Telefon</span><strong>{ownerInfo?.phone || '-'}</strong></div>
+                  <div className="summary-row"><span>E-posta</span><strong>{ownerInfo?.email || '-'}</strong></div>
+                  <div className="summary-row"><span>Adres</span><strong>{ownerInfo?.address || '-'}</strong></div>
+                </div>
               )}
-            </CardBody>
-          </Card>
-        </Col>
-      </Row>
+              <div className="identity-owner-actions">
+                <button className="identity-btn identity-btn-primary" onClick={handleOwnerSave} disabled={isSavingOwner}>
+                  <Save size={16} /> {isSavingOwner ? 'Kaydediliyor...' : 'Kaydet'}
+                </button>
+              </div>
+            </div>
 
-      {/* {visitList.length > 0 && ( */}
-      <VisitsAndAppointmentsTabs
-        visitList={visitList}
-        appointmentList={appointmentList}
-      />
-      {/* )} */}
+            <div className="identity-tabs">
+              <button className={`identity-tab ${activeTab === 'detay' ? 'active' : ''}`} onClick={() => setActiveTab('detay')}>Detay</button>
+              <button className={`identity-tab ${activeTab === 'gelisler' ? 'active' : ''}`} onClick={() => setActiveTab('gelisler')}>Gelişler</button>
+              <button className={`identity-tab ${activeTab === 'randevular' ? 'active' : ''}`} onClick={() => setActiveTab('randevular')}>Randevular</button>
+              <button className={`identity-tab ${activeTab === 'asilar' ? 'active' : ''}`} onClick={() => setActiveTab('asilar')}>Aşılar</button>
+            </div>
 
-      <MainModal
-        isOpen={isPatientFileRegOpen}
-        toggle={() => setIsPatientFileRegOpen(false)}
-        title="Hasta Geliş Dosyası Aç"
-        content={
-          <PatientFileReg
-            pat_id={ownerInfo?.id || 0}
-            pat_name={`${ownerInfo?.name || ''} ${ownerInfo?.surname || ''}`.trim()}
-            animal_id={selectedAnimal?.id || 0}
-            animal_name={selectedAnimal?.animalname || ''}
-          />
-        }
-        saveButtonLabel="Kaydet"
-      />
+            {selectedAnimal ? (
+              activeTab === 'detay' ? (
+                <div className="identity-animal-detail">
+                  <div className="identity-animal-detail-header">
+                    <div className="identity-animal-detail-left">
+                      <div className="identity-animal-detail-avatar">{getAnimalEmoji(selectedAnimal.animal_name)}</div>
+                      <div className="identity-animal-detail-info">
+                        <h3>{selectedAnimal.animalname}</h3>
+                        <p>{selectedAnimal.animal_name} • {selectedAnimal.species_name || 'Belirtilmemiş'}</p>
+                      </div>
+                    </div>
+                    <div className="identity-animal-detail-actions">
+                      <button className="identity-btn identity-btn-success" onClick={() => setIsPatientFileRegOpen(true)} disabled={selectedAnimal?.isdeath || !selectedAnimal?.active}>
+                        <FolderPlus size={16} /> Yeni Geliş
+                      </button>
+                    </div>
+                  </div>
+                  <div className="identity-animal-detail-body">
+                    <div className="identity-form-row">
+                      <div className="identity-form-field">
+                        <label className="identity-form-label">Hayvan Adı</label>
+                        <input className="identity-form-input" name="animalname" value={selectedAnimal.animalname || ''} onChange={handleInputChange} />
+                      </div>
+                      <div className="identity-form-field">
+                        <label className="identity-form-label">Türü</label>
+                        <input className="identity-form-input" name="animal_name" value={selectedAnimal.animal_name || ''} onChange={handleInputChange} />
+                      </div>
+                    </div>
+                    <div className="identity-form-row">
+                      <div className="identity-form-field">
+                        <label className="identity-form-label">Cinsi</label>
+                        <input className="identity-form-input" value={selectedAnimal.species_name || ''} disabled />
+                      </div>
+                      <div className="identity-form-field">
+                        <label className="identity-form-label"><Hash size={12} /> Kimlik No</label>
+                        <input className="identity-form-input" name="animalidentnumber" value={selectedAnimal.animalidentnumber || ''} onChange={handleInputChange} />
+                      </div>
+                    </div>
+                    <div className="identity-form-row">
+                      <div className="identity-form-field">
+                        <label className="identity-form-label"><Calendar size={12} /> Doğum Tarihi</label>
+                        <input type="date" className="identity-form-input" name="birthdate" value={selectedAnimal.birthdate || ''} onChange={handleInputChange} />
+                      </div>
+                      <div className="identity-form-field">
+                        <label className="identity-form-label">Ölüm Tarihi</label>
+                        <input type="date" className="identity-form-input" name="deathdate" value={selectedAnimal.deathdate || ''} onChange={handleInputChange} />
+                      </div>
+                    </div>
+                    <div className="identity-checkbox-grid">
+                      <label className="identity-checkbox-card">
+                        <input type="checkbox" name="active" checked={!!selectedAnimal.active} onChange={handleInputChange} />
+                        <span>Aktif</span>
+                      </label>
+                      <label className="identity-checkbox-card">
+                        <input type="checkbox" name="isdeath" checked={!!selectedAnimal.isdeath} disabled />
+                        <span>Vefat Etti</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div className="identity-animal-detail-footer">
+                    <button className="identity-btn identity-btn-danger" onClick={handleDeleteAnimal} disabled={isDeletingAnimal}>
+                      <Trash2 size={16} /> {isDeletingAnimal ? 'Siliniyor...' : 'Sil'}
+                    </button>
+                    <button className="identity-btn identity-btn-primary" onClick={handleSave} disabled={isSaving}>
+                      <Save size={16} /> {isSaving ? 'Kaydediliyor...' : 'Kaydet'}
+                    </button>
+                  </div>
+                </div>
+              ) : activeTab === 'gelisler' ? (
+                <div className="identity-history-card">
+                  <div className="identity-history-header">
+                    <h4 className="identity-history-title visits"><ClipboardList /> Gelişler</h4>
+                    <span className="identity-history-count">{visitList.length}</span>
+                  </div>
+                  <div className="identity-history-body">
+                    {visitList.length > 0 ? visitList.map((v, i) => (
+                      <div key={i} className="identity-history-item" onClick={() => v?.id && navigate(`/patientFile/${v.id}`)} style={{ cursor: 'pointer' }}>
+                        <div className="identity-history-item-info">
+                          <span className="identity-history-item-title">Geliş #{v.id}</span>
+                          <span className="identity-history-item-date">{formatDate(v.created_at)}</span>
+                        </div>
+                        <span className={`identity-history-item-status ${v.is_discharge ? 'completed' : 'pending'}`}>
+                          {v.is_discharge ? 'Taburcu' : 'Aktif'}
+                        </span>
+                      </div>
+                    )) : <div className="identity-history-empty">Geliş kaydı yok</div>}
+                  </div>
+                </div>
+              ) : activeTab === 'randevular' ? (
+                <div className="identity-history-card">
+                  <div className="identity-history-header">
+                    <h4 className="identity-history-title appointments"><CalendarCheck /> Randevular</h4>
+                    <span className="identity-history-count">{appointmentList.length}</span>
+                  </div>
+                  <div className="identity-history-body">
+                    {appointmentList.length > 0 ? appointmentList.map((a, i) => (
+                      <div key={i} className="identity-history-item">
+                        <div className="identity-history-item-info">
+                          <span className="identity-history-item-title">{a.app_type === 0 ? 'Muayene' : 'Kontrol'}</span>
+                          <span className="identity-history-item-date">{formatDate(a.start_time)}</span>
+                        </div>
+                        <span className={`identity-history-item-status ${getAppointmentStatus(a.status).class}`}>
+                          {getAppointmentStatus(a.status).text}
+                        </span>
+                      </div>
+                    )) : <div className="identity-history-empty">Randevu yok</div>}
+                  </div>
+                </div>
+              ) : (
+                <div className="identity-history-card">
+                  <div className="identity-history-header">
+                    <h4 className="identity-history-title vaccinations"><Syringe /> Aşılar</h4>
+                    <span className="identity-history-count">{vaccinationList.length}</span>
+                  </div>
+                  <div className="identity-history-body">
+                    {vaccinationList.length > 0 ? vaccinationList.map((v, i) => (
+                      <div key={i} className="identity-history-item">
+                        <div className="identity-history-item-info">
+                          <span className="identity-history-item-title">{v.vaccine_name || 'Aşı'}</span>
+                          <span className="identity-history-item-date">{formatDate(v.planned_date || v.applied_on)}</span>
+                        </div>
+                        <span className={`identity-history-item-status ${v.is_applied ? 'completed' : 'pending'}`}>
+                          {v.is_applied ? 'Uygulandı' : 'Planlandı'}
+                        </span>
+                      </div>
+                    )) : <div className="identity-history-empty">Aşı planı yok</div>}
+                  </div>
+                </div>
+              )
+            ) : (
+              <div className="identity-empty">
+                <div className="identity-empty-icon">🐾</div>
+                <p>Hayvan seçin veya yeni ekleyin</p>
+              </div>
+            )}
+          </main>
+        </div>
+
+        <MainModal
+          isOpen={isAddModalOpen}
+          toggle={handleAddAnimalClose}
+          title="Yeni Hayvan Ekle"
+          content={<Animals ident_user_id={ownerInfo?.id || userId} onClose={handleAddAnimalClose} onSave={onAddAnimalSave} />}
+          onSave={onAddAnimalSave}
+          saveButtonLabel="Ekle"
+          modalStyle={{ width: '100%', maxWidth: '560px', maxHeight: '80vh' }}
+        />
+
+        <MainModal
+          isOpen={isPatientFileRegOpen}
+          toggle={() => setIsPatientFileRegOpen(false)}
+          title="Yeni Geliş Dosyası"
+          content={
+            <PatientFileReg
+              pat_id={ownerInfo?.id || 0}
+              pat_name={`${ownerInfo?.name || ''} ${ownerInfo?.surname || ''}`.trim()}
+              animal_id={selectedAnimal?.id || 0}
+              animal_name={selectedAnimal?.animalname || ''}
+            />
+          }
+          saveButtonLabel="Kaydet"
+        />
+      </div>
     </div>
   );
 };

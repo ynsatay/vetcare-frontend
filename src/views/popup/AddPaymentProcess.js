@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Button, Box } from "@mui/material";
+import "./AddPaymentProcess.css";
 import { DataGrid } from "@mui/x-data-grid";
 import axiosInstance from "../../api/axiosInstance.ts";
 import { trTR } from '@mui/x-data-grid/locales';
@@ -230,109 +230,90 @@ const AddPaymentProcess = ({ pa_id, vet_u_id }) => {
   };
 
   return (
-    <Box>
-      <h5>Ödenmemiş İşlemler</h5>
-      <DataGrid
-        rows={unpaidRows}
-        columns={[
-          { field: "id", headerName: "ID", width: 70, flex: 1 },
-          { field: "process_name", headerName: "İşlem", width: 200, flex: 2 },
-          { field: "total_price", headerName: "Tutar", width: 100, flex: 1 },
-          {
-            field: "ctime", headerName: "Tarih", width: 150, flex: 1,
-            valueFormatter: (params) => {
-              if (!params.value) return "";
-              const date = new Date(params.value);
-              return date.toLocaleDateString("tr-TR", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
+    <div className="payment-modal">
+      <div className="payment-card">
+        <div className="payment-header">
+          <h3>Ödenmemiş İşlemler</h3>
+          <div className="payment-actions">
+            <button className="payment-btn payment-primary" onClick={handlePayment} disabled={selectedUnpaid.length === 0}>Seçilenleri Tahsil Et</button>
+          </div>
+        </div>
+        <div className="payment-data-grid">
+          <DataGrid
+            rows={unpaidRows}
+            columns={[
+              { field: "id", headerName: "ID", width: 70, flex: 1 },
+              { field: "process_name", headerName: "İşlem", width: 200, flex: 2 },
+              { field: "total_price", headerName: "Tutar", width: 100, flex: 1 },
+              {
+                field: "ctime", headerName: "Tarih", width: 150, flex: 1,
+                valueFormatter: (params) => {
+                  if (!params.value) return "";
+                  const date = new Date(params.value);
+                  return date.toLocaleDateString("tr-TR", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  });
+                }
+              },
+            ]}
+            checkboxSelection
+            onSelectionModelChange={(ids) => {
+              setSelectedUnpaid(ids.map(id => Number(id)));
+            }}
+            selectionModel={selectedUnpaid}
+            autoHeight
+            localeText={{
+              ...trTR.components.MuiDataGrid.defaultProps.localeText,
+              footerRowSelected: (count) =>
+                count > 1
+                  ? `${count.toLocaleString()} satır seçildi`
+                  : `${count.toLocaleString()} satır seçildi`,
+            }}
+          />
+        </div>
+      </div>
+
+      <div className="payment-card">
+        <div className="payment-header">
+          <h3>Yapılmış Tahsilatlar</h3>
+          <div className="payment-actions">
+            <button className="payment-btn payment-danger" onClick={handleDeletePayment} disabled={selectedPaid.length === 0}>Seçilen Tahsilatı Sil</button>
+            <button className="payment-btn payment-ghost" onClick={() => handlePrint(selectedPaid)} disabled={selectedPaid.length === 0}>Fatura Yazdır</button>
+          </div>
+        </div>
+        <div className="payment-data-grid">
+          <DataGrid
+            rows={paidRows}
+            columns={columns}
+            checkboxSelection
+            onSelectionModelChange={(ids) => {
+              const filtered = ids.filter(id => {
+                const row = paidRows.find(r => r.id === id);
+                return row?.isMaster === true; // sadece master satır seçilebilir
               });
+              setSelectedPaid(filtered);
+            }}
+            selectionModel={selectedPaid}
+            autoHeight
+            getRowClassName={(params) =>
+              params.row.isDetail ? "payment-detail-row" : ""
             }
-          },
-        ]}
-        checkboxSelection
-        onSelectionModelChange={(ids) => {
-          setSelectedUnpaid(ids.map(id => Number(id)));
-        }}
-        selectionModel={selectedUnpaid}
-        sx={{ height: 350, mb: 2 }}
-        localeText={{
-          ...trTR.components.MuiDataGrid.defaultProps.localeText,
-          footerRowSelected: (count) =>
-            count > 1
-              ? `${count.toLocaleString()} satır seçildi`
-              : `${count.toLocaleString()} satır seçildi`,
-        }}
-      />
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handlePayment}
-        disabled={selectedUnpaid.length === 0}
-        sx={{ mb: 4 }}
-      >
-        Seçilenleri Tahsil Et
-      </Button>
-
-      <h5>Yapılmış Tahsilatlar</h5>
-      <DataGrid
-        rows={paidRows}
-        columns={columns}
-        checkboxSelection
-        // Detay satırlar seçilemesin diye filtreliyoruz:
-        onSelectionModelChange={(ids) => {
-          const filtered = ids.filter(id => {
-            const row = paidRows.find(r => r.id === id);
-            return row?.isMaster === true; // sadece master satır seçilebilir
-          });
-          setSelectedPaid(filtered);
-        }}
-        selectionModel={selectedPaid}
-        sx={{ height: 350, mb: 2 }}
-        getRowClassName={(params) =>
-          params.row.isDetail ? "detail-row" : ""
-        }
-        // Detay satırlar seçilemesin diye:
-        isRowSelectable={(params) => params.row.isMaster === true}
-        localeText={{
-          ...trTR.components.MuiDataGrid.defaultProps.localeText,
-          footerRowSelected: (count) =>
-            count > 1
-              ? `${count.toLocaleString()} satır seçildi`
-              : `${count.toLocaleString()} satır seçildi`,
-        }}
-      />
-      <Button
-        variant="outlined"
-        color="error"
-        onClick={handleDeletePayment}
-        disabled={selectedPaid.length === 0}
-      >
-        Seçilen Tahsilatı Sil
-      </Button>
-
-      <Button
-        variant="outlined"
-        color="secondary"
-        onClick={() => handlePrint(selectedPaid)}
-        disabled={selectedPaid.length === 0}
-        sx={{ ml: 2 }}
-      >
-        Fatura Yazdır
-      </Button>
-
-      {/* Basit stil örneği, detay satırlarını açık renk yapalım */}
-      <style>{`
-        .detail-row {
-          background-color: #f9f9f9;
-          font-style: italic;
-          color: #555;
-        }
-      `}</style>
-    </Box>
+            isRowSelectable={(params) => params.row.isMaster === true}
+            localeText={{
+              ...trTR.components.MuiDataGrid.defaultProps.localeText,
+              footerRowSelected: (count) =>
+                count > 1
+                  ? `${count.toLocaleString()} satır seçildi`
+                  : `${count.toLocaleString()} satır seçildi`,
+            }}
+          />
+        </div>
+      </div>
+    </div>
   );
 };
 

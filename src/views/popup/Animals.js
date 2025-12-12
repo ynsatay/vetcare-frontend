@@ -1,9 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { Input, Label } from 'reactstrap';
-import "../scss/_animals.scss";
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { AuthContext } from '../../context/usercontext.tsx';
 import axiosInstance from '../../api/axiosInstance.ts';
 import { useConfirm } from '../../components/ConfirmContext';
+import { PawPrint, ClipboardList, Calendar, Hash, Trash2 } from 'lucide-react';
 
 const Animals = React.forwardRef((props, ref) => {
   const [animals, setAnimals] = useState([]);
@@ -24,13 +23,40 @@ const Animals = React.forwardRef((props, ref) => {
   const [wasAutoFilled, setWasAutoFilled] = useState(false);
   const [searchTimeout, setSearchTimeout] = useState(null);
   const [useAutoIdentNumber, setUseAutoIdentNumber] = useState(false);
+  const [showIdentityHint, setShowIdentityHint] = useState(false);
+  const identityInputRef = useRef(null);
+  const isLocked = existingAnimalFound !== null || (!useAutoIdentNumber && !animalIdentNumber);
+  const hintTimeoutRef = useRef(null);
 
   React.useImperativeHandle(ref, () => ({
     handleSave
   }));
 
+  const nudgeToIdentity = () => {
+    if (useAutoIdentNumber) return;
+    setShowIdentityHint(true);
+    if (hintTimeoutRef.current) {
+      try { clearTimeout(hintTimeoutRef.current); } catch {}
+    }
+    if (identityInputRef.current) {
+      try {
+        identityInputRef.current.focus();
+        identityInputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch {}
+    }
+    hintTimeoutRef.current = setTimeout(() => setShowIdentityHint(false), 4000);
+  };
+
   const handleSave = async () => {
     try {
+      if (!useAutoIdentNumber && (!animalIdentNumber || !animalIdentNumber.trim())) {
+        await confirm("Kimlik numarası giriniz veya 'Otomatik al' seçiniz.", "Tamam", "", "Uyarı");
+        return;
+      }
+      if (!selectedAnimal || !selectedanimalsspecies || !animalname) {
+        await confirm("Lütfen hayvan, tür ve ad alanlarını doldurun.", "Tamam", "", "Uyarı");
+        return;
+      }
       // If animal identity number is provided, check if this animal already belongs to this user
       if (animalIdentNumber && animalIdentNumber.trim()) {
         try {
@@ -82,7 +108,7 @@ const Animals = React.forwardRef((props, ref) => {
         animal_species_id: selectedanimalsspecies,
         birthdate: birthdate,
         deathdate: null,
-        animalidentnumber: animalIdentNumber,
+        animalidentnumber: useAutoIdentNumber ? null : animalIdentNumber,
         isdeath: false,
         animalname: animalname,
         picture: ''
@@ -136,6 +162,10 @@ const Animals = React.forwardRef((props, ref) => {
   const handleAnimalIdentNumberChange = async (e) => {
     const id = e.target.value;
     setanimalIdentNumber(id);
+    if (id && id.length > 0) {
+      if (showIdentityHint) setShowIdentityHint(false);
+      if (hintTimeoutRef.current) { try { clearTimeout(hintTimeoutRef.current); } catch {} hintTimeoutRef.current = null; }
+    }
 
     // Clear existing timeout
     if (searchTimeout) {
@@ -284,115 +314,138 @@ const Animals = React.forwardRef((props, ref) => {
   };
 
   return (
-    <form>
-      {/* Animal Identity Number FIRST - with real-time search */}
-      <div className="ani-form-group">
-        <Label className="ani-form-label" for="animalIdentNumber">🔑 Hayvan Kimlik Numarası *</Label>
-        <Input
-          type="text"
-          name="animalIdentNumber"
-          id="animalIdentNumber"
-          placeholder="Hayvan kimlik numarasını giriniz"
-          value={animalIdentNumber}
-          onChange={handleAnimalIdentNumberChange}
-          className="ani-form-select"
-        />
-      </div>
-
-      {/* Found animal indicator */}
-      {existingAnimalFound && (
-        <div style={{ padding: 12, borderRadius: 10, border: '1px solid #10b981', background: '#ecfdf5', marginBottom: 12 }}>
-          <div style={{ fontWeight: 700, fontSize: 12, color: '#065f46', marginBottom: 8 }}>✓ Hayvan Bulundu</div>
-          <div style={{ fontSize: 12, color: '#047857' }}>
-            {existingAnimalFound.user_name || existingAnimalFound.animal_name}
+    <div className="identity-modal">
+      <div className="identity-section-card compact">
+        <div className="identity-panel-banner">
+          <div>
+            <div className="identity-panel-title">Hayvan Ekle</div>
+            <div className="identity-panel-sub">Hızlı kayıt</div>
+          </div>
+          <div className="identity-segment">
+            <div className={`option ${!useAutoIdentNumber ? 'active' : ''}`} onClick={() => setUseAutoIdentNumber(false)}>Kimlik Gir</div>
+            <div className={`option ${useAutoIdentNumber ? 'active' : ''}`} onClick={() => { setUseAutoIdentNumber(true); setanimalIdentNumber(''); setExistingAnimalFound(null); setWasAutoFilled(false); }}>Otomatik Al</div>
           </div>
         </div>
-      )}
 
-      <div className="ani-form-group">
-        <Label className="ani-form-label" for="exampleSelect">Hayvan Seçin</Label>
-        <Input
-          id="exampleSelect"
-          name="select"
-          type="select"
-          value={selectedAnimal}
-          onChange={(e) => handleanimalchange(e)}
-          disabled={existingAnimalFound !== null}
-          className="ani-form-select"
-          style={{ opacity: existingAnimalFound !== null ? 0.6 : 1, cursor: existingAnimalFound !== null ? 'not-allowed' : 'pointer' }}
-        >
-          <option value=""></option>
-          {animals.map((animal) => (
-            <option key={animal.id} value={animal.id}>
-              {animal.name}
-            </option>
-          ))}
-        </Input>
-      </div>
-      <div className="ani-form-group">
-        <Label className="ani-form-label" for="exampleSelect2">Hayvan Türü Seçin</Label>
-        <Input
-          id="exampleSelect2"
-          name="select2"
-          type="select"
-          value={selectedanimalsspecies}
-          onChange={(e) => setSelectedanimalsspecies(e.target.value)}
-          disabled={existingAnimalFound !== null}
-          className="ani-form-select"
-          style={{ opacity: existingAnimalFound !== null ? 0.6 : 1, cursor: existingAnimalFound !== null ? 'not-allowed' : 'pointer' }}
-        >
-          <option value=""></option>
-          {animalsspecies.map((animalspec) => (
-            <option key={animalspec.id} value={animalspec.id}>
-              {animalspec.species_name}
-            </option>
-          ))}
-        </Input>
-      </div>
-      <div className="ani-form-group">
-        <Label className="ani-form-label" for="animalname">Hayvan Adı</Label>
-        <Input
-          type="text"
-          name="animalname"
-          id="animalname"
-          value={animalname}
-          onChange={(e) => setanimalname(e.target.value)}
-          readOnly={existingAnimalFound !== null}
-          style={{ background: existingAnimalFound !== null ? '#f3f4f6' : '#fff' }}
-        />
-      </div>
-      <div className="ani-form-group">
-        <Label className="ani-form-label" for="birthdate">Doğum Tarihi Seçin</Label>
-        <Input
-          type="date"
-          name="birthdate"
-          id="birthdate"
-          value={birthdate}
-          onChange={(e) => setBirthdate(e.target.value)}
-          disabled={existingAnimalFound !== null}
-          style={{ opacity: existingAnimalFound !== null ? 0.6 : 1, cursor: existingAnimalFound !== null ? 'not-allowed' : 'pointer' }}
-        />
+        <div className="identity-modal-body">
+      <div className="identity-owner-grid compact">
+        {!useAutoIdentNumber && (
+          <div className="identity-owner-field full">
+            <label className="identity-owner-label">Hayvan Kimlik Numarası</label>
+            <div className="identity-input-group">
+              <Hash className="identity-input-icon" size={14} />
+              <input
+                type="text"
+                className="identity-owner-input"
+                name="animalIdentNumber"
+                placeholder="Kimlik numarası"
+                value={animalIdentNumber}
+                onChange={handleAnimalIdentNumberChange}
+                ref={identityInputRef}
+              />
+            </div>
+            {showIdentityHint && (
+              <div className="identity-hint">Önce kimlik bilgilerini giriniz</div>
+            )}
+          </div>
+        )}
+
+        <div className="identity-owner-field">
+          <label className="identity-owner-label">Hayvan</label>
+          <div className="identity-input-group" onClick={() => { if (!useAutoIdentNumber && !animalIdentNumber && existingAnimalFound === null) nudgeToIdentity(); }} style={{ cursor: (!useAutoIdentNumber && !animalIdentNumber && existingAnimalFound === null) ? 'not-allowed' : 'auto' }}>
+            <PawPrint className="identity-input-icon" size={14} />
+            <select
+              className="identity-owner-select"
+              value={selectedAnimal}
+              onChange={handleanimalchange}
+              disabled={existingAnimalFound !== null || (!useAutoIdentNumber && !animalIdentNumber)}
+              style={{ pointerEvents: isLocked ? 'none' : 'auto' }}
+            >
+              <option value=""></option>
+              {animals.map((animal) => (
+                <option key={animal.id} value={animal.id}>{animal.name}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="identity-owner-field">
+          <label className="identity-owner-label">Tür</label>
+          <div className="identity-input-group" onClick={() => { if (!useAutoIdentNumber && !animalIdentNumber && existingAnimalFound === null) nudgeToIdentity(); }} style={{ cursor: (!useAutoIdentNumber && !animalIdentNumber && existingAnimalFound === null) ? 'not-allowed' : 'auto' }}>
+            <ClipboardList className="identity-input-icon" size={14} />
+            <select
+              className="identity-owner-select"
+              value={selectedanimalsspecies}
+              onChange={(e) => setSelectedanimalsspecies(e.target.value)}
+              disabled={existingAnimalFound !== null || (!useAutoIdentNumber && !animalIdentNumber)}
+              style={{ pointerEvents: isLocked ? 'none' : 'auto' }}
+            >
+              <option value=""></option>
+              {animalsspecies.map((s) => (
+                <option key={s.id} value={s.id}>{s.species_name}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="identity-owner-field full">
+          <label className="identity-owner-label">Hayvan Adı</label>
+          <div className="identity-input-group" onClick={() => { if (!useAutoIdentNumber && !animalIdentNumber && existingAnimalFound === null) nudgeToIdentity(); }} style={{ cursor: (!useAutoIdentNumber && !animalIdentNumber && existingAnimalFound === null) ? 'not-allowed' : 'auto' }}>
+            <PawPrint className="identity-input-icon" size={14} />
+            <input
+              type="text"
+              className="identity-owner-input"
+              name="animalname"
+              value={animalname}
+              onChange={(e) => setanimalname(e.target.value)}
+              disabled={existingAnimalFound !== null || (!useAutoIdentNumber && !animalIdentNumber)}
+              style={{ pointerEvents: isLocked ? 'none' : 'auto' }}
+            />
+          </div>
+        </div>
+
+        <div className="identity-owner-field">
+          <label className="identity-owner-label">Doğum Tarihi</label>
+          <div className="identity-input-group" onClick={() => { if (!useAutoIdentNumber && !animalIdentNumber && existingAnimalFound === null) nudgeToIdentity(); }} style={{ cursor: (!useAutoIdentNumber && !animalIdentNumber && existingAnimalFound === null) ? 'not-allowed' : 'auto' }}>
+            <Calendar className="identity-input-icon" size={14} />
+            <input
+              type="date"
+              className="identity-owner-input"
+              name="birthdate"
+              value={birthdate}
+              onChange={(e) => setBirthdate(e.target.value)}
+              disabled={existingAnimalFound !== null || (!useAutoIdentNumber && !animalIdentNumber)}
+              style={{ pointerEvents: isLocked ? 'none' : 'auto' }}
+            />
+          </div>
+        </div>
+
+        {/* result card removed per request */}
       </div>
 
-      {existingAnimalFound && (
-        <button
-          type="button"
-          onClick={() => {
-            setExistingAnimalFound(null);
-            setanimalIdentNumber('');
-            setSelectedAnimal('');
-            setanimalsspecies([]);
-            setSelectedanimalsspecies('');
-            setanimalname('');
-            setBirthdate('');
-            setWasAutoFilled(false);
-          }}
-          style={{ width: '100%', padding: '10px 14px', background: '#ef4444', color: '#fff', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, marginBottom: 12 }}
-        >
-          Başka Hayvan Ara
-        </button>
-      )}
-    </form>
+      <div className="identity-owner-actions">
+        {existingAnimalFound && (
+          <button
+            type="button"
+            className="identity-btn identity-btn-danger"
+            onClick={() => {
+              setExistingAnimalFound(null);
+              setanimalIdentNumber('');
+              setSelectedAnimal('');
+              setanimalsspecies([]);
+              setSelectedanimalsspecies('');
+              setanimalname('');
+              setBirthdate('');
+              setWasAutoFilled(false);
+            }}
+          >
+            <Trash2 size={16} /> Başka Hayvan Ara
+          </button>
+        )}
+      </div>
+        </div>
+      </div>
+    </div>
   );
 });
 
