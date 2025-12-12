@@ -1,8 +1,10 @@
-import React, { forwardRef, useImperativeHandle, useState, useEffect } from 'react';
+import React, { forwardRef, useImperativeHandle, useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance.ts';
 import { Input } from 'reactstrap';
 import { useConfirm } from '../../components/ConfirmContext';
+import Animals from '../popup/Animals.js';
+import '../ui/IdentityInfo.css';
 
 const PatientReg = forwardRef((props, ref) => {
   const {
@@ -32,6 +34,8 @@ const PatientReg = forwardRef((props, ref) => {
   const [existingAnimalSelected, setExistingAnimalSelected] = useState(null);
   const [isAnimalFormValid, setIsAnimalFormValid] = useState(false);
   const { confirm } = useConfirm();
+  const animalsRef = useRef(null);
+  const userIdForAnimals = personelData?.user_id || personelData?.id || selectedOwner?.user_id || selectedOwner?.id || null;
 
   useEffect(() => {
     const isValid =
@@ -674,280 +678,15 @@ const PatientReg = forwardRef((props, ref) => {
           {/* Yeni Hayvan Formu */}
           {showAnimalForm && (
             <div>
-              <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 18 }}>🐾</span> Yeni Hayvan Kaydı
-              </div>
-              <div style={{ display: 'grid', gap: 12 }}>
-                {/* Animal ID field FIRST - required and with real-time search */}
-                <div>
-                  <label style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 6 }}>🔑 Hayvan Kimlik Numarası *</label>
-                  <input 
-                    placeholder="Hayvan kimlik numarasını giriniz" 
-                    value={newAnimal.animalidentity} 
-                    onChange={async (e) => {
-                      const id = e.target.value;
-                      setNewAnimal({ ...newAnimal, animalidentity: id });
-                      
-                      // Real-time search as user types
-                      if (id.trim()) {
-                        try {
-                          const res = await axiosInstance.get('/getanimalsearch', { params: { tc: id, IsAnimalId: 1 } });
-                          const owners = res.data.data || [];
-                          const animal = res.data.animal || null;
-                          
-                          // If single match, auto-populate and lock
-                          if (owners.length === 1 && !animal) {
-                            const owner = owners[0];
-                            const animalId = owner.animal_id || owner.id || '';
-                            const speciesName = owner.species_name || owner.species || '';
-                            
-                            // Fetch species list to get the correct species ID
-                            if (animalId) {
-                              try {
-                                const speciesRes = await axiosInstance.get('/animalsspecies', { params: { animal_id: animalId } });
-                                const speciesList = speciesRes.data.response || [];
-                                const matchedSpecies = speciesList.find(s => s.species_name === speciesName);
-                                const speciesId = matchedSpecies ? matchedSpecies.id : '';
-                                
-                                setNewAnimal(prev => ({ 
-                                  ...prev, 
-                                  animalidentity: id,
-                                  animalname: owner.animal_name || owner.animalname || '',
-                                  animal_name: animalId,
-                                  species: speciesId
-                                }));
-                                setSelectedAnimal(animalId);
-                                if (speciesList.length > 0) {
-                                  setanimalsspecies(speciesList);
-                                }
-                              } catch (e) {
-                                console.error('Species fetch error:', e);
-                                setNewAnimal(prev => ({ 
-                                  ...prev, 
-                                  animalidentity: id,
-                                  animalname: owner.animal_name || owner.animalname || '',
-                                  animal_name: animalId,
-                                  species: ''
-                                }));
-                                setSelectedAnimal(animalId);
-                              }
-                            }
-                            setExistingAnimalSelected({ owners: [owner], animal: owner });
-                          } else if (animal) {
-                            const animalId = animal.animal_id || animal.id || '';
-                            const speciesName = animal.species_name || animal.species || '';
-                            
-                            // Fetch species list to get the correct species ID
-                            if (animalId) {
-                              try {
-                                const speciesRes = await axiosInstance.get('/animalsspecies', { params: { animal_id: animalId } });
-                                const speciesList = speciesRes.data.response || [];
-                                const matchedSpecies = speciesList.find(s => s.species_name === speciesName);
-                                const speciesId = matchedSpecies ? matchedSpecies.id : '';
-                                
-                                setNewAnimal(prev => ({
-                                  ...prev,
-                                  animalidentity: id,
-                                  animalname: animal.animal_name || animal.animalname || '',
-                                  animal_name: animalId,
-                                  species: speciesId
-                                }));
-                                setSelectedAnimal(animalId);
-                                if (speciesList.length > 0) {
-                                  setanimalsspecies(speciesList);
-                                }
-                              } catch (e) {
-                                console.error('Species fetch error:', e);
-                                setNewAnimal(prev => ({
-                                  ...prev,
-                                  animalidentity: id,
-                                  animalname: animal.animal_name || animal.animalname || '',
-                                  animal_name: animalId,
-                                  species: ''
-                                }));
-                                setSelectedAnimal(animalId);
-                              }
-                            }
-                            setExistingAnimalSelected({ owners: [], animal });
-                          } else if (owners.length > 1) {
-                            // Auto-select first owner without showing results list
-                            const firstOwner = owners[0];
-                            const animalId = firstOwner.animal_id || firstOwner.id || '';
-                            const speciesName = firstOwner.species_name || firstOwner.species || '';
-                            
-                            // Fetch species list to get the correct species ID
-                            if (animalId) {
-                              try {
-                                const speciesRes = await axiosInstance.get('/animalsspecies', { params: { animal_id: animalId } });
-                                const speciesList = speciesRes.data.response || [];
-                                const matchedSpecies = speciesList.find(s => s.species_name === speciesName);
-                                const speciesId = matchedSpecies ? matchedSpecies.id : '';
-                                
-                                setNewAnimal(prev => ({ 
-                                  ...prev, 
-                                  animalidentity: id,
-                                  animalname: firstOwner.animal_name || firstOwner.animalname || '',
-                                  animal_name: animalId,
-                                  species: speciesId
-                                }));
-                                setSelectedAnimal(animalId);
-                                if (speciesList.length > 0) {
-                                  setanimalsspecies(speciesList);
-                                }
-                              } catch (e) {
-                                console.error('Species fetch error:', e);
-                                setNewAnimal(prev => ({ 
-                                  ...prev, 
-                                  animalidentity: id,
-                                  animalname: firstOwner.animal_name || firstOwner.animalname || '',
-                                  animal_name: animalId,
-                                  species: ''
-                                }));
-                                setSelectedAnimal(animalId);
-                              }
-                            }
-                            // store all owners and keep the first as representative for animal info
-                            setExistingAnimalSelected({ owners: owners, animal: firstOwner });
-                            setAnimalFormResults([]);
-                          } else {
-                            // Eşleşme bulunamazsa alanları temizle
-                            setNewAnimal(prev => ({ 
-                              ...prev, 
-                              animalidentity: id,
-                              animalname: '',
-                              animal_name: '',
-                              species: ''
-                            }));
-                            setExistingAnimalSelected(null);
-                            setAnimalFormResults([]);
-                          }
-                        } catch (e) {
-                          console.error(e);
-                          setNewAnimal(prev => ({ 
-                            ...prev, 
-                            animalidentity: id,
-                            animalname: '',
-                            animal_name: '',
-                            species: ''
-                          }));
-                          setExistingAnimalSelected(null);
-                          setAnimalFormResults([]);
-                        }
-                      } else {
-                        // Boş ise her şeyi temizle
-                        setNewAnimal(prev => ({ 
-                          ...prev, 
-                          animalidentity: '',
-                          animalname: '',
-                          animal_name: '',
-                          species: ''
-                        }));
-                        setExistingAnimalSelected(null);
-                        setAnimalFormResults([]);
-                      }
-                    }} 
-                    style={{ padding: '12px 14px', borderRadius: 10, border: '1px solid #e6e9f2', fontSize: 13, outline: 'none', background: '#f8f9fc', width: '100%', boxSizing: 'border-box' }} 
-                  />
-                </div>
-
-
-
-                {/* Auto-populated locked fields when match found */}
-                {existingAnimalSelected && (
-                  <>
-                    <div style={{ padding: 12, borderRadius: 10, border: '1px solid #10b981', background: '#ecfdf5' }}>
-                      <div style={{ fontWeight: 700, fontSize: 12, color: '#065f46', marginBottom: 8 }}>✓ Hayvan Bulundu</div>
-                      <div style={{ fontSize: 12, color: '#047857' }}>
-                        {existingAnimalSelected.owners && existingAnimalSelected.owners.length > 0
-                          ? existingAnimalSelected.owners.map(o => o.user_name).join(', ')
-                          : (existingAnimalSelected.animal?.animal_name || '')
-                        }
-                      </div>
-                    </div>
-
-                    <input 
-                      placeholder="Hayvan Adı" 
-                      value={newAnimal.animalname} 
-                      readOnly
-                      style={{ padding: '12px 14px', borderRadius: 10, border: '1px solid #e6e9f2', fontSize: 13, outline: 'none', background: '#f3f4f6' }} 
-                    />
-                    <Input
-                      type="select"
-                      value={newAnimal.animal_name}
-                      disabled
-                      style={{ padding: '12px 14px', borderRadius: 10, border: '1px solid #e6e9f2', fontSize: 13, outline: 'none', background: '#f3f4f6', opacity: 0.6 }}
-                    >
-                      <option value="">Tür Seçin</option>
-                      {animals.map((animal) => (
-                        <option key={animal.id} value={animal.id}>
-                          {animal.name}
-                        </option>
-                      ))}
-                    </Input>
-
-                    <Input
-                      type="select"
-                      value={newAnimal.species}
-                      disabled
-                      style={{ padding: '12px 14px', borderRadius: 10, border: '1px solid #e6e9f2', fontSize: 13, outline: 'none', background: '#f3f4f6', opacity: 0.6 }}
-                    >
-                      <option value="">Cins Seçin</option>
-                      {animalsspecies.map((animalspec) => (
-                        <option key={animalspec.id} value={animalspec.id}>
-                          {animalspec.species_name}
-                        </option>
-                      ))}
-                    </Input>
-
-                    <button 
-                      onClick={() => { setExistingAnimalSelected(null); setNewAnimal({ animal_name: '', name: '', species: '', animalidentity: '' }); }} 
-                      style={{ padding: '10px 14px', background: '#ef4444', color: '#fff', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}
-                    >
-                      Başka Hayvan Ara
-                    </button>
-                  </>
-                )}
-
-                {/* If no match or user hasn't searched, show editable fields */}
-                {!existingAnimalSelected && newAnimal.animalidentity && (
-                  <>
-                    <input 
-                      placeholder="Hayvan Adı" 
-                      value={newAnimal.animalname} 
-                      onChange={e => setNewAnimal({ ...newAnimal, animalname: e.target.value })} 
-                      style={{ padding: '12px 14px', borderRadius: 10, border: '1px solid #e6e9f2', fontSize: 13, outline: 'none', background: '#f8f9fc' }} 
-                    />
-                    <Input
-                      type="select"
-                      value={newAnimal.animal_name}
-                      onChange={handleanimalchange}
-                      style={{ padding: '12px 14px', borderRadius: 10, border: '1px solid #e6e9f2', fontSize: 13, outline: 'none', background: '#f8f9fc' }}
-                    >
-                      <option value="">Tür Seçin</option>
-                      {animals.map((animal) => (
-                        <option key={animal.id} value={animal.id}>
-                          {animal.name}
-                        </option>
-                      ))}
-                    </Input>
-
-                    <Input
-                      type="select"
-                      value={newAnimal.species}
-                      onChange={(e) => setNewAnimal({ ...newAnimal, species: e.target.value })}
-                      disabled={!selectedAnimal}
-                      style={{ padding: '12px 14px', borderRadius: 10, border: '1px solid #e6e9f2', fontSize: 13, outline: 'none', background: '#f8f9fc', opacity: !selectedAnimal ? 0.6 : 1, cursor: !selectedAnimal ? 'not-allowed' : 'pointer' }}
-                    >
-                      <option value="">Cins Seçin</option>
-                      {animalsspecies.map((animalspec) => (
-                        <option key={animalspec.id} value={animalspec.id}>
-                          {animalspec.species_name}
-                        </option>
-                      ))}
-                    </Input>
-                  </>
-                )}
-              </div>
+              <Animals
+                ref={animalsRef}
+                ident_user_id={userIdForAnimals}
+                onSave={() => {
+                  setShowAnimalForm(false);
+                  confirm("Kayıt İşlemi Başarılı", "Tamam", "", "Uyarı");
+                }}
+                onClose={() => setShowAnimalForm(false)}
+              />
             </div>
           )}
         </div>
@@ -1008,17 +747,15 @@ const PatientReg = forwardRef((props, ref) => {
 
           {showAnimalForm && (
             <button
-              disabled={(searchByAnimalId && patientAutoFilled) || !isAnimalFormValid}
-              onClick={handleSaveAnimal}
+              onClick={() => { if (animalsRef.current) { animalsRef.current.handleSave(); } }}
               style={{
                 width: '100%',
                 padding: '12px 16px',
-                backgroundColor: ((searchByAnimalId && patientAutoFilled) || !isAnimalFormValid) ? '#d1d5db' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                background: ((searchByAnimalId && patientAutoFilled) || !isAnimalFormValid) ? '#d1d5db' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 color: '#fff',
                 borderRadius: 10,
                 border: 'none',
-                cursor: ((searchByAnimalId && patientAutoFilled) || !isAnimalFormValid) ? 'not-allowed' : 'pointer',
+                cursor: 'pointer',
                 fontWeight: 600,
                 fontSize: 13,
                 display: 'flex',

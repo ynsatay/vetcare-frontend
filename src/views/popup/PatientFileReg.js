@@ -4,7 +4,7 @@ import React, {
     useState,
     useEffect
 } from 'react';
-import { Row, Col, FormGroup, Label, Input } from 'reactstrap';
+import { Hash, ClipboardList, PawPrint, Calendar, User } from 'lucide-react';
 import axiosInstance from '../../api/axiosInstance.ts';
 import { useNavigate } from 'react-router-dom';
 import ConfirmDialog from '../../components/ConfirmDialog.js';
@@ -87,101 +87,104 @@ const PatientFileReg = forwardRef(({ pat_id, pat_name, animal_id, animal_name },
     };
 
     return (
-        <>
-            <FormGroup>
-                <Row>
-                    <Col md={3}><Label>Hasta Adı</Label></Col>
-                    <Col md={9}><Input value={pat_name} disabled /></Col>
-                </Row>
-            </FormGroup>
+        <div className="identity-modal">
+            <div className="identity-section-card compact">
+                <div className="identity-panel-banner">
+                    <div>
+                        <div className="identity-panel-title">Geliş Dosyası Oluştur</div>
+                        <div className="identity-panel-sub">Hızlı kayıt</div>
+                    </div>
+                </div>
 
-            <FormGroup>
-                <Row>
-                    <Col md={3}><Label>Hayvan Adı</Label></Col>
-                    <Col md={9}><Input value={animal_name} disabled /></Col>
-                </Row>
-            </FormGroup>
+                <div className="identity-modal-body">
+                    <div className="identity-owner-grid compact">
+                        <div className="identity-owner-field full">
+                            <label className="identity-owner-label">Hasta Adı</label>
+                            <div className="identity-input-group">
+                                <User className="identity-input-icon" size={14} />
+                                <input type="text" className="identity-owner-input" value={pat_name} disabled />
+                            </div>
+                        </div>
 
-            <FormGroup>
-                <Row>
-                    <Col md={3}><Label>Geliş Tipi*</Label></Col>
-                    <Col md={9}>
-                        <Input type="select" name="type" value={formData.type} onChange={handleChange}>
-                            <option value="">Seçiniz</option>
-                            <option value="1">Kontrol</option>
-                            <option value="2">Acil</option>
-                            <option value="3">Aşı</option>
-                        </Input>
-                    </Col>
-                </Row>
-            </FormGroup>
+                        <div className="identity-owner-field full">
+                            <label className="identity-owner-label">Hayvan Adı</label>
+                            <div className="identity-input-group">
+                                <PawPrint className="identity-input-icon" size={14} />
+                                <input type="text" className="identity-owner-input" value={animal_name} disabled />
+                            </div>
+                        </div>
 
-            <FormGroup>
-                <Row>
-                    <Col md={3}><Label>Veteriner*</Label></Col>
-                    <Col md={9}>
-                        <Input
-                            type="select"
-                            name="vet_u_id"
-                            value={formData.vet_u_id}
-                            onChange={handleChange}
-                        >
-                            <option value="">Seçiniz</option>
-                            {vets.map(vet => (
-                                <option key={vet.id} value={vet.id}>{vet.name + " " + vet.surname}</option>
-                            ))}
-                        </Input>
-                    </Col>
-                </Row>
-            </FormGroup>
+                        <div className="identity-owner-field">
+                            <label className="identity-owner-label">Geliş Tipi*</label>
+                            <div className="identity-input-group">
+                                <ClipboardList className="identity-input-icon" size={14} />
+                                <select className="identity-owner-select" name="type" value={formData.type} onChange={handleChange}>
+                                    <option value="">Seçiniz</option>
+                                    <option value="1">Kontrol</option>
+                                    <option value="2">Acil</option>
+                                    <option value="3">Aşı</option>
+                                </select>
+                            </div>
+                        </div>
 
-            <FormGroup>
-                <Row>
-                    <Col md={3}><Label>Notlar</Label></Col>
-                    <Col md={9}>
-                        <Input type="text" name="notes" value={formData.notes} onChange={handleChange} />
-                    </Col>
-                </Row>
-            </FormGroup>
+                        <div className="identity-owner-field">
+                            <label className="identity-owner-label">Veteriner*</label>
+                            <div className="identity-input-group">
+                                <Hash className="identity-input-icon" size={14} />
+                                <select className="identity-owner-select" name="vet_u_id" value={formData.vet_u_id} onChange={handleChange}>
+                                    <option value="">Seçiniz</option>
+                                    {vets.map(vet => (
+                                        <option key={vet.id} value={vet.id}>{vet.name + " " + vet.surname}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
 
-            <FormGroup>
-                <Row>
-                    <Col md={3}><Label>Geliş Nedeni</Label></Col>
-                    <Col md={9}>
-                        <Input type="text" name="arrival_reason" value={formData.arrival_reason} onChange={handleChange} />
-                    </Col>
-                </Row>
-            </FormGroup>
+                        <div className="identity-owner-field full">
+                            <label className="identity-owner-label">Notlar</label>
+                            <div className="identity-input-group">
+                                <ClipboardList className="identity-input-icon" size={14} />
+                                <input type="text" className="identity-owner-input" name="notes" value={formData.notes} onChange={handleChange} />
+                            </div>
+                        </div>
 
-            <FormGroup>
-                <Row>
-                    <Col md={3}><Label>Tanı</Label></Col>
-                    <Col md={9}>
-                        <Input type="textarea" name="diagnosis" value={formData.diagnosis} onChange={handleChange} />
-                    </Col>
-                </Row>
-            </FormGroup>
+                        <div className="identity-owner-field full">
+                            <label className="identity-owner-label">Geliş Nedeni</label>
+                            <div className="identity-input-group">
+                                <ClipboardList className="identity-input-icon" size={14} />
+                                <input type="text" className="identity-owner-input" name="arrival_reason" value={formData.arrival_reason} onChange={handleChange} />
+                            </div>
+                        </div>
 
-            <FormGroup>
-                <Row>
-                    <Col md={3}><Label>Tedavi Planı</Label></Col>
-                    <Col md={9}>
-                        <Input type="textarea" name="treatment_plan" value={formData.treatment_plan} onChange={handleChange} />
-                    </Col>
-                </Row>
-            </FormGroup>
+                        <div className="identity-owner-field full">
+                            <label className="identity-owner-label">Tanı</label>
+                            <div className="identity-input-group">
+                                <ClipboardList className="identity-input-icon" size={14} />
+                                <textarea className="identity-owner-input" name="diagnosis" value={formData.diagnosis} onChange={handleChange} />
+                            </div>
+                        </div>
 
-            <ConfirmDialog
-                isOpen={showConfirm}
-                toggle={() => setShowConfirm(false)}
-                onConfirm={() => setShowConfirm(false)}
-                message="Zorunlu alanları doldurunuz"
-                answerTrue="Tamam"
-                toggleMessage="Uyarı"
-                answerFalse=""
-            />
+                        <div className="identity-owner-field full">
+                            <label className="identity-owner-label">Tedavi Planı</label>
+                            <div className="identity-input-group">
+                                <Calendar className="identity-input-icon" size={14} />
+                                <textarea className="identity-owner-input" name="treatment_plan" value={formData.treatment_plan} onChange={handleChange} />
+                            </div>
+                        </div>
+                    </div>
 
-        </>
+                    <ConfirmDialog
+                        isOpen={showConfirm}
+                        toggle={() => setShowConfirm(false)}
+                        onConfirm={() => setShowConfirm(false)}
+                        message="Zorunlu alanları doldurunuz"
+                        answerTrue="Tamam"
+                        toggleMessage="Uyarı"
+                        answerFalse=""
+                    />
+                </div>
+            </div>
+        </div>
     );
 });
 
