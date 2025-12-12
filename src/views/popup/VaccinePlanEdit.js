@@ -49,6 +49,7 @@ const VaccinePlanEdit = ({ plan, onClose, onUpdateSuccess }) => {
         confirm("Güncelleme başarısız.", "Tamam", "", "Hata");
       }
     } catch (error) {
+      if (error.__demo_blocked) return; 
       console.error("Güncelleme hatası:", error);
       confirm(error.response?.data?.error || "Bir hata oluştu. Lütfen tekrar deneyin.", "Tamam", "", "Hata");
     }
@@ -69,6 +70,7 @@ const VaccinePlanEdit = ({ plan, onClose, onUpdateSuccess }) => {
         confirm("Silme işlemi başarısız.", "Tamam", "", "Hata");
       }
     } catch (error) {
+      if (error.__demo_blocked) return; 
       console.error("Silme hatası:", error);
       const errorMessage = error.response?.data?.error || "Bir hata oluştu. Lütfen tekrar deneyin.";
       confirm(errorMessage, "Tamam", "", "Hata");
