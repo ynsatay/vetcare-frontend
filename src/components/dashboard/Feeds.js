@@ -1,5 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+import tr from "dayjs/locale/tr";
 import axiosInstance from "../../api/axiosInstance.ts";
 import {
   Card,
@@ -11,11 +14,18 @@ import {
   Button,
 } from "reactstrap";
 import "../../views/ui/IdentityInfo.css";
-import timezone from "dayjs/plugin/timezone";
-import tr from "dayjs/locale/tr";
 
+// dayjs setup
+dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.locale(tr);
+dayjs.tz.setDefault("Europe/Istanbul");
+
+// 🔹 TEK NOKTADAN TARİH FORMATLAMA
+const formatDate = (date) =>
+  date
+    ? dayjs.tz(date, "Europe/Istanbul").format("DD.MM.YYYY HH:mm")
+    : "";
 
 const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
   const [feeds, setFeeds] = useState([]);
@@ -23,6 +33,7 @@ const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
   const [localTab, setLocalTab] = useState("payments");
   const [search, setSearch] = useState("");
   const [isMobile, setIsMobile] = useState(false);
+
   const activeTab = controlledTab ?? localTab;
 
   useEffect(() => {
@@ -31,12 +42,10 @@ const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
       .get(`/feeds?category=${activeTab}`)
       .then((res) => {
         setFeeds(res.data);
-        if (onData) onData(res.data);
+        onData?.(res.data);
         setLoading(false);
       })
-      .catch(() => {
-        setLoading(false);
-      });
+      .catch(() => setLoading(false));
   }, [activeTab]);
 
   useEffect(() => {
@@ -51,10 +60,11 @@ const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
     const total = feeds.length;
     const last = feeds[0];
     const users = new Set(feeds.map((f) => f.user_name)).size;
+
     return {
       total,
       lastTitle: last?.title ?? "",
-      lastTime: last ? dayjs(last.created_at).format("DD.MM.YYYY HH:mm") : "",
+      lastTime: formatDate(last?.created_at),
       users,
     };
   }, [feeds]);
@@ -76,29 +86,49 @@ const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
     <Card>
       <CardBody>
         <CardTitle tag="h5">Akışlar</CardTitle>
-        <div className="identity-tabs" style={{ marginTop: 8, marginBottom: 8 }}>
-          <button className={`identity-tab ${activeTab === 'payments' ? 'active' : ''}`} onClick={() => (onTabChange ? onTabChange('payments') : setLocalTab('payments'))}>Tahsilat</button>
-          <button className={`identity-tab ${activeTab === 'vaccine' ? 'active' : ''}`} onClick={() => (onTabChange ? onTabChange('vaccine') : setLocalTab('vaccine'))}>Aşı</button>
-          <button className={`identity-tab ${activeTab === 'stock' ? 'active' : ''}`} onClick={() => (onTabChange ? onTabChange('stock') : setLocalTab('stock'))}>Stok</button>
-          <button className={`identity-tab ${activeTab === 'service' ? 'active' : ''}`} onClick={() => (onTabChange ? onTabChange('service') : setLocalTab('service'))}>Hizmet</button>
-          <button className={`identity-tab ${activeTab === 'appointment' ? 'active' : ''}`} onClick={() => (onTabChange ? onTabChange('appointment') : setLocalTab('appointment'))}>Randevu</button>
+
+        {/* Tabs */}
+        <div className="identity-tabs" style={{ margin: "8px 0" }}>
+          {[
+            ["payments", "Tahsilat"],
+            ["vaccine", "Aşı"],
+            ["stock", "Stok"],
+            ["service", "Hizmet"],
+            ["appointment", "Randevu"],
+          ].map(([key, label]) => (
+            <button
+              key={key}
+              className={`identity-tab ${activeTab === key ? "active" : ""}`}
+              onClick={() =>
+                onTabChange ? onTabChange(key) : setLocalTab(key)
+              }
+            >
+              {label}
+            </button>
+          ))}
         </div>
-        <div className="identity-owner-actions" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
+
+        {/* KPI */}
+        <div className="identity-owner-actions" style={{ gap: 8, flexWrap: "wrap" }}>
           <span className="identity-chip info">Toplam: {kpi.total}</span>
           <span className="identity-chip success">Kullanıcı: {kpi.users}</span>
           {kpi.lastTitle && <span className="identity-chip">Son: {kpi.lastTitle}</span>}
-          {kpi.lastTime && <span className="identity-chip warning">Zaman: {kpi.lastTime}</span>}
+          {kpi.lastTime && (
+            <span className="identity-chip warning">Zaman: {kpi.lastTime}</span>
+          )}
         </div>
+
+        {/* Search + Export */}
         <div className="identity-input-group" style={{ marginBottom: 10 }}>
           <input
             className="identity-owner-input"
             placeholder="Akışlarda ara..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{ fontSize: "0.9rem" }}
           />
           <button
             className="identity-btn identity-btn-xs"
+            style={{ marginLeft: 8 }}
             onClick={() => {
               const header = ["Kullanıcı", "Başlık", "İkon", "Renk", "Tarih"];
               const rows = feeds.map((f) => [
@@ -106,7 +136,7 @@ const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
                 f.title,
                 f.icon,
                 f.color,
-                dayjs(f.created_at).format("DD.MM.YYYY HH:mm"),
+                formatDate(f.created_at),
               ]);
               const csv = [header, ...rows].map((r) => r.join(",")).join("\n");
               const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -114,57 +144,56 @@ const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
               const a = document.createElement("a");
               a.href = url;
               a.download = `feeds-${activeTab}.csv`;
-              document.body.appendChild(a);
               a.click();
-              document.body.removeChild(a);
               URL.revokeObjectURL(url);
             }}
-            style={{ marginLeft: 8 }}
           >
             Dışa Aktar
           </button>
         </div>
+
+        {/* List */}
         <ListGroup
           flush
-          className="mt-3"
-          style={{ height: isMobile ? "300px" : "380px", maxHeight: isMobile ? "300px" : "380px", overflowY: "auto" }}
+          style={{
+            height: isMobile ? 300 : 380,
+            overflowY: "auto",
+          }}
         >
           {feeds.length === 0 ? (
             <ListGroupItem className="text-center">Akış yok</ListGroupItem>
           ) : (
             feeds
               .filter((f) => {
-                const s = search.trim().toLowerCase();
-                if (!s) return true;
+                const s = search.toLowerCase().trim();
                 return (
-                  (f.title || "").toLowerCase().includes(s) ||
-                  (f.user_name || "").toLowerCase().includes(s)
+                  !s ||
+                  f.title?.toLowerCase().includes(s) ||
+                  f.user_name?.toLowerCase().includes(s)
                 );
               })
               .map((feed, index) => (
-              <ListGroupItem
-                key={index}
-                className="d-flex justify-content-between align-items-center p-3 border-0"
-              >
-                <div className="d-flex align-items-center">
-                  <Button
-                    className="rounded-circle me-3"
-                    size="sm"
-                    color={feed.color || "primary"}
-                  >
-                    <i className={feed.icon || "bi bi-info-circle"}></i>
-                  </Button>
-                  <div>
-                    <strong>{feed.user_name}</strong> — {feed.title}
+                <ListGroupItem
+                  key={index}
+                  className="d-flex justify-content-between align-items-center p-3 border-0"
+                >
+                  <div className="d-flex align-items-center">
+                    <Button
+                      className="rounded-circle me-3"
+                      size="sm"
+                      color={feed.color || "primary"}
+                    >
+                      <i className={feed.icon || "bi bi-info-circle"} />
+                    </Button>
+                    <div>
+                      <strong>{feed.user_name}</strong> — {feed.title}
+                    </div>
                   </div>
-                </div>
-                <small className="text-muted text-small" style={{ whiteSpace: "nowrap" }}>
-                  {feed.created_at 
-                    ? dayjs(feed.created_at).format("DD.MM.YYYY HH:mm")
-                    : ""}
-                </small>
-              </ListGroupItem>
-            ))
+                  <small className="text-muted" style={{ whiteSpace: "nowrap" }}>
+                    {formatDate(feed.created_at)}
+                  </small>
+                </ListGroupItem>
+              ))
           )}
         </ListGroup>
       </CardBody>
