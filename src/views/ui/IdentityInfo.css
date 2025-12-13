@@ -777,6 +777,11 @@
   .identity-page {
     padding: 16px;
   }
+  .identity-tabs {
+    padding: 6px;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
 
   .identity-owner-header {
     flex-direction: column;
@@ -1045,6 +1050,9 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
   background: var(--id-bg-card);
   border: 1px solid var(--id-border);
   box-shadow: var(--id-shadow);

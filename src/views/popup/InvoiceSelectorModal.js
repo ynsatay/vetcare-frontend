@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import {
-  TextField, Button, Box, Grid, Dialog, DialogTitle, DialogContent, DialogActions
+  TextField, Button, Box, Grid, Dialog, DialogTitle, DialogContent, DialogActions, Stack, Chip, Divider, Typography, useMediaQuery
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { DataGrid } from '@mui/x-data-grid';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import axiosInstance from '../../api/axiosInstance.ts';
@@ -15,6 +16,8 @@ const invoiceTypes = {
 };
 
 const InvoiceSelectorModal = ({ open, onClose, onSelect }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [filteredInvoices, setFilteredInvoices] = useState([]);
 
   // Anlık arama inputu (fatura numarası ile hızlı filtreleme)
@@ -27,6 +30,8 @@ const InvoiceSelectorModal = ({ open, onClose, onSelect }) => {
 
   const [selectedRow, setSelectedRow] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [typeFilter, setTypeFilter] = useState('');
+  const [preset, setPreset] = useState('THIS_MONTH');
 
   // İlk açılışta veya filtrele butonuna basınca tüm veya filtrelenmiş listeyi getirir
   const fetchInvoices = async () => {
@@ -41,11 +46,10 @@ const InvoiceSelectorModal = ({ open, onClose, onSelect }) => {
       } else {
         const params = {
           startDate: startDate.format('YYYY-MM-DD'),
-          endDate: endDate.format('YYYY-MM-DD'),
+          endDate: endDate.add(1, 'day').format('YYYY-MM-DD'),
+          inv_type: typeFilter || undefined
         };
         const res = await axiosInstance.get('/material-invoice/list', { params });
-
-        console.log('API cevabı:', res.data); // buraya bak
         setFilteredInvoices(res.data);
       }
     } catch (err) {
@@ -58,13 +62,14 @@ const InvoiceSelectorModal = ({ open, onClose, onSelect }) => {
 
   useEffect(() => {
     if (!open) {
-      // Modal kapandığında tüm filtre ve seçimleri sıfırla
       setInvoiceNo('');
       setStartDate(dayjs().startOf('month'));
       setEndDate(dayjs());
       setSearchTerm('');
       setSelectedRow(null);
       setFilteredInvoices([]);
+      setTypeFilter('');
+      setPreset('THIS_MONTH');
     }
   }, [open]);
 
@@ -98,59 +103,51 @@ const InvoiceSelectorModal = ({ open, onClose, onSelect }) => {
   ];
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>Fatura Seçimi</DialogTitle>
-      <DialogContent>
-        <Box sx={{ width: '100%', marginTop: 2, height: 500 }}>
-          <Grid container spacing={2} alignItems="center">
-            {/* Listele filtresi: Fatura no + tarih aralığı (alt alta veya yanyana) */}
-            <Grid item xs={12} sm={4}>
-              <TextField
-                label="Fatura No"
-                value={invoiceNo}
-                onChange={(e) => setInvoiceNo(e.target.value)}
-                fullWidth
-                size="small"
-              />
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="lg"
+      fullWidth
+      fullScreen={isMobile}
+      scroll="paper"
+      PaperProps={{ sx: isMobile ? { width: '100%', m: 0, borderRadius: 0 } : {} }}
+    >
+      <DialogTitle sx={{ p: isMobile ? 1 : 2 }}>Fatura Seçimi</DialogTitle>
+      <DialogContent sx={{ p: isMobile ? 1 : 2 }}>
+        <Box sx={{ width: '100%', mt: 1 }}>
+          <Grid container spacing={isMobile ? 1 : 2} alignItems="center">
+            <Grid item xs={12} sm={3}>
+              <TextField label="Fatura No" value={invoiceNo} onChange={(e) => setInvoiceNo(e.target.value)} fullWidth size="small" />
             </Grid>
-
-            <Grid item xs={6} sm={4}>
-              <DatePicker
-                label="Başlangıç Tarihi"
-                value={startDate}
-                onChange={(val) => setStartDate(val)}
-                format="DD.MM.YYYY"
-                slotProps={{ textField: { size: 'small' } }}
-              />
+            <Grid item xs={12} sm={3}>
+              <DatePicker label="Başlangıç Tarihi" value={startDate} onChange={(val) => setStartDate(val)} format="DD.MM.YYYY" slotProps={{ textField: { size: 'small' } }} />
             </Grid>
-            <Grid item xs={6} sm={4}>
-              <DatePicker
-                label="Bitiş Tarihi"
-                value={endDate}
-                onChange={(val) => setEndDate(val)}
-                format="DD.MM.YYYY"
-                slotProps={{ textField: { size: 'small' } }}
-              />
+            <Grid item xs={12} sm={3}>
+              <DatePicker label="Bitiş Tarihi" value={endDate} onChange={(val) => setEndDate(val)} format="DD.MM.YYYY" slotProps={{ textField: { size: 'small' } }} />
             </Grid>
-
+            <Grid item xs={12} sm={3}>
+              <TextField select label="Tip" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} fullWidth size="small">
+                <option value=""></option>
+                <option value="1">Alım</option>
+                <option value="2">İade</option>
+              </TextField>
+            </Grid>
             <Grid item xs={12}>
-              <Button fullWidth variant="contained" onClick={fetchInvoices}>
-                Listele
-              </Button>
+              <Stack direction="row" spacing={1} alignItems="center" sx={{ flexWrap: 'wrap' }}>
+                <Chip size="small" label="Bugün" color={preset === 'TODAY' ? 'primary' : 'default'} onClick={() => { setPreset('TODAY'); setStartDate(dayjs()); setEndDate(dayjs()); }} />
+                <Chip size="small" label="Bu Hafta" color={preset === 'THIS_WEEK' ? 'primary' : 'default'} onClick={() => { setPreset('THIS_WEEK'); setStartDate(dayjs().startOf('week')); setEndDate(dayjs().endOf('week')); }} />
+                <Chip size="small" label="Bu Ay" color={preset === 'THIS_MONTH' ? 'primary' : 'default'} onClick={() => { setPreset('THIS_MONTH'); setStartDate(dayjs().startOf('month')); setEndDate(dayjs().endOf('month')); }} />
+                <Button size="small" variant="contained" onClick={fetchInvoices}>Listele</Button>
+                <Box sx={{ flex: 1 }} />
+                <Typography variant="body2">Toplam: {filteredInvoices.length}</Typography>
+              </Stack>
             </Grid>
-
-            {/* Anlık fatura no arama inputu - LISTELE butonunun üstünde */}
             <Grid item xs={12}>
-              <TextField
-                label="Fatura Numarası ile Ara (Anlık Filtre)"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                fullWidth
-                size="small"
-              />
+              <TextField label="Fatura Numarası ile Ara" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} fullWidth size="small" />
             </Grid>
           </Grid>
-
+          <Divider sx={{ my: isMobile ? 1 : 2 }} />
+          <Box sx={{ height: isMobile ? 'calc(100vh - 360px)' : 'auto' }}>
           <DataGrid
             rows={
               searchTerm.trim() === ''
@@ -160,18 +157,24 @@ const InvoiceSelectorModal = ({ open, onClose, onSelect }) => {
                 )
             }
             columns={columns}
-            hideFooter
-            autoHeight
+            autoHeight={!isMobile}
             loading={loading}
             onRowClick={(params) => setSelectedRow(params.row)}
+            onRowDoubleClick={(params) => { onSelect(params.row); onClose(); }}
             selectionModel={selectedRow ? [selectedRow.id] : []}
+            columnVisibilityModel={isMobile ? { id: false, inv_type: false } : undefined}
+            rowHeight={isMobile ? 36 : 52}
             sx={{
               mt: 2,
               cursor: 'pointer',
               '& .MuiDataGrid-row.Mui-selected': {
                 backgroundColor: '#d0f0fd !important',
               },
+              '& .MuiDataGrid-cell': {
+                py: isMobile ? 0.5 : 1
+              }
             }}
+            density={isMobile ? 'compact' : 'standard'}
             localeText={{
               ...trTR.components.MuiDataGrid.defaultProps.localeText,
               footerRowSelected: (count) =>
@@ -180,10 +183,11 @@ const InvoiceSelectorModal = ({ open, onClose, onSelect }) => {
                   : `${count.toLocaleString()} satır seçildi`,
             }}
           />
+          </Box>
         </Box>
       </DialogContent>
 
-      <DialogActions>
+      <DialogActions sx={{ p: isMobile ? 1 : 2 }}>
         <Button
           variant="contained"
           disabled={!selectedRow}

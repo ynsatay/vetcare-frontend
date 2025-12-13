@@ -5,8 +5,8 @@ import Animals from '../popup/Animals.js';
 import MainModal from '../../components/MainModal.js';
 import PatientFileReg from '../popup/PatientFileReg.js';
 import { useConfirm } from '../../components/ConfirmContext';
-import { 
-  User, PawPrint, Mail, Phone, MapPin, Calendar, Hash, Trash2, Plus, Save, 
+import {
+  User, PawPrint, Mail, Phone, MapPin, Calendar, Hash, Trash2, Plus, Save,
   FolderPlus, ClipboardList, Syringe, CalendarCheck, CreditCard
 } from 'lucide-react';
 import './IdentityInfo.css';
@@ -373,61 +373,61 @@ const IdentityInfo = () => {
                 </button>
               </div>
               {!ownerCollapsed ? (
-              <div className="identity-owner-grid">
-                <div className="identity-owner-field">
-                  <label className="identity-owner-label">Adı</label>
-                  <div className="identity-input-group">
-                    <User className="identity-input-icon" size={16} />
-                    <input className="identity-owner-input" name="name" value={ownerInfo?.name || ''} onChange={handleOwnerInputChange} />
+                <div className="identity-owner-grid">
+                  <div className="identity-owner-field">
+                    <label className="identity-owner-label">Adı</label>
+                    <div className="identity-input-group">
+                      <User className="identity-input-icon" size={16} />
+                      <input className="identity-owner-input" name="name" value={ownerInfo?.name || ''} onChange={handleOwnerInputChange} />
+                    </div>
+                  </div>
+                  <div className="identity-owner-field">
+                    <label className="identity-owner-label">Soyadı</label>
+                    <div className="identity-input-group">
+                      <User className="identity-input-icon" size={16} />
+                      <input className="identity-owner-input" name="surname" value={ownerInfo?.surname || ''} onChange={handleOwnerInputChange} />
+                    </div>
+                  </div>
+                  <div className="identity-owner-field">
+                    <label className="identity-owner-label">Telefon</label>
+                    <div className="identity-input-group">
+                      <Phone className="identity-input-icon" size={16} />
+                      <input className="identity-owner-input" name="phone" value={ownerInfo?.phone || ''} onChange={handleOwnerInputChange} />
+                    </div>
+                  </div>
+                  <div className="identity-owner-field">
+                    <label className="identity-owner-label">E-posta</label>
+                    <div className="identity-input-group">
+                      <Mail className="identity-input-icon" size={16} />
+                      <input className="identity-owner-input" name="email" value={ownerInfo?.email || ''} onChange={handleOwnerInputChange} />
+                    </div>
+                  </div>
+                  <div className="identity-owner-field full">
+                    <label className="identity-owner-label">Adres</label>
+                    <div className="identity-input-group">
+                      <MapPin className="identity-input-icon" size={16} />
+                      <input className="identity-owner-input" name="address" value={ownerInfo?.address || ''} onChange={handleOwnerInputChange} />
+                    </div>
+                  </div>
+                  <div className="identity-owner-field">
+                    <label className="identity-owner-label">Doğum Tarihi</label>
+                    <div className="identity-input-group">
+                      <Calendar className="identity-input-icon" size={16} />
+                      <input type="date" className="identity-owner-input" name="birthdate" value={ownerInfo?.birthdate || ''} onChange={handleOwnerInputChange} />
+                    </div>
+                  </div>
+                  <div className="identity-owner-field">
+                    <label className="identity-owner-label">Cinsiyet</label>
+                    <div className="identity-input-group">
+                      <User className="identity-input-icon" size={16} />
+                      <select className="identity-owner-select" name="sex" value={ownerInfo?.sex || ''} onChange={handleOwnerInputChange}>
+                        <option value="">Seçiniz</option>
+                        <option value="ERKEK">Erkek</option>
+                        <option value="KADIN">Kadın</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
-                <div className="identity-owner-field">
-                  <label className="identity-owner-label">Soyadı</label>
-                  <div className="identity-input-group">
-                    <User className="identity-input-icon" size={16} />
-                    <input className="identity-owner-input" name="surname" value={ownerInfo?.surname || ''} onChange={handleOwnerInputChange} />
-                  </div>
-                </div>
-                <div className="identity-owner-field">
-                  <label className="identity-owner-label">Telefon</label>
-                  <div className="identity-input-group">
-                    <Phone className="identity-input-icon" size={16} />
-                    <input className="identity-owner-input" name="phone" value={ownerInfo?.phone || ''} onChange={handleOwnerInputChange} />
-                  </div>
-                </div>
-                <div className="identity-owner-field">
-                  <label className="identity-owner-label">E-posta</label>
-                  <div className="identity-input-group">
-                    <Mail className="identity-input-icon" size={16} />
-                    <input className="identity-owner-input" name="email" value={ownerInfo?.email || ''} onChange={handleOwnerInputChange} />
-                  </div>
-                </div>
-                <div className="identity-owner-field full">
-                  <label className="identity-owner-label">Adres</label>
-                  <div className="identity-input-group">
-                    <MapPin className="identity-input-icon" size={16} />
-                    <input className="identity-owner-input" name="address" value={ownerInfo?.address || ''} onChange={handleOwnerInputChange} />
-                  </div>
-                </div>
-                <div className="identity-owner-field">
-                  <label className="identity-owner-label">Doğum Tarihi</label>
-                  <div className="identity-input-group">
-                    <Calendar className="identity-input-icon" size={16} />
-                    <input type="date" className="identity-owner-input" name="birthdate" value={ownerInfo?.birthdate || ''} onChange={handleOwnerInputChange} />
-                  </div>
-                </div>
-                <div className="identity-owner-field">
-                  <label className="identity-owner-label">Cinsiyet</label>
-                  <div className="identity-input-group">
-                    <User className="identity-input-icon" size={16} />
-                    <select className="identity-owner-select" name="sex" value={ownerInfo?.sex || ''} onChange={handleOwnerInputChange}>
-                      <option value="">Seçiniz</option>
-                      <option value="ERKEK">Erkek</option>
-                      <option value="KADIN">Kadın</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
               ) : (
                 <div className="identity-owner-summary">
                   <div className="summary-row"><span>Ad Soyad</span><strong>{ownerInfo ? `${ownerInfo.name} ${ownerInfo.surname}` : '-'}</strong></div>
@@ -566,14 +566,20 @@ const IdentityInfo = () => {
                   </div>
                   <div className="identity-history-body">
                     {vaccinationList.length > 0 ? vaccinationList.map((v, i) => (
-                      <div key={i} className="identity-history-item">
-                        <div className="identity-history-item-info">
+                      <div
+                        key={i}
+                        className="identity-history-item"
+                        onClick={() => v?.pa_id && navigate(`/patientFile/${v.pa_id}`)}
+                        style={{ cursor: v?.pa_id ? 'pointer' : 'default' }}
+                      >
+                        <div className="identity-history-item-info" style={{ display: 'flex', flexDirection: 'row', gap: 12, alignItems: 'center', flexWrap: 'wrap', columnGap: 40, rowGap: 6, width: '100%' }}>
                           <span className="identity-history-item-title">{v.vaccine_name || 'Aşı'}</span>
-                          <span className="identity-history-item-date">{formatDate(v.planned_date || v.applied_on)}</span>
+                          <span className="identity-history-item-title">Geliş {v.pa_id || 'Geliş'}</span>
+                          <span className="identity-history-item-date" style={{ color: 'var(--id-text)' }}>{formatDate(v.planned_date || v.applied_on)}</span>
+                          <span className={`identity-history-item-status ${v.is_applied ? 'completed' : 'pending'}`} style={{ marginLeft: 'auto' }}>
+                            {v.is_applied ? 'Uygulandı' : 'Planlandı'}
+                          </span>
                         </div>
-                        <span className={`identity-history-item-status ${v.is_applied ? 'completed' : 'pending'}`}>
-                          {v.is_applied ? 'Uygulandı' : 'Planlandı'}
-                        </span>
                       </div>
                     )) : <div className="identity-history-empty">Aşı planı yok</div>}
                   </div>
