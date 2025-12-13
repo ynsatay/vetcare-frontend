@@ -6,6 +6,7 @@ import AddService from '../popup/AddService.js';
 import axiosInstance from '../../api/axiosInstance.ts';
 import { useConfirm } from '../../components/ConfirmContext';
 import { trTR } from '@mui/x-data-grid/locales';
+import { toast } from 'react-toastify';
 
 const categories = [
   { label: "Muayene", value: 1 },
@@ -78,6 +79,7 @@ const ServiceList = () => {
       await axiosInstance.delete(`/deleteService/${selectedRow.id}`);
       await fetchServices();
       setSelectedRow(null);
+      toast.success('Hizmet başarıyla silindi.');
     } catch (error) {
       if (error.__demo_blocked) return; 
       await new Promise(resolve => setTimeout(resolve, 300));

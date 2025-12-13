@@ -6,6 +6,7 @@ import MainModal from '../../components/MainModal.js';
 import { useConfirm } from '../../components/ConfirmContext';
 import EditProviderPrice from '../popup/EditProviderPrice.js';
 import { trTR } from '@mui/x-data-grid/locales';
+import { toast } from 'react-toastify';
 
 const columns = [
   { field: 'id', headerName: '#', width: 70 },
@@ -88,6 +89,7 @@ const ProviderPriceList = () => {
       await axiosInstance.delete(`/provider-price-delete/${selectedRow.id}`);
       await fetchPriceList();
       setSelectedRow(null);
+      toast.success('Kayıt başarıyla silindi.');
     } catch (err) {
       if (err.__demo_blocked) return; 
       await confirm(err.response?.data?.message || err.message || "Bir hata oluştu", "Tamam", "", "Uyarı");

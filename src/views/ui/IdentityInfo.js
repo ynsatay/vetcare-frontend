@@ -10,6 +10,7 @@ import {
   FolderPlus, ClipboardList, Syringe, CalendarCheck, CreditCard
 } from 'lucide-react';
 import './IdentityInfo.css';
+import { toast } from 'react-toastify';
 
 const IdentityInfo = () => {
   const location = useLocation();
@@ -202,7 +203,8 @@ const IdentityInfo = () => {
       if (!proceed) return;
       const res = await axiosInstance.delete(`/animalslistDel/${selectedAnimal.data_id}`);
       if (res.status === 200) {
-        await confirm("Silindi.", "Tamam", "", "Bilgi");
+        //await confirm("Silindi.", "Tamam", "", "Bilgi");
+        toast.success('Geliş başarıyla silindi!');
         const aRes = await axiosInstance.get('/animalslist', { params: { user_id: ownerInfo?.id || userId } });
         const animals = aRes.data.response || [];
         setAnimalsList(animals);

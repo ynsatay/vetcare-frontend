@@ -6,6 +6,7 @@ import axiosInstance from '../../api/axiosInstance.ts';
 import { useConfirm } from '../../components/ConfirmContext';
 import EditProviderFirm from '../popup/EditProviderFirm.js'; // Firma düzenleme popup'u
 import { trTR } from '@mui/x-data-grid/locales';
+import { toast } from 'react-toastify';
 
 const columns = [
     { field: 'id', headerName: '#', width: 70 },
@@ -83,6 +84,7 @@ const ProviderFirmsList = () => {
             await axiosInstance.delete(`/del-provider-firms/${selectedRow.id}`);
             await fetchFirms();
             setSelectedRow(null);
+            toast.success('Firma başarıyla silindi.');
         } catch (error) {
             if (error.__demo_blocked) return; 
             await confirm(

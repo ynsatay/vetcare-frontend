@@ -7,6 +7,7 @@ import axiosInstance from '../../api/axiosInstance.ts';
 import EditStock from '../popup/EditStock.js';
 import { useConfirm } from '../../components/ConfirmContext';
 import { trTR } from '@mui/x-data-grid/locales';
+import { toast } from 'react-toastify';
 
 const categories = [
     { label: "İlaç", value: 0 },
@@ -154,6 +155,7 @@ const StockList = () => {
             await axiosInstance.delete(`/deleteMaterial/${selectedRow.id}`);
             await fetchMaterials();
             setSelectedRow(null);
+            toast.success('Stok başarıyla silindi.');
         } catch (error) {
             if (error.__demo_blocked) return; 
             await new Promise(resolve => setTimeout(resolve, 300));
