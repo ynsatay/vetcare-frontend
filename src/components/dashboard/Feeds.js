@@ -16,8 +16,6 @@ import timezone from "dayjs/plugin/timezone";
 import tr from "dayjs/locale/tr";
 import utc from "dayjs/plugin/utc";
 
-dayjs.extend(utc);
-dayjs.extend(timezone);
 dayjs.locale(tr);
 
 
@@ -31,8 +29,9 @@ const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
 
 const fmt = (s) => {
   if (!s) return "";
-  return dayjs(s, "YYYY-MM-DD HH:mm:ss").format("DD.MM.YYYY HH:mm");
+  return dayjs(s).format("DD.MM.YYYY HH:mm");
 };
+
 
   useEffect(() => {
     setLoading(true);
