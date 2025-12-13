@@ -176,6 +176,7 @@ const IdentityInfo = () => {
       const res = await axiosInstance.put(`/animalslistUpdate/${data_id}`, payload);
       confirm(res.status === 200 ? "Güncellendi." : "Hata.", "Tamam", "", res.status === 200 ? "Bilgi" : "Uyarı");
     } catch (err) {
+      if (err.__demo_blocked) return; 
       confirm("Hata.", "Tamam", "", "Uyarı");
     } finally {
       setIsSaving(false);
@@ -211,6 +212,7 @@ const IdentityInfo = () => {
         setSelectedAnimal(animals[0] || null);
       }
     } catch (err) {
+      if (err.__demo_blocked) return; 
       confirm("Hata.", "Tamam", "", "Uyarı");
     } finally {
       setIsDeletingAnimal(false);
@@ -226,6 +228,7 @@ const IdentityInfo = () => {
       const res = await axiosInstance.put(`/updatepersonel/${ownerInfo.id}`, payload);
       confirm(res.status === 200 && res.data.status === 'success' ? "Güncellendi." : "Hata.", "Tamam", "", "Bilgi");
     } catch (err) {
+      if (err.__demo_blocked) return; 
       confirm("Hata.", "Tamam", "", "Uyarı");
     } finally {
       setIsSavingOwner(false);
