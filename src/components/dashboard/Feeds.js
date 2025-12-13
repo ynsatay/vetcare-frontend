@@ -14,9 +14,12 @@ import {
 import "../../views/ui/IdentityInfo.css";
 import timezone from "dayjs/plugin/timezone";
 import tr from "dayjs/locale/tr";
+import utc from "dayjs/plugin/utc";
 
+dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.locale(tr);
+
 
 const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
   const [feeds, setFeeds] = useState([]);
@@ -26,28 +29,27 @@ const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
   const [isMobile, setIsMobile] = useState(false);
   const activeTab = controlledTab ?? localTab;
 
-  dayjs.extend(customParseFormat);
-  const fmt = (s) => {
-    if (!s) return "";
-    const str = String(s);
-    if (str.includes("T") && (str.endsWith("Z") || /[\\+\\-]\\d{2}:?\\d{2}$/.test(str))) {
-      const base = new Date(str);
-      const adj = new Date(base.getTime() + 3 * 60 * 60 * 1000);
-      const yyyy = adj.getUTCFullYear().toString();
-      const mm = (adj.getUTCMonth() + 1).toString().padStart(2, "0");
-      const dd = adj.getUTCDate().toString().padStart(2, "0");
-      const hh = adj.getUTCHours().toString().padStart(2, "0");
-      const min = adj.getUTCMinutes().toString().padStart(2, "0");
-      return `${dd}.${mm}.${yyyy} ${hh}:${min}`;
-    }
-    const m = str.match(/^(\\d{4})-(\\d{2})-(\\d{2})\\s(\\d{2}):(\\d{2})(?::\\d{2})?$/);
-    if (m) {
-      const [, y, mo, d, h, mi] = m;
-      return `${d}.${mo}.${y} ${h}:${mi}`;
-    }
-    const d = dayjs(str, "YYYY-MM-DD HH:mm:ss");
-    return d.isValid() ? d.format("DD.MM.YYYY HH:mm") : dayjs(str).format("DD.MM.YYYY HH:mm");
-  };
+const fmt = (s) => {
+  if (!s) return "";
+
+  const str = String(s);
+
+  // UTC veya timezone bilgisi varsa
+  if (
+    str.includes("T") &&
+    (str.endsWith("Z") || /[+\-]\d{2}:?\d{2}$/.test(str))
+  ) {
+    return dayjs
+      .utc(str)
+      .tz("Europe/Istanbul")
+      .format("DD.MM.YYYY HH:mm");
+  }
+
+  // Timezone YOKSA → local saat kabul et
+  return dayjs(str, "YYYY-MM-DD HH:mm:ss").format("DD.MM.YYYY HH:mm");
+};
+
+
   useEffect(() => {
     setLoading(true);
     axiosInstance
