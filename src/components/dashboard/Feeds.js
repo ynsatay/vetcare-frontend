@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import axiosInstance from "../../api/axiosInstance.ts";
 import {
   Card,
@@ -24,6 +25,13 @@ const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
   const [search, setSearch] = useState("");
   const [isMobile, setIsMobile] = useState(false);
   const activeTab = controlledTab ?? localTab;
+
+  dayjs.extend(customParseFormat);
+  const fmt = (s) => {
+    if (!s) return "";
+    const d = dayjs(s, "YYYY-MM-DD HH:mm:ss");
+    return d.isValid() ? d.format("DD.MM.YYYY HH:mm") : dayjs(s).format("DD.MM.YYYY HH:mm");
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -54,7 +62,7 @@ const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
     return {
       total,
       lastTitle: last?.title ?? "",
-      lastTime: last ? dayjs(last.created_at).local().format("DD.MM.YYYY HH:mm") : "",
+      lastTime: last ? fmt(last.created_at) : "",
       users,
     };
   }, [feeds]);
@@ -106,7 +114,7 @@ const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
                 f.title,
                 f.icon,
                 f.color,
-                dayjs(f.created_at).local(),
+                fmt(f.created_at),
               ]);
               const csv = [header, ...rows].map((r) => r.join(",")).join("\n");
               const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -159,7 +167,7 @@ const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
                   </div>
                 </div>
                 <small className="text-muted text-small" style={{ whiteSpace: "nowrap" }}>
-                  {dayjs(feed.created_at).local().format("DD.MM.YYYY HH:mm")}
+                  {fmt(feed.created_at)}
                 </small>
               </ListGroupItem>
             ))
