@@ -31,14 +31,8 @@ const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
 
 const fmt = (s) => {
   if (!s) return "";
-
-  return dayjs
-    .utc(s)                 // ← HER ZAMAN UTC KABUL ET
-    .tz("Europe/Istanbul")  // ← SADECE BURADA +3
-    .format("DD.MM.YYYY HH:mm");
+  return dayjs(s, "YYYY-MM-DD HH:mm:ss").format("DD.MM.YYYY HH:mm");
 };
-
-
 
   useEffect(() => {
     setLoading(true);
