@@ -87,6 +87,7 @@ const NewVisitFileLayout = () => {
       })) || []);
       fetchPaymentSummary();
     } catch (err) {
+      if (err.__demo_blocked) return; 
       await confirm('Stok eklenirken hata oluştu.', "Tamam", "", "Uyarı");
     }
   };
@@ -113,6 +114,7 @@ const NewVisitFileLayout = () => {
       })) || []);
       fetchPaymentSummary();
     } catch (err) {
+      if (err.__demo_blocked) return;
       await confirm('Hizmet eklenirken hata oluştu.', "Tamam", "", "Uyarı");
     }
   };
@@ -127,6 +129,7 @@ const NewVisitFileLayout = () => {
       setPatientProcesses(prev => prev.filter(p => p.id !== processId));
       fetchPaymentSummary();
     } catch (err) {
+      if (err.__demo_blocked) return;
       await confirm(err.response?.data?.message || err.message || "Bir hata oluştu", "Tamam");
     }
   };
@@ -197,6 +200,7 @@ const NewVisitFileLayout = () => {
       fetchPaymentSummary();
       setSelectedPlanId(null);
     } catch (err) {
+      if (err.__demo_blocked) return;
       console.error("Aşı uygulanırken hata:", err);
       confirm("Aşı uygulanırken hata oluştu.", "Tamam", "", "Hata");
     }
@@ -210,6 +214,7 @@ const NewVisitFileLayout = () => {
       await axiosInstance.put(`/patient-arrival/${id}/discharge`);
       setVisitFile(prev => ({ ...prev, is_discharge: true, discharge_time: new Date().toISOString() }));
     } catch (err) {
+      if (err.__demo_blocked) return;
       const msg = err?.response?.data?.message || "Çıkış yapılırken bir hata oluştu.";
       await confirm(msg, "Tamam", "", "Hata");
     }
@@ -224,6 +229,7 @@ const NewVisitFileLayout = () => {
       await axiosInstance.put(`/patient-arrival/${id}/undo-discharge`);
       setVisitFile(prev => ({ ...prev, is_discharge: false, discharge_time: null }));
     } catch (err) {
+      if (err.__demo_blocked) return;
       await confirm("Çıkış iptali sırasında hata oluştu.", "Tamam", "", "Hata");
     }
   };
