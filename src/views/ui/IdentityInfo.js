@@ -261,9 +261,15 @@ const IdentityInfo = () => {
 
   const getAnimalEmoji = (type) => {
     const t = (type || '').toLowerCase();
-    if (t.includes('köpek') || t.includes('dog')) return '🐕';
+    if (t.includes('köpek') || t.includes('kopek') || t.includes('dog')) return '🐕';
     if (t.includes('kedi') || t.includes('cat')) return '🐈';
-    if (t.includes('kuş') || t.includes('bird')) return '🐦';
+    if (t.includes('balık') || t.includes('balik') || t.includes('fish')) return '🐟';
+    if (t.includes('inek') || t.includes('cow') || t.includes('sığır') || t.includes('sigir')) return '🐄';
+    if (t.includes('koyun') || t.includes('sheep')) return '🐑';
+    if (t.includes('tavşan') || t.includes('tavsan') || t.includes('rabbit')) return '🐇';
+    if (t.includes('kuş') || t.includes('kus') || t.includes('bird')) return '🐦';
+    if (t.includes('at') || t.includes('horse')) return '🐎';
+    if (t.includes('keçi') || t.includes('keci') || t.includes('goat')) return '🐐';
     return '🐾';
   };
 
