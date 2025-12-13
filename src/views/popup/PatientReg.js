@@ -317,7 +317,7 @@ const PatientReg = forwardRef((props, ref) => {
       setPersonelData(data);
       setShowAnimalForm(false);
     } else {
-      const confirmCreate = window.confirm("Hasta bulunamadı. Yeni kayıt oluşturulsun mu?");
+      const confirmCreate = await confirm("Kayıt bulunamadı. Yeni kayıt oluşturulsun mu?", "Evet", "Hayır", "Kayıt Bulunamadı");
       if (confirmCreate) {
         setNewPatient({ tc: inputValue, name: '', surname: '', phone: '' });
         setShowPatientForm(true);
@@ -346,7 +346,7 @@ const PatientReg = forwardRef((props, ref) => {
       const animal = response.data.animal || null;
 
       if (owners.length === 0 && !animal) {
-        const confirm = window.confirm("Hayvan bulunamadı. Yeni kayıt oluşturulsun mu?");
+        const confirm = await confirm("Hayvan bulunamadı. Yeni kayıt oluşturulsun mu?", "Evet", "Hayır", "Kayıt Bulunamadı")
         if (confirm) {
           setShowPatientForm(true);
           setShowAnimalForm(false);
