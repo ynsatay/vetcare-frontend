@@ -589,6 +589,90 @@
   overflow-y: auto;
 }
 
+.identity-vax-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  background: var(--id-bg-elevated);
+  border: 1px solid var(--id-border);
+  border-radius: 12px;
+  margin: 10px 12px;
+}
+
+.identity-vax-toolbar {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 12px 14px;
+  margin: 10px 12px;
+  background: #fff;
+  border: 1px solid var(--id-border);
+  border-radius: 14px;
+  box-shadow: var(--id-shadow);
+}
+.identity-toolbar-left { display: flex; align-items: center; gap: 8px; }
+.identity-toolbar-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.identity-chip-group { display: inline-flex; align-items: center; gap: 6px; }
+.identity-date-range { display: inline-flex; align-items: center; gap: 6px; }
+.range-sep { color: var(--id-text-muted); }
+
+.identity-vax-advanced {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  margin: 0 12px 10px;
+  background: var(--id-bg-elevated);
+  border: 1px dashed var(--id-border);
+  border-radius: 12px;
+}
+
+/* Override chip colors inside vax toolbars for visibility on light backgrounds */
+.identity-vax-toolbar .identity-chip,
+.identity-vax-advanced .identity-chip {
+  background: var(--id-bg-elevated);
+  color: var(--id-text);
+  border: 1px solid var(--id-border);
+}
+.identity-vax-toolbar .identity-chip.success,
+.identity-vax-advanced .identity-chip.success {
+  background: rgba(16, 185, 129, 0.15);
+  color: #059669;
+  border-color: rgba(16, 185, 129, 0.35);
+}
+.identity-vax-toolbar .identity-chip.warning,
+.identity-vax-advanced .identity-chip.warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: #b45309;
+  border-color: rgba(245, 158, 11, 0.35);
+}
+.identity-vax-toolbar .identity-chip.primary,
+.identity-vax-advanced .identity-chip.primary {
+  background: rgba(99, 102, 241, 0.15);
+  color: #4f46e5;
+  border-color: rgba(99, 102, 241, 0.35);
+}
+
+@media (max-width: 768px) {
+  .identity-vax-toolbar {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+  .identity-toolbar-left { width: 100%; }
+  .identity-toolbar-left .identity-search-input { width: 100%; min-width: 0; }
+  .identity-toolbar-right { justify-content: flex-start; gap: 8px; }
+  .identity-chip-group { flex-wrap: wrap; }
+  .identity-date-range { width: 100%; gap: 8px; }
+  .identity-date-range .identity-owner-input { flex: 1; min-width: 0; }
+  .identity-vax-advanced { flex-direction: column; align-items: stretch; }
+  .identity-vax-toolbar .identity-search-input { min-height: 40px; }
+}
+
 .identity-history-item {
   padding: 10px 12px;
   border-radius: 8px;

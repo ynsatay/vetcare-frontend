@@ -5,11 +5,12 @@ import Animals from '../popup/Animals.js';
 import MainModal from '../../components/MainModal.js';
 import PatientFileReg from '../popup/PatientFileReg.js';
 import { useConfirm } from '../../components/ConfirmContext';
-import {
-  User, PawPrint, Mail, Phone, MapPin, Calendar, Hash, Trash2, Plus, Save,
+import { 
+  User, PawPrint, Mail, Phone, MapPin, Calendar, Hash, Trash2, Plus, Save, 
   FolderPlus, ClipboardList, Syringe, CalendarCheck, CreditCard
 } from 'lucide-react';
 import './IdentityInfo.css';
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from 'reactstrap';
 import { toast } from 'react-toastify';
 
 const IdentityInfo = () => {
@@ -36,6 +37,14 @@ const IdentityInfo = () => {
   const [ownerCollapsed, setOwnerCollapsed] = useState(true);
   const navigate = useNavigate();
   const [filterText, setFilterText] = useState('');
+  const [showApplyVisitModal, setShowApplyVisitModal] = useState(false);
+  const [planToApply, setPlanToApply] = useState(null);
+  const [selectedVisitIdForApply, setSelectedVisitIdForApply] = useState(null);
+  const [vaxFilterText, setVaxFilterText] = useState('');
+  const [vaxStatus, setVaxStatus] = useState(''); // '' | 'planned' | 'applied'
+  const [vaxStartDate, setVaxStartDate] = useState('');
+  const [vaxEndDate, setVaxEndDate] = useState('');
+  const [vaxFilterOpen, setVaxFilterOpen] = useState(false);
 
   const isValidTC = (tc) => {
     tc = tc.toString();
@@ -270,6 +279,38 @@ const IdentityInfo = () => {
   const getAppointmentStatus = (status) => {
     const map = { 0: { text: 'Bekliyor', class: 'pending' }, 1: { text: 'Geldi', class: 'pending' }, 2: { text: 'Tamamlandı', class: 'completed' }, 3: { text: 'İptal', class: 'cancelled' } };
     return map[status] || { text: 'Bilinmiyor', class: 'pending' };
+  };
+
+  const handleApplyPlan = async (plan) => {
+    setPlanToApply(plan);
+    setSelectedVisitIdForApply(null);
+    setShowApplyVisitModal(true);
+  };
+
+  const applyToSelectedVisit = async () => {
+    if (!planToApply || !selectedVisitIdForApply) return;
+    try {
+      const stockDetailRes = await axiosInstance.get(`/material/id/${planToApply.m_id}`);
+      const stock = stockDetailRes.data.data;
+      const addProcessRes = await axiosInstance.post('/add-patient-process', {
+        pa_id: selectedVisitIdForApply,
+        process_id: planToApply.m_id,
+        row_type: 'M',
+        count: 1,
+        total_prices: stock.price,
+        unit_prices: stock.price
+      });
+      const pp_id = addProcessRes.data.id;
+      await axiosInstance.put(`/vaccine/plan/${planToApply.id}/apply`, { is_applied: true, pp_id });
+      setShowApplyVisitModal(false);
+      await confirm("Aşı başarıyla uygulandı.", "Tamam", "", "Bilgi");
+      const baseId = selectedAnimal?.id;
+      if (baseId) {
+        await fetchVaccinationList(baseId);
+      }
+    } catch (err) {
+      await confirm("Aşı uygulanırken hata oluştu.", "Tamam", "", "Hata");
+    }
   };
 
   if (isLoading) {
@@ -569,8 +610,100 @@ const IdentityInfo = () => {
                     <h4 className="identity-history-title vaccinations"><Syringe /> Aşılar</h4>
                     <span className="identity-history-count">{vaccinationList.length}</span>
                   </div>
+                  <div className="identity-vax-toolbar">
+                    <div className="identity-toolbar-left">
+                      <input
+                        className="identity-search-input identity-search-compact"
+                        placeholder="Aşı adına göre ara"
+                        value={vaxFilterText}
+                        onChange={(e) => setVaxFilterText(e.target.value)}
+                      />
+                    </div>
+                    <div className="identity-toolbar-right">
+                      <button
+                        className="identity-btn identity-btn-ghost"
+                        onClick={() => setVaxFilterOpen(o => !o)}
+                      >
+                        {vaxFilterOpen ? 'Filtreyi Gizle' : 'Filtreyi Aç'}
+                      </button>
+                      <div className="identity-chip-group">
+                        {vaxStatus && (
+                          <span className={`identity-chip ${vaxStatus === 'applied' ? 'success' : 'warning'}`}>
+                            {vaxStatus === 'applied' ? 'Uygulandı' : 'Planlandı'}
+                          </span>
+                        )}
+                        {vaxStartDate && <span className="identity-chip">Başlangıç: {vaxStartDate}</span>}
+                        {vaxEndDate && <span className="identity-chip">Bitiş: {vaxEndDate}</span>}
+                        {vaxFilterText && <span className="identity-chip">Ara: {vaxFilterText}</span>}
+                      </div>
+                      <button
+                        className="identity-btn identity-btn-ghost"
+                        onClick={() => { setVaxFilterText(''); setVaxStatus(''); setVaxStartDate(''); setVaxEndDate(''); }}
+                      >
+                        Temizle
+                      </button>
+                    </div>
+                  </div>
+                  {vaxFilterOpen && (
+                    <div className="identity-vax-advanced">
+                      <div className="identity-chip-group">
+                        <button
+                          className={`identity-chip ${vaxStatus === '' ? 'primary' : ''}`}
+                          onClick={() => setVaxStatus('')}
+                        >
+                          Tümü
+                        </button>
+                        <button
+                          className={`identity-chip ${vaxStatus === 'planned' ? 'warning' : ''}`}
+                          onClick={() => setVaxStatus('planned')}
+                        >
+                          Planlandı
+                        </button>
+                        <button
+                          className={`identity-chip ${vaxStatus === 'applied' ? 'success' : ''}`}
+                          onClick={() => setVaxStatus('applied')}
+                        >
+                          Uygulandı
+                        </button>
+                      </div>
+                      <div className="identity-date-range">
+                        <input
+                          type="date"
+                          className="identity-owner-input"
+                          value={vaxStartDate}
+                          onChange={(e) => setVaxStartDate(e.target.value)}
+                        />
+                        <span className="range-sep">—</span>
+                        <input
+                          type="date"
+                          className="identity-owner-input"
+                          value={vaxEndDate}
+                          onChange={(e) => setVaxEndDate(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  )}
                   <div className="identity-history-body">
-                    {vaccinationList.length > 0 ? vaccinationList.map((v, i) => (
+                    {vaccinationList.length > 0 ? vaccinationList
+                      .filter((v) => {
+                        const nameOk = (v.vaccine_name || '').toLowerCase().includes(vaxFilterText.toLowerCase());
+                        const statusOk = vaxStatus === '' ? true : (vaxStatus === 'applied' ? !!v.is_applied : !v.is_applied);
+                        const refDateStr = v.is_applied ? v.applied_on : v.planned_date;
+                        const refDate = refDateStr ? new Date(refDateStr) : null;
+                        let dateOk = true;
+                        if (vaxStartDate && refDate) {
+                          const start = new Date(vaxStartDate);
+                          start.setHours(0,0,0,0);
+                          dateOk = dateOk && refDate >= start;
+                        }
+                        if (vaxEndDate && refDate) {
+                          const end = new Date(vaxEndDate);
+                          end.setHours(23,59,59,999);
+                          dateOk = dateOk && refDate <= end;
+                        }
+                        return nameOk && statusOk && dateOk;
+                      })
+                      .map((v, i) => (
                       <div
                         key={i}
                         className="identity-history-item"
@@ -581,9 +714,20 @@ const IdentityInfo = () => {
                           <span className="identity-history-item-title">{v.vaccine_name || 'Aşı'}</span>
                           <span className="identity-history-item-title">Geliş {v.pa_id || '-'}</span>
                           <span className="identity-history-item-date" style={{ color: 'var(--id-text)' }}>{formatDate(v.planned_date || v.applied_on)}</span>
-                          <span className={`identity-history-item-status ${v.is_applied ? 'completed' : 'pending'}`} style={{ marginLeft: 'auto' }}>
-                            {v.is_applied ? 'Uygulandı' : 'Planlandı'}
-                          </span>
+                          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+                            {!v.is_applied && (
+                              <button
+                                className="identity-btn identity-btn-success identity-btn-xs"
+                                onClick={(e) => { e.stopPropagation(); handleApplyPlan(v); }}
+                              >
+                                Uygula
+                              </button>
+                            )}
+                            <span className={`identity-history-item-status ${v.is_applied ? 'completed' : 'pending'}`}>
+                              {v.is_applied ? 'Uygulandı' : 'Planlandı'}
+                            </span>
+                            
+                          </div>
                         </div>
                       </div>
                     )) : <div className="identity-history-empty">Aşı planı yok</div>}
@@ -619,10 +763,63 @@ const IdentityInfo = () => {
               pat_name={`${ownerInfo?.name || ''} ${ownerInfo?.surname || ''}`.trim()}
               animal_id={selectedAnimal?.id || 0}
               animal_name={selectedAnimal?.animalname || ''}
+              navigateOnSave={false}
             />
           }
           saveButtonLabel="Kaydet"
+          onSave={(result) => {
+            setIsPatientFileRegOpen(false);
+            const baseId = selectedAnimal?.id;
+            if (baseId) {
+              fetchVisitList(baseId);
+            }
+            setShowApplyVisitModal(true);
+          }}
         />
+        <Modal isOpen={showApplyVisitModal} toggle={() => setShowApplyVisitModal(false)}>
+          <ModalHeader toggle={() => setShowApplyVisitModal(false)}>Aşıyı Uygula</ModalHeader>
+          <ModalBody>
+            {visitList.filter(v => !v.is_discharge).length === 0 ? (
+              <div>Aktif geliş dosyası bulunamadı.</div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {visitList.filter(v => !v.is_discharge).map(v => (
+                  <div
+                    key={v.id}
+                    onClick={() => setSelectedVisitIdForApply(v.id)}
+                    style={{
+                      padding: 10,
+                      border: '1px solid var(--id-border)',
+                      borderRadius: 8,
+                      background: selectedVisitIdForApply === v.id ? 'rgba(99,102,241,0.08)' : 'var(--id-bg-elevated)',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between'
+                    }}
+                  >
+                    <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                      <span className="identity-history-item-title">Geliş #{v.id}</span>
+                      <span className="identity-history-item-date">{new Date(v.created_at).toLocaleString('tr-TR')}</span>
+                    </div>
+                    <span className={`identity-history-item-status ${v.is_discharge ? 'completed' : 'pending'}`}>
+                      {v.is_discharge ? 'Taburcu' : 'Aktif'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </ModalBody>
+          <ModalFooter>
+            <Button color="success" disabled={!selectedVisitIdForApply} onClick={applyToSelectedVisit}>
+              Bu Gelişe Uygula
+            </Button>
+            <Button color="primary" onClick={() => { setIsPatientFileRegOpen(true); }}>
+              Yeni Geliş Oluştur
+            </Button>
+            <Button color="secondary" onClick={() => setShowApplyVisitModal(false)}>İptal</Button>
+          </ModalFooter>
+        </Modal>
       </div>
     </div>
   );

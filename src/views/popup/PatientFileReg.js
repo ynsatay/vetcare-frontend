@@ -9,7 +9,7 @@ import axiosInstance from '../../api/axiosInstance.ts';
 import { useNavigate } from 'react-router-dom';
 import ConfirmDialog from '../../components/ConfirmDialog.js';
 
-const PatientFileReg = forwardRef(({ pat_id, pat_name, animal_id, animal_name }, ref) => {
+const PatientFileReg = forwardRef(({ pat_id, pat_name, animal_id, animal_name, navigateOnSave = true }, ref) => {
     const userId = localStorage.getItem('userid');
     const [vets, setVets] = useState([]);
     const [formData, setFormData] = useState({
@@ -67,9 +67,11 @@ const PatientFileReg = forwardRef(({ pat_id, pat_name, animal_id, animal_name },
 
                 });
 
-                navigate(`/patientFile/${response.data.patFileId}`, {
-                   state : response.data.patFileId  
-                });
+                if (navigateOnSave) {
+                    navigate(`/patientFile/${response.data.patFileId}`, {
+                       state : response.data.patFileId  
+                    });
+                }
 
                 return response.data;
 
