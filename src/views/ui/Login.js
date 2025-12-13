@@ -66,7 +66,7 @@ const Login = () => {
   useEffect(() => {
     const fetchOffices = async () => {
       try {
-        const res = await axios.get(`${BASE_URL}/hr_offices`);
+        const res = await axios.get(`${BASE_URL}/public_hr_offices`);
         setOffices(res.data);
 
         if (res.data.length > 0) {
