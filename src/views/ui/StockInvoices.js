@@ -7,11 +7,12 @@ import axiosInstance from "../../api/axiosInstance.ts";
 import InvoiceSelectorModal from "../popup/InvoiceSelectorModal.js";
 import dayjs from "dayjs";
 import { printInvoice } from "../../utils/printInvoice";
+import { trTR } from '@mui/x-data-grid/locales';
 const INV_TYPES = [
   { value: 1, label: "Alım" },
   { value: 2, label: "İade" },
 ];
- 
+
 
 function StockInvoicePage() {
   const { confirm } = useConfirm();
@@ -245,6 +246,13 @@ function StockInvoicePage() {
                   onRowSelectionModelChange={(ids) => setSelectedRows(ids.map(id => Number(id)))}
                   slots={{
                     noRowsOverlay: () => <Typography sx={{ p: 2, textAlign: "center", color: "text.secondary" }}>Henüz stok eklenmedi.</Typography>
+                  }}
+                  localeText={{
+                    ...trTR.components.MuiDataGrid.defaultProps.localeText,
+                    footerRowSelected: (count) =>
+                      count > 1
+                        ? `${count.toLocaleString()} satır seçildi`
+                        : `${count.toLocaleString()} satır seçildi`,
                   }}
                 />
               </Box>

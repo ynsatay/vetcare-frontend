@@ -3,6 +3,7 @@ import { Card, CardBody, CardTitle } from "reactstrap";
 import { DataGrid } from '@mui/x-data-grid';
 import axiosInstance from '../../api/axiosInstance.ts';
 import { useNavigate } from 'react-router-dom';
+import { trTR } from '@mui/x-data-grid/locales';
 
 const CustomerList = () => {
   const [customerList, setCustomerList] = useState([]);
@@ -84,6 +85,13 @@ const CustomerList = () => {
               rowsPerPageOptions={[5, 10, 20]}
               disableSelectionOnClick
               getRowId={(row) => row.id}
+              localeText={{
+                ...trTR.components.MuiDataGrid.defaultProps.localeText,
+                footerRowSelected: (count) =>
+                  count > 1
+                    ? `${count.toLocaleString()} satır seçildi`
+                    : `${count.toLocaleString()} satır seçildi`,
+              }}
             />
           </div>
         </CardBody>

@@ -5,6 +5,7 @@ import {
 import { DataGrid } from '@mui/x-data-grid';
 import axiosInstance from '../../api/axiosInstance.ts';
 import { Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
+import { trTR } from '@mui/x-data-grid/locales';
 
 const packageTypeLabels = {
   1: 'Başlangıç',
@@ -124,6 +125,14 @@ const ClinicList = () => {
               height={500}
               autoHeight={false}
               disableSelectionOnClick
+              localeText={{
+                ...trTR.components.MuiDataGrid.defaultProps.localeText,
+                footerRowSelected: (count) =>
+                  count > 1
+                    ? `${count.toLocaleString()} satır seçildi`
+                    : `${count.toLocaleString()} satır seçildi`,
+              }}
+
             />
           </div>
         </CardBody>

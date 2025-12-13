@@ -5,6 +5,7 @@ import axiosInstance from '../../api/axiosInstance.ts';
 import MainModal from '../../components/MainModal.js';
 import { useConfirm } from '../../components/ConfirmContext';
 import EditProviderPrice from '../popup/EditProviderPrice.js';
+import { trTR } from '@mui/x-data-grid/locales';
 
 const columns = [
   { field: 'id', headerName: '#', width: 70 },
@@ -159,6 +160,13 @@ const ProviderPriceList = () => {
           }}
           selectionModel={selectedRow ? [selectedRow.id] : []}
           disableSelectionOnClick={false}
+          localeText={{
+                        ...trTR.components.MuiDataGrid.defaultProps.localeText,
+                        footerRowSelected: (count) =>
+                            count > 1
+                                ? `${count.toLocaleString()} satır seçildi`
+                                : `${count.toLocaleString()} satır seçildi`,
+                    }}
         />
       </div>
 

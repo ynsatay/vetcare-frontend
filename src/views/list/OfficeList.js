@@ -7,6 +7,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import Office from '../popup/Offices';
 import MainModal from '../../components/MainModal';
 import axiosInstance from '../../api/axiosInstance.ts';
+import { trTR } from '@mui/x-data-grid/locales';
 
 const OfficeList = () => {
   const [officelist, setOfficelist] = useState([]);
@@ -114,6 +115,13 @@ const OfficeList = () => {
               height={500}
               autoHeight={false}
               disableSelectionOnClick
+              localeText={{
+                ...trTR.components.MuiDataGrid.defaultProps.localeText,
+                footerRowSelected: (count) =>
+                  count > 1
+                    ? `${count.toLocaleString()} satır seçildi`
+                    : `${count.toLocaleString()} satır seçildi`,
+              }}
             />
           </div>
         </CardBody>

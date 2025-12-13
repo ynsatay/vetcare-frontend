@@ -6,6 +6,7 @@ import user2 from '../../assets/images/users/user2.jpg';
 import PersonalReg from '../popup/PersonalReg';
 import MainModal from '../../components/MainModal';
 import axiosInstance from '../../api/axiosInstance.ts';
+import { trTR } from '@mui/x-data-grid/locales';
 
 const PersonalList = () => {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -101,10 +102,10 @@ const PersonalList = () => {
             renderCell: (params) => (
                 <span
                     className={`p-2 rounded-circle d-inline-block ${params.value === 1
-                            ? 'bg-success'
-                            : params.value === 0
-                                ? 'bg-danger'
-                                : 'bg-warning'
+                        ? 'bg-success'
+                        : params.value === 0
+                            ? 'bg-danger'
+                            : 'bg-warning'
                         }`}
                 />
             )
@@ -142,6 +143,13 @@ const PersonalList = () => {
                                     backgroundColor: '#f5f5f5',
                                     borderBottom: '1px solid #ccc',
                                 },
+                            }}
+                            localeText={{
+                                ...trTR.components.MuiDataGrid.defaultProps.localeText,
+                                footerRowSelected: (count) =>
+                                    count > 1
+                                        ? `${count.toLocaleString()} satır seçildi`
+                                        : `${count.toLocaleString()} satır seçildi`,
                             }}
                         />
                     </div>
