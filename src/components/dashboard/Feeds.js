@@ -29,8 +29,23 @@ const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
   dayjs.extend(customParseFormat);
   const fmt = (s) => {
     if (!s) return "";
-    const d = dayjs(s, "YYYY-MM-DD HH:mm:ss");
-    return d.isValid() ? d.format("DD.MM.YYYY HH:mm") : dayjs(s).format("DD.MM.YYYY HH:mm");
+    const str = String(s);
+    if (str.includes("T") && (str.endsWith("Z") || /[\\+\\-]\\d{2}:?\\d{2}$/.test(str))) {
+      const d = new Date(str);
+      const yyyy = d.getFullYear().toString();
+      const mm = (d.getMonth() + 1).toString().padStart(2, "0");
+      const dd = d.getDate().toString().padStart(2, "0");
+      const hh = d.getHours().toString().padStart(2, "0");
+      const min = d.getMinutes().toString().padStart(2, "0");
+      return `${dd}.${mm}.${yyyy} ${hh}:${min}`;
+    }
+    const m = str.match(/^(\\d{4})-(\\d{2})-(\\d{2})\\s(\\d{2}):(\\d{2})(?::\\d{2})?$/);
+    if (m) {
+      const [, y, mo, d, h, mi] = m;
+      return `${d}.${mo}.${y} ${h}:${mi}`;
+    }
+    const d = dayjs(str, "YYYY-MM-DD HH:mm:ss");
+    return d.isValid() ? d.format("DD.MM.YYYY HH:mm") : dayjs(str).format("DD.MM.YYYY HH:mm");
   };
   useEffect(() => {
     setLoading(true);
