@@ -32,22 +32,12 @@ const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
 const fmt = (s) => {
   if (!s) return "";
 
-  const str = String(s);
-
-  // UTC veya timezone bilgisi varsa
-  if (
-    str.includes("T") &&
-    (str.endsWith("Z") || /[+\-]\d{2}:?\d{2}$/.test(str))
-  ) {
-    return dayjs
-      .utc(str)
-      .tz("Europe/Istanbul")
-      .format("DD.MM.YYYY HH:mm");
-  }
-
-  // Timezone YOKSA → local saat kabul et
-  return dayjs(str, "YYYY-MM-DD HH:mm:ss").format("DD.MM.YYYY HH:mm");
+  return dayjs
+    .utc(s)                 // ← HER ZAMAN UTC KABUL ET
+    .tz("Europe/Istanbul")  // ← SADECE BURADA +3
+    .format("DD.MM.YYYY HH:mm");
 };
+
 
 
   useEffect(() => {
