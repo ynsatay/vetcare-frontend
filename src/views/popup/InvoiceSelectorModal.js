@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  TextField, Button, Box, Grid, Dialog, DialogTitle, DialogContent, DialogActions, Stack, Chip, Divider, Typography, useMediaQuery
+  TextField, Button, Box, Grid, Dialog, DialogTitle, DialogContent, DialogActions, Stack, Chip, Divider, Typography, useMediaQuery, MenuItem
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { DataGrid } from '@mui/x-data-grid';
@@ -126,10 +126,17 @@ const InvoiceSelectorModal = ({ open, onClose, onSelect }) => {
               <DatePicker label="Bitiş Tarihi" value={endDate} onChange={(val) => setEndDate(val)} format="DD.MM.YYYY" slotProps={{ textField: { size: 'small' } }} />
             </Grid>
             <Grid item xs={12} sm={3}>
-              <TextField select label="Tip" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} fullWidth size="small">
-                <option value=""></option>
-                <option value="1">Alım</option>
-                <option value="2">İade</option>
+              <TextField
+                select
+                label="Tip"
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
+                fullWidth
+                size="small"
+              >
+                <MenuItem value="">Tümü</MenuItem>
+                <MenuItem value="1">Alım</MenuItem>
+                <MenuItem value="2">İade</MenuItem>
               </TextField>
             </Grid>
             <Grid item xs={12}>
