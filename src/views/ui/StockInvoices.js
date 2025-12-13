@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Box, Button, TextField, MenuItem, Typography, Paper, Grid, Stack, Chip, Divider } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
 import MaterialSelectModal from "../popup/MaterialSelectModal.js";
 import { useConfirm } from "../../components/ConfirmContext";
 import axiosInstance from "../../api/axiosInstance.ts";
@@ -11,6 +11,7 @@ const INV_TYPES = [
   { value: 1, label: "Alım" },
   { value: 2, label: "İade" },
 ];
+ 
 
 function StockInvoicePage() {
   const { confirm } = useConfirm();
@@ -24,6 +25,8 @@ function StockInvoicePage() {
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [selectOpen, setSelectOpen] = useState(false);
   const [canPrint, setCanPrint] = useState(false);
+  const [loadedFromExisting, setLoadedFromExisting] = useState(false);
+  const apiRef = useGridApiRef();
 
   const columns = useMemo(() => [
     { field: "id", headerName: "#", width: 70, headerAlign: "center" },
@@ -45,6 +48,7 @@ function StockInvoicePage() {
     setSelectedInvoiceId(null);
     setIsEditing(true);
     setCanPrint(false);
+    setLoadedFromExisting(false);
   };
 
   const handleAddStock = async () => {
@@ -78,43 +82,11 @@ function StockInvoicePage() {
       total: (m.purchase_price || 0) * 1,
       material_id: m.id
     }));
-    try {
-      if (!selectedInvoiceId) {
-        const totalAmount = items.reduce((sum, s) => sum + Number(s.price) * Number(s.quantity), 0);
-        const res = await axiosInstance.post("/material-invoice/full-create", {
-          inv_no: invNo,
-          inv_date: invDate,
-          inv_type: Number(invType),
-          total_amount: totalAmount,
-          movements: items.map(s => ({
-            m_id: s.material_id,
-            quantity: Number(s.quantity),
-            price: Number(s.price),
-            total_price: Number(s.price) * Number(s.quantity),
-            movement_date: invDate
-          }))
-        });
-        setSelectedInvoiceId(res.data.id);
-        setCanPrint(true);
-      } else {
-        for (let s of items) {
-          await axiosInstance.post("/material-movement/add", {
-            mi_id: selectedInvoiceId,
-            m_id: s.material_id,
-            quantity: Number(s.quantity),
-            price: Number(s.price),
-            total_price: Number(s.price) * Number(s.quantity),
-            movement_date: invDate,
-            inv_type: Number(invType)
-          });
-        }
-      }
-      setStocks((prev) => [...prev, ...items]);
-      setSelectOpen(false);
-    } catch (err) {
-      if (err.__demo_blocked) return;
-      await confirm(err.response?.data?.message || err.message || "Stok eklenirken hata oluştu.", "Tamam", "", "Hata");
-    }
+    // Sadece listeye ekle; kaydetme butonuna basınca persist edilecek
+    setStocks((prev) => [...prev, ...items]);
+    // Yeni eklenenleri otomatik seç — Stok Sil aktif olsun
+    setSelectedRows(items.map(s => s.id));
+    setSelectOpen(false);
   };
 
   const handleSave = async () => {
@@ -123,6 +95,17 @@ function StockInvoicePage() {
       return;
     }
     try {
+      // Edit modundaki son değişiklikleri commit et
+      try {
+        const ids = stocks.map(s => s.id);
+        ids.forEach((id) => {
+          ["quantity", "price"].forEach((field) => {
+            apiRef.current?.commitCellChange?.({ id, field });
+            apiRef.current?.stopCellEditMode?.({ id, field });
+          });
+        });
+      } catch { }
+
       const totalAmount = subtotal;
       if (!selectedInvoiceId) {
         const res = await axiosInstance.post("/material-invoice/full-create", {
@@ -140,6 +123,13 @@ function StockInvoicePage() {
         });
         setSelectedInvoiceId(res.data.id);
       } else {
+        // Önce fatura başlığını güncelle
+        await axiosInstance.put(`/material-invoice/${selectedInvoiceId}`, {
+          inv_no: invNo,
+          inv_date: invDate,
+          inv_type: Number(invType),
+          total_amount: totalAmount
+        });
         await axiosInstance.delete(`/material-invoice/${selectedInvoiceId}/movement-delete`);
         for (let s of stocks) {
           await axiosInstance.post("/material-movement/add", {
@@ -173,6 +163,7 @@ function StockInvoicePage() {
       setIsEditing(false);
       setSelectedInvoiceId(invoiceId);
       setCanPrint(true);
+      setLoadedFromExisting(true);
       const movementsRes = await axiosInstance.get(`/material-invoice/${invoiceId}/movement-list`);
       const items = movementsRes.data.map((m, index) => ({
         id: index + 1,
@@ -227,6 +218,9 @@ function StockInvoicePage() {
                 <Chip label={`Tutar: ${subtotal.toFixed(2)} ₺`} color="success" />
               </Stack>
               <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+                {loadedFromExisting && !isEditing && (
+                  <Button variant="outlined" color="warning" onClick={() => setIsEditing(true)}>Değiştir</Button>
+                )}
                 <Button variant="contained" color="success" onClick={handleAddStock} disabled={!isEditing}>Stok Ekle</Button>
                 <Button variant="outlined" color="error" disabled={!selectedRows.length || !isEditing} onClick={() => { setStocks(prev => prev.filter(s => !selectedRows.includes(s.id))); setSelectedRows([]); }}>Stok Sil</Button>
                 <Button variant="contained" color="primary" onClick={handleSave} disabled={!isFormValid || !isEditing}>Kaydet</Button>
@@ -234,13 +228,14 @@ function StockInvoicePage() {
               </Stack>
               <Box sx={{ height: 520, width: "100%" }}>
                 <DataGrid
+                  apiRef={apiRef}
                   rows={stocks}
                   columns={columns}
                   pageSizeOptions={[5]}
                   initialState={{ pagination: { paginationModel: { pageSize: 5 } } }}
-                  disableRowSelectionOnClick
                   hideFooterSelectedRowCount
                   getRowId={(row) => row.id}
+                  rowSelectionModel={selectedRows}
                   processRowUpdate={(updatedRow) => {
                     const updated = { ...updatedRow, total: Number(updatedRow.quantity) * Number(updatedRow.price) };
                     setStocks(prev => prev.map(r => (r.id === updated.id ? updated : r)));
