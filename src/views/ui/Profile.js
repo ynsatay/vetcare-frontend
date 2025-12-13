@@ -30,6 +30,10 @@ import 'dayjs/locale/tr';
 import axiosInstance from '../../api/axiosInstance.ts';
 import { toast } from 'react-toastify';
 import defaultAvatar from '../../assets/images/users/user5.jpg';
+import AccountSettingsModal from '../popup/AccountSettingsModal.js';
+import NotificationsModal from '../popup/NotificationsModal.js';
+import SecurityModal from '../popup/SecurityModal.js';
+import ThemeModal from '../popup/ThemeModal.js';
 
 dayjs.locale('tr');
 
@@ -55,6 +59,10 @@ function Profile() {
   const [localimage, setLocalimage] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef(null);
+  const [showAccount, setShowAccount] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showSecurity, setShowSecurity] = useState(false);
+  const [showTheme, setShowTheme] = useState(false);
 
   useEffect(() => {
     if (profileImage) setLocalimage(profileImage);
@@ -622,6 +630,12 @@ function Profile() {
                               transform: 'translateX(4px)',
                               boxShadow: `0 4px 12px ${action.color}20`
                             }
+                          }}
+                          onClick={() => {
+                            if (action.label === 'Hesap Ayarları') setShowAccount(true);
+                            else if (action.label === 'Bildirimler') setShowNotifications(true);
+                            else if (action.label === 'Güvenlik') setShowSecurity(true);
+                            else if (action.label === 'Tema') setShowTheme(true);
                           }}
                         >
                           <Typography variant="body2" fontWeight="500">
@@ -1324,6 +1338,34 @@ function Profile() {
           </Grid>
         </Grid>
       </Box>
+      <AccountSettingsModal
+        open={showAccount}
+        onClose={() => setShowAccount(false)}
+        onSave={(data) => {
+          setValues(v => ({ ...v, ...data }));
+          if (data?.language) localStorage.setItem('language', data.language);
+          setShowAccount(false);
+          toast.success('Hesap ayarları güncellendi');
+        }}
+        initial={{ name: values.name, surname: values.surname, username: values.username, email: values.email, phone: values.phone, language: (typeof window !== 'undefined' ? localStorage.getItem('language') || 'tr' : 'tr') }}
+      />
+      <NotificationsModal
+        open={showNotifications}
+        onClose={() => setShowNotifications(false)}
+        onSave={(prefs) => { localStorage.setItem('notif_prefs', JSON.stringify(prefs)); setShowNotifications(false); toast.success('Bildirim ayarları güncellendi'); }}
+        initial={JSON.parse(localStorage.getItem('notif_prefs') || '{}')}
+      />
+      <SecurityModal
+        open={showSecurity}
+        onClose={() => setShowSecurity(false)}
+        onSave={(form) => { setShowSecurity(false); toast.success('Güvenlik ayarları güncellendi'); }}
+      />
+      <ThemeModal
+        open={showTheme}
+        onClose={() => setShowTheme(false)}
+        onSave={({ dark, primary }) => { localStorage.setItem('theme_prefs', JSON.stringify({ dark, primary })); setShowTheme(false); toast.success('Tema ayarları güncellendi'); }}
+        initial={JSON.parse(localStorage.getItem('theme_prefs') || '{}')}
+      />
     </Box>
   );
 }
