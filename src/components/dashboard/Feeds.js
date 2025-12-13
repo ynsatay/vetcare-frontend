@@ -31,12 +31,13 @@ const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
     if (!s) return "";
     const str = String(s);
     if (str.includes("T") && (str.endsWith("Z") || /[\\+\\-]\\d{2}:?\\d{2}$/.test(str))) {
-      const d = new Date(str);
-      const yyyy = d.getFullYear().toString();
-      const mm = (d.getMonth() + 1).toString().padStart(2, "0");
-      const dd = d.getDate().toString().padStart(2, "0");
-      const hh = d.getHours().toString().padStart(2, "0");
-      const min = d.getMinutes().toString().padStart(2, "0");
+      const base = new Date(str);
+      const adj = new Date(base.getTime() + 3 * 60 * 60 * 1000);
+      const yyyy = adj.getUTCFullYear().toString();
+      const mm = (adj.getUTCMonth() + 1).toString().padStart(2, "0");
+      const dd = adj.getUTCDate().toString().padStart(2, "0");
+      const hh = adj.getUTCHours().toString().padStart(2, "0");
+      const min = adj.getUTCMinutes().toString().padStart(2, "0");
       return `${dd}.${mm}.${yyyy} ${hh}:${min}`;
     }
     const m = str.match(/^(\\d{4})-(\\d{2})-(\\d{2})\\s(\\d{2}):(\\d{2})(?::\\d{2})?$/);
