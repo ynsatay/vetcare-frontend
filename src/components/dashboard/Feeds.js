@@ -1,7 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
 import tr from "dayjs/locale/tr";
 import axiosInstance from "../../api/axiosInstance.ts";
 import {
@@ -15,17 +13,7 @@ import {
 } from "reactstrap";
 import "../../views/ui/IdentityInfo.css";
 
-// dayjs setup
-dayjs.extend(utc);
-dayjs.extend(timezone);
 dayjs.locale(tr);
-dayjs.tz.setDefault("Europe/Istanbul");
-
-// 🔹 TEK NOKTADAN TARİH FORMATLAMA
-const formatDate = (date) =>
-  date
-    ? dayjs.tz(date, "Europe/Istanbul").format("DD.MM.YYYY HH:mm")
-    : "";
 
 const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
   const [feeds, setFeeds] = useState([]);
@@ -64,7 +52,7 @@ const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
     return {
       total,
       lastTitle: last?.title ?? "",
-      lastTime: formatDate(last?.created_at),
+      lastTime: dayjs(last?.created_at).format("DD.MM.YYYY HH:mm"),
       users,
     };
   }, [feeds]);
@@ -136,7 +124,7 @@ const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
                 f.title,
                 f.icon,
                 f.color,
-                formatDate(f.created_at),
+                dayjs(f.created_at).format("DD.MM.YYYY HH:mm"),
               ]);
               const csv = [header, ...rows].map((r) => r.join(",")).join("\n");
               const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -190,7 +178,7 @@ const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
                     </div>
                   </div>
                   <small className="text-muted" style={{ whiteSpace: "nowrap" }}>
-                    {formatDate(feed.created_at)}
+                    {dayjs(feed.created_at).format("DD.MM.YYYY HH:mm")}
                   </small>
                 </ListGroupItem>
               ))
