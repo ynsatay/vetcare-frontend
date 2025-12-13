@@ -576,7 +576,7 @@ const IdentityInfo = () => {
                       >
                         <div className="identity-history-item-info" style={{ display: 'flex', flexDirection: 'row', gap: 12, alignItems: 'center', flexWrap: 'wrap', columnGap: 40, rowGap: 6, width: '100%' }}>
                           <span className="identity-history-item-title">{v.vaccine_name || 'Aşı'}</span>
-                          <span className="identity-history-item-title">Geliş {v.pa_id || 'Geliş'}</span>
+                          <span className="identity-history-item-title">Geliş {v.pa_id || '-'}</span>
                           <span className="identity-history-item-date" style={{ color: 'var(--id-text)' }}>{formatDate(v.planned_date || v.applied_on)}</span>
                           <span className={`identity-history-item-status ${v.is_applied ? 'completed' : 'pending'}`} style={{ marginLeft: 'auto' }}>
                             {v.is_applied ? 'Uygulandı' : 'Planlandı'}
