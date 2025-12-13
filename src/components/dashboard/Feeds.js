@@ -32,7 +32,6 @@ const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
     const d = dayjs(s, "YYYY-MM-DD HH:mm:ss");
     return d.isValid() ? d.format("DD.MM.YYYY HH:mm") : dayjs(s).format("DD.MM.YYYY HH:mm");
   };
-
   useEffect(() => {
     setLoading(true);
     axiosInstance
