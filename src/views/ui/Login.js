@@ -1,16 +1,16 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Button, 
-  TextField, 
-  Typography, 
-  MenuItem, 
-  Select, 
-  InputLabel, 
-  FormControl, 
-  Dialog, 
-  DialogTitle, 
-  DialogContent, 
+import {
+  Button,
+  TextField,
+  Typography,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+  Dialog,
+  DialogTitle,
+  DialogContent,
   DialogActions,
   Box,
   Fade,
@@ -20,14 +20,14 @@ import {
   CircularProgress
 } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faEye, 
-  faEyeSlash, 
-  faBuilding, 
-  faUser, 
-  faLock, 
-  faEnvelope, 
-  faPhone, 
+import {
+  faEye,
+  faEyeSlash,
+  faBuilding,
+  faUser,
+  faLock,
+  faEnvelope,
+  faPhone,
   faStickyNote,
   faShieldAlt,
   faChartLine,
@@ -135,6 +135,23 @@ const Login = () => {
   const handleForgotSubmit = async (e) => {
     e.preventDefault();
     setFpStatus('');
+
+    //mailControl apisi ile mail veri tabanında var mı kontrol et
+    try {
+      const mailCheckRes = await axios.get(`${BASE_URL}/mailControl`, {
+        params: {
+          email: fpEmail
+        }
+      });
+      if (!mailCheckRes.data.exists) {
+        setFpStatus('Bu e-posta adresi kayıtlı değil.');
+        return;
+      }
+    } catch (error) {
+      console.error('Mail kontrol hatası:', error);
+      setFpStatus('E-posta doğrulama sırasında bir hata oluştu.');
+      return;
+    }
     try {
       await axios.post(`${BASE_URL}/forgot-password-request`, {
         email: fpEmail,
@@ -200,14 +217,14 @@ const Login = () => {
 
               <div className='features-grid'>
                 {features.map((feature, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className='feature-card'
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
                     <div className='feature-icon-wrapper' style={{ backgroundColor: `${feature.color}15` }}>
-                      <FontAwesomeIcon 
-                        icon={feature.icon} 
+                      <FontAwesomeIcon
+                        icon={feature.icon}
                         className='feature-icon'
                         style={{ color: feature.color }}
                       />
@@ -221,8 +238,8 @@ const Login = () => {
 
               <div className='stats-section'>
                 {stats.map((stat, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className='stat-card'
                     style={{ animationDelay: `${0.6 + index * 0.1}s` }}
                   >
@@ -266,144 +283,144 @@ const Login = () => {
                 </Typography>
               </div>
 
-            <form className='login-form' onSubmit={handleLogin}>
-              <Box sx={{ position: 'relative', mb: 2.5 }} className='office-select-wrapper'>
-                <FontAwesomeIcon 
-                  icon={faBuilding}
-                  className='office-select-icon'
-                  style={{ 
-                    position: 'absolute', 
-                    left: 14, 
-                    top: 20, 
-                    zIndex: 1, 
-                    color: '#59018b',
-                    pointerEvents: 'none',
-                    transition: 'top 0.2s ease',
-                    fontSize: '18px'
-                  }} 
-                />
-                <FormControl fullWidth className='login-form-field' required>
-                  <InputLabel id="office-select-label">Ofis Seçin</InputLabel>
-                  <Select
-                    labelId="office-select-label"
-                    value={selectedOffice}
-                    label="Ofis Seçin"
-                    onChange={e => setSelectedOffice(e.target.value)}
-                  >
-                    {offices.map(office => (
-                      <MenuItem key={office.id} value={office.id}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          {office.name || `Ofis #${office.id}`}
-                        </Box>
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Box>
+              <form className='login-form' onSubmit={handleLogin}>
+                <Box sx={{ position: 'relative', mb: 2.5 }} className='office-select-wrapper'>
+                  <FontAwesomeIcon
+                    icon={faBuilding}
+                    className='office-select-icon'
+                    style={{
+                      position: 'absolute',
+                      left: 14,
+                      top: 20,
+                      zIndex: 1,
+                      color: '#59018b',
+                      pointerEvents: 'none',
+                      transition: 'top 0.2s ease',
+                      fontSize: '18px'
+                    }}
+                  />
+                  <FormControl fullWidth className='login-form-field' required>
+                    <InputLabel id="office-select-label">Ofis Seçin</InputLabel>
+                    <Select
+                      labelId="office-select-label"
+                      value={selectedOffice}
+                      label="Ofis Seçin"
+                      onChange={e => setSelectedOffice(e.target.value)}
+                    >
+                      {offices.map(office => (
+                        <MenuItem key={office.id} value={office.id}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            {office.name || `Ofis #${office.id}`}
+                          </Box>
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Box>
 
-              <TextField
-                className='login-form-field'
-                label="Kullanıcı Adı"
-                variant="outlined"
-                fullWidth
-                required
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <FontAwesomeIcon icon={faUser} style={{ color: '#59018b' }} />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-
-              <TextField
-                className='login-form-field'
-                label="Şifre"
-                type={showPassword ? 'text' : 'password'}
-                variant="outlined"
-                fullWidth
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <FontAwesomeIcon icon={faLock} style={{ color: '#59018b' }} />
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={() => setShowPassword(!showPassword)}
-                        edge="end"
-                        sx={{ color: '#59018b' }}
-                      >
-                        <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-
-              {message && (
-                <Alert 
-                  severity={messageType} 
-                  className='login-message'
-                  sx={{ 
-                    mt: 1,
-                    borderRadius: 2,
-                    '& .MuiAlert-message': {
-                      width: '100%'
-                    }
+                <TextField
+                  className='login-form-field'
+                  label="Kullanıcı Adı"
+                  variant="outlined"
+                  fullWidth
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <FontAwesomeIcon icon={faUser} style={{ color: '#59018b' }} />
+                      </InputAdornment>
+                    ),
                   }}
-                >
-                  {message}
-                </Alert>
-              )}
+                />
 
-              <Button
-                fullWidth
-                size="large"
-                variant="contained"
-                className='login-button'
-                type="submit"
-                disabled={loading}
-                sx={{ mt: 3 }}
-              >
-                {loading ? (
-                  <>
-                    <CircularProgress size={20} sx={{ mr: 1, color: 'white' }} />
-                    Giriş yapılıyor...
-                  </>
-                ) : (
-                  'Giriş Yap'
+                <TextField
+                  className='login-form-field'
+                  label="Şifre"
+                  type={showPassword ? 'text' : 'password'}
+                  variant="outlined"
+                  fullWidth
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <FontAwesomeIcon icon={faLock} style={{ color: '#59018b' }} />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={() => setShowPassword(!showPassword)}
+                          edge="end"
+                          sx={{ color: '#59018b' }}
+                        >
+                          <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+
+                {message && (
+                  <Alert
+                    severity={messageType}
+                    className='login-message'
+                    sx={{
+                      mt: 1,
+                      borderRadius: 2,
+                      '& .MuiAlert-message': {
+                        width: '100%'
+                      }
+                    }}
+                  >
+                    {message}
+                  </Alert>
                 )}
-              </Button>
 
-              <div className='login-forgot-password'>
-                <Button 
-                  variant="text" 
-                  size="small" 
-                  onClick={() => setForgotOpen(true)}
-                  className='forgot-password-button'
+                <Button
+                  fullWidth
+                  size="large"
+                  variant="contained"
+                  className='login-button'
+                  type="submit"
+                  disabled={loading}
+                  sx={{ mt: 3 }}
                 >
-                  Şifremi Unuttum
+                  {loading ? (
+                    <>
+                      <CircularProgress size={20} sx={{ mr: 1, color: 'white' }} />
+                      Giriş yapılıyor...
+                    </>
+                  ) : (
+                    'Giriş Yap'
+                  )}
                 </Button>
-              </div>
-            </form>
-          </Box>
-        </Fade>
+
+                <div className='login-forgot-password'>
+                  <Button
+                    variant="text"
+                    size="small"
+                    onClick={() => setForgotOpen(true)}
+                    className='forgot-password-button'
+                  >
+                    Şifremi Unuttum
+                  </Button>
+                </div>
+              </form>
+            </Box>
+          </Fade>
         </div>
       </div>
 
       {/* Forgot Password Dialog */}
-      <Dialog 
-        open={forgotOpen} 
-        onClose={() => setForgotOpen(false)} 
-        maxWidth="sm" 
+      <Dialog
+        open={forgotOpen}
+        onClose={() => setForgotOpen(false)}
+        maxWidth="sm"
         fullWidth
         PaperProps={{
           sx: {
@@ -471,8 +488,8 @@ const Login = () => {
               }}
             />
             {fpStatus && (
-              <Alert 
-                severity={fpStatus.includes('alındı') ? 'success' : 'error'} 
+              <Alert
+                severity={fpStatus.includes('alındı') ? 'success' : 'error'}
                 sx={{ mt: 2, borderRadius: 2 }}
               >
                 {fpStatus}
@@ -481,10 +498,10 @@ const Login = () => {
           </form>
         </DialogContent>
         <DialogActions className='forgot-dialog-actions'>
-          <Button 
-            onClick={() => setForgotOpen(false)} 
+          <Button
+            onClick={() => setForgotOpen(false)}
             variant="outlined"
-            sx={{ 
+            sx={{
               borderColor: '#59018b',
               color: '#59018b',
               '&:hover': {
@@ -495,10 +512,10 @@ const Login = () => {
           >
             İptal
           </Button>
-          <Button 
-            type="submit" 
-            form="forgot-form" 
-            variant="contained" 
+          <Button
+            type="submit"
+            form="forgot-form"
+            variant="contained"
             className='forgot-submit-button'
           >
             Talep Gönder
