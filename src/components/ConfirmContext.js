@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import ConfirmDialog from './ConfirmDialog'; // senin dialog bileşenin
 
 const ConfirmContext = createContext();
@@ -35,6 +35,16 @@ export const ConfirmProvider = ({ children }) => {
     state.resolve(false);
     setState(prev => ({ ...prev, isOpen: false }));
   };
+
+  useEffect(() => {
+    if (state.isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+      document.body.classList.remove('modal-open');
+      document.body.style.paddingRight = '';
+    }
+  }, [state.isOpen]);
 
   return (
     <ConfirmContext.Provider value={{ confirm }}>
