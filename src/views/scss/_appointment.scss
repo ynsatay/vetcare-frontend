@@ -5,7 +5,7 @@
 
 /* Arka plan yine istediğin gibi */
 .fc-col-header-cell {
-  background-color: #59018b !important;
+  background: linear-gradient(135deg, var(--id-primary, #59018b) 0%, var(--id-primary-dark, #4f46e5) 100%) !important;
   border: none !important;
   padding: 10px 0 !important;
   font-weight: 700;
@@ -24,7 +24,7 @@
 .custom-checkbox {
   width: 20px;
   height: 20px;
-  accent-color: #59018b; 
+  accent-color: var(--id-primary, #59018b);
   vertical-align: middle;
 }
 

@@ -1,8 +1,8 @@
 :root {
-  --primary: #7c3aed;
-  --primary-light: #a78bfa;
-  --primary-dark: #5b21b6;
-  --primary-bg: #f5f3ff;
+  --primary: var(--id-primary, #7c3aed);
+  --primary-light: var(--id-primary-light, #a78bfa);
+  --primary-dark: var(--id-primary-dark, #5b21b6);
+  --primary-bg: rgba(var(--id-primary-rgb, 124, 58, 237), 0.14);
   --success: #059669;
   --success-bg: #ecfdf5;
   --warning: #d97706;
@@ -436,7 +436,7 @@
 }
 
 .fc .fc-col-header {
-  background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
 }
 
 .fc .fc-col-header-cell {
