@@ -27,7 +27,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const statusColors = {
-  0: "#7c3aed",
+  0: "var(--id-primary, #7c3aed)",
   1: "#d97706",
   2: "#059669",
   3: "#dc2626",
