@@ -49,6 +49,14 @@ body.dark .MuiPaper-root {
 .app-sidebar {
   background: var(--id-bg-elevated, #f1f5f9) !important;
 }
+
+/* Layout left sidebar container should never be transparent */
+.sidebarArea,
+#sidebarArea {
+  opacity: 1 !important;
+  background-color: #ffffff !important;
+  backdrop-filter: none !important;
+}
 /* Header uses CSS variables for dynamic theme colors */
 .identity-header {
   color: #ffffff !important;
@@ -56,7 +64,26 @@ body.dark .MuiPaper-root {
 /* Sidebar: dark-mode gradient + white text/logo */
 body.dark .sidebar,
 body.dark .app-sidebar {
-  background: linear-gradient(180deg, #0b0f1a 0%, #59018b 100%) !important;
+  background-color: #0b0f1a !important;
+  background-image:
+    radial-gradient(
+      circle at 12% 8%,
+      rgba(var(--id-primary-rgb, 99, 102, 241), 0.16) 0%,
+      transparent 48%
+    ),
+    radial-gradient(
+      circle at 10% 92%,
+      rgba(var(--id-primary-rgb, 99, 102, 241), 0.10) 0%,
+      transparent 55%
+    ),
+    linear-gradient(
+      180deg,
+      #0b0f1a 0%,
+      #0b0f1a 72%,
+      rgba(var(--id-primary-rgb, 99, 102, 241), 0.08) 100%
+    ) !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
   color: #ffffff !important;
   border-right-color: transparent !important;
 }
@@ -76,7 +103,29 @@ body.dark .identity-sidebar {
 /* Also target the layout sidebar container used site-wide */
 body.dark .sidebarArea,
 body.dark #sidebarArea {
-  background: var(--sidebar-bg, linear-gradient(180deg, #0b0f1a 0%, #59018b 100%)) !important;
+  /* Force opaque left sidebar background (disable any transparency coming from --sidebar-bg) */
+  background-image:
+    radial-gradient(
+      circle at 12% 8%,
+      rgba(var(--id-primary-rgb, 99, 102, 241), 0.16) 0%,
+      transparent 48%
+    ),
+    radial-gradient(
+      circle at 10% 92%,
+      rgba(var(--id-primary-rgb, 99, 102, 241), 0.10) 0%,
+      transparent 55%
+    ),
+    linear-gradient(
+      180deg,
+      #0b0f1a 0%,
+      #0b0f1a 72%,
+      rgba(var(--id-primary-rgb, 99, 102, 241), 0.08) 100%
+    ) !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  background-color: #0b0f1a !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
   color: #ffffff !important;
   border-right-color: transparent !important;
 }
