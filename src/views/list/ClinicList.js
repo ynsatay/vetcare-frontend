@@ -7,6 +7,7 @@ import axiosInstance from '../../api/axiosInstance.ts';
 import { Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
 import { trTR } from '@mui/x-data-grid/locales';
 import { useLanguage } from '../../context/LanguageContext.js';
+import './ListTheme.css';
 
 const packageTypeValues = [1,2,3];
 
@@ -118,11 +119,11 @@ const ClinicList = () => {
   ];
 
   return (
-    <div style={{ height: 500, width: '100%' }}>
+    <div className="list-page" style={{ height: 500, width: '100%' }}>
       <Card>
         <CardBody>
           <CardTitle tag="h5">🏨 {t('ClinicListTitle')}</CardTitle>
-          <div style={{ height: 500, width: '100%', overflowX: 'auto' }}>
+          <div className="list-data-grid" style={{ height: 500, width: '100%', overflowX: 'auto' }}>
             <DataGrid
               rows={clinicList}
               columns={columns}

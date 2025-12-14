@@ -1,0 +1,94 @@
+/* InvoiceSelectorModal dark/theme tweaks
+   Dialog is rendered in a portal, so we scope via Paper class.
+*/
+
+body.dark .invoice-selector-modal {
+  background: var(--id-bg-card, #0b1220) !important;
+  color: var(--id-text, #e6eef8) !important;
+  border: 1px solid var(--id-border, rgba(255,255,255,0.06)) !important;
+}
+
+body.dark .invoice-selector-modal .MuiDialogTitle-root,
+body.dark .invoice-selector-modal .MuiDialogContent-root,
+body.dark .invoice-selector-modal .MuiDialogActions-root {
+  color: var(--id-text, #e6eef8) !important;
+}
+
+/* Chips (preset buttons) */
+body.dark .invoice-selector-modal .MuiChip-root {
+  color: var(--id-text, #e6eef8) !important;
+  border-color: var(--id-border, rgba(255,255,255,0.12)) !important;
+}
+
+body.dark .invoice-selector-modal .MuiChip-filledDefault {
+  background: rgba(255,255,255,0.06) !important;
+}
+
+body.dark .invoice-selector-modal .MuiChip-filledPrimary {
+  background: rgba(var(--id-primary-rgb, 99, 102, 241), 0.22) !important;
+  color: var(--id-text, #e6eef8) !important;
+}
+
+/* DataGrid */
+body.dark .invoice-selector-modal .MuiDataGrid-root {
+  color: var(--id-text, #e6eef8) !important;
+  border-color: var(--id-border, rgba(255,255,255,0.10)) !important;
+}
+
+body.dark .invoice-selector-modal .MuiDataGrid-columnHeaders {
+  background: var(--id-bg-elevated, #091024) !important;
+  color: var(--id-text, #e6eef8) !important;
+  border-bottom: 1px solid var(--id-border, rgba(255,255,255,0.10)) !important;
+}
+
+body.dark .invoice-selector-modal .MuiDataGrid-cell {
+  border-bottom: 1px solid var(--id-border, rgba(255,255,255,0.08)) !important;
+}
+
+body.dark .invoice-selector-modal .MuiDataGrid-columnSeparator,
+body.dark .invoice-selector-modal .MuiDataGrid-iconSeparator {
+  color: var(--id-border, rgba(255,255,255,0.12)) !important;
+}
+
+body.dark .invoice-selector-modal .MuiDataGrid-menuIcon button,
+body.dark .invoice-selector-modal .MuiDataGrid-sortIcon,
+body.dark .invoice-selector-modal .MuiDataGrid-iconButtonContainer button,
+body.dark .invoice-selector-modal .MuiDataGrid-filterIcon,
+body.dark .invoice-selector-modal .MuiDataGrid-columnHeaderDraggableContainer svg {
+  color: var(--id-text, #e6eef8) !important;
+}
+
+body.dark .invoice-selector-modal .MuiCheckbox-root {
+  color: var(--id-text-muted, rgba(230, 238, 248, 0.55)) !important;
+}
+
+body.dark .invoice-selector-modal .MuiCheckbox-root.Mui-checked {
+  color: var(--id-primary, #667eea) !important;
+}
+
+body.dark .invoice-selector-modal .MuiDataGrid-row:hover {
+  background: rgba(var(--id-primary-rgb, 99, 102, 241), 0.08) !important;
+}
+
+body.dark .invoice-selector-modal .MuiDataGrid-row.Mui-selected {
+  background: rgba(var(--id-primary-rgb, 99, 102, 241), 0.18) !important;
+}
+
+body.dark .invoice-selector-modal .MuiDataGrid-row.Mui-selected:hover {
+  background: rgba(var(--id-primary-rgb, 99, 102, 241), 0.22) !important;
+}
+
+/* DataGrid footer / pagination */
+body.dark .invoice-selector-modal .MuiTablePagination-root,
+body.dark .invoice-selector-modal .MuiTablePagination-selectLabel,
+body.dark .invoice-selector-modal .MuiTablePagination-displayedRows,
+body.dark .invoice-selector-modal .MuiTablePagination-select,
+body.dark .invoice-selector-modal .MuiTablePagination-actions,
+body.dark .invoice-selector-modal .MuiDataGrid-selectedRowCount {
+  color: var(--id-text, #e6eef8) !important;
+}
+
+body.dark .invoice-selector-modal .MuiTablePagination-actions button,
+body.dark .invoice-selector-modal .MuiTablePagination-actions svg {
+  color: var(--id-text, #e6eef8) !important;
+}

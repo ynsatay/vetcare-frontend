@@ -1,25 +1,29 @@
 :root {
-  --primary: #26a69a;
-  --primary-light: #4db6ac;
-  --primary-dark: #00897b;
-  --primary-bg: #e0f2f1;
-  --success: #4caf50;
-  --success-bg: #e8f5e9;
-  --warning: #ff9800;
-  --warning-bg: #fff3e0;
-  --danger: #f44336;
-  --danger-bg: #ffebee;
-  --bg-main: #f8fafc;
-  --bg-card: #ffffff;
-  --bg-elevated: #f1f5f9;
-  --bg-hover: #e2e8f0;
-  --text-primary: #1e293b;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
-  --border-color: #e2e8f0;
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.1);
+  /* Bind VaccinationTracker tokens to the app theme (set by utils/theme.js) */
+  --primary: var(--id-primary, #26a69a);
+  --primary-light: var(--id-primary-light, #4db6ac);
+  --primary-dark: var(--id-primary-dark, #00897b);
+  --primary-bg: rgba(var(--id-primary-rgb, 38, 166, 154), 0.14);
+  --success: var(--id-success, #4caf50);
+  --warning: var(--id-warning, #ff9800);
+  --danger: var(--id-danger, #f44336);
+
+  /* Semantic status color for planned items (keep distinct from overdue) */
+  --pending: #26a69a;
+
+  --bg-main: var(--id-bg, #f8fafc);
+  --bg-card: var(--id-bg-card, #ffffff);
+  --bg-elevated: var(--id-bg-elevated, #f1f5f9);
+  --bg-hover: var(--id-bg-elevated, #e2e8f0);
+
+  --text-primary: var(--id-text, #1e293b);
+  --text-secondary: var(--id-text-secondary, #475569);
+  --text-muted: var(--id-text-muted, #94a3b8);
+  --border-color: var(--id-border, #e2e8f0);
+
+  --shadow-sm: var(--id-shadow, 0 1px 3px rgba(0, 0, 0, 0.05));
+  --shadow-md: var(--id-shadow, 0 4px 12px rgba(0, 0, 0, 0.08));
+  --shadow-lg: var(--id-shadow-lg, 0 10px 40px rgba(0, 0, 0, 0.1));
 }
 
 .vaccination-page {
@@ -44,7 +48,7 @@
 
 .vaccination-sidebar-header {
   padding: 20px;
-  background: linear-gradient(135deg, var(--primary) 0%, #00897b 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
 }
 
 .vaccination-sidebar-logo {
@@ -82,7 +86,7 @@
 .new-vaccine-btn {
   width: 100%;
   padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--bg-card);
   border: none;
   border-radius: 10px;
   color: var(--primary-dark);
@@ -97,8 +101,12 @@
 }
 
 .new-vaccine-btn:hover {
-  background: white;
+  background: var(--bg-elevated);
   transform: translateY(-1px);
+}
+
+body.dark .new-vaccine-btn {
+  color: var(--text-primary);
 }
 
 .vaccination-sidebar-stats {
@@ -146,7 +154,8 @@
 }
 
 .vaccination-stat-indicator.applied { background: var(--success); }
-.vaccination-stat-indicator.pending { background: var(--primary); }
+.vaccination-stat-indicator.pending { background: var(--pending); }
+.vaccination-stat-indicator.overdue { background: var(--danger); }
 
 .vaccination-stat-name {
   font-size: 13px;
@@ -368,7 +377,7 @@
 .vaccination-view-btn.active {
   background: var(--primary);
   color: white;
-  box-shadow: 0 2px 8px rgba(38, 166, 154, 0.3);
+  box-shadow: 0 2px 8px rgba(var(--id-primary-rgb, 38, 166, 154), 0.3);
 }
 
 .vaccination-view-btn:hover:not(.active) {
@@ -403,7 +412,7 @@
 }
 
 .vaccination-page .fc .fc-col-header {
-  background: linear-gradient(135deg, var(--primary) 0%, #00897b 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
 }
 
 .vaccination-page .fc .fc-col-header-cell {
@@ -731,7 +740,7 @@
   }
 
   .vaccination-page .fc .fc-col-header {
-    background: linear-gradient(135deg, var(--primary) 0%, #00897b 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   }
 
   .vaccination-page .fc .fc-col-header-cell {

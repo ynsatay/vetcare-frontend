@@ -8,6 +8,7 @@ import { useConfirm } from '../../components/ConfirmContext';
 import { trTR } from '@mui/x-data-grid/locales';
 import { toast } from 'react-toastify';
 import { useLanguage } from '../../context/LanguageContext.js';
+import './ListTheme.css';
 
 const ServiceList = () => {
   const { t, lang } = useLanguage();
@@ -125,7 +126,16 @@ const ServiceList = () => {
   ];
 
   return (
-    <div style={{ backgroundColor: 'white', padding: 10, borderRadius: 10 }}>
+    <div
+      className="list-page"
+      style={{
+        backgroundColor: 'var(--id-bg-card, #ffffff)',
+        color: 'var(--id-text, #0f172a)',
+        border: '1px solid var(--id-border, #e2e8f0)',
+        padding: 10,
+        borderRadius: 10,
+      }}
+    >
       <h4 className="mb-3">🩺 {t('ServiceListTitle')}</h4>
 
       <Row className="mb-3 g-2">
@@ -165,7 +175,7 @@ const ServiceList = () => {
         </Col>
       </Row>
 
-      <div style={{ width: '100%', height: 620 }}>
+      <div className="list-data-grid" style={{ width: '100%', height: 620 }}>
         <DataGrid
           rows={filteredServices}
           columns={columns}

@@ -34,6 +34,7 @@ import AccountSettingsModal from '../popup/AccountSettingsModal.js';
 import NotificationsModal from '../popup/NotificationsModal.js';
 import SecurityModal from '../popup/SecurityModal.js';
 import ThemeModal from '../popup/ThemeModal.js';
+import applyTheme from '../../utils/theme';
 import { useLanguage } from '../../context/LanguageContext.js';
 
 dayjs.locale('tr');
@@ -333,9 +334,9 @@ function Profile() {
     <Box sx={{
       minHeight: '100vh',
       background: `
-        radial-gradient(circle at 15% 20%, rgba(102, 126, 234, 0.08) 0%, transparent 45%),
-        radial-gradient(circle at 85% 10%, rgba(240, 147, 251, 0.08) 0%, transparent 45%),
-        linear-gradient(180deg, #f7f9fc 0%, #fefefe 100%)
+        radial-gradient(circle at 15% 20%, rgba(102, 126, 234, 0.06) 0%, transparent 45%),
+        radial-gradient(circle at 85% 10%, rgba(240, 147, 251, 0.04) 0%, transparent 45%),
+        linear-gradient(180deg, var(--id-bg) 0%, var(--id-bg-elevated) 100%)
       `,
       position: 'relative',
       overflow: 'hidden'
@@ -347,10 +348,10 @@ function Profile() {
           {/* Creative Profile Card */}
           <Grid item xs={12} md={4}>
             <Zoom in timeout={600}>
-              <Card sx={{
-                borderRadius: 4,
-                background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
-                border: '1px solid #e2e8f0',
+                <Card sx={{
+                  borderRadius: 4,
+                  background: 'linear-gradient(180deg, var(--id-bg-card) 0%, var(--id-bg-elevated) 100%)',
+                border: '1px solid var(--id-border)',
                 boxShadow: '0 10px 30px rgba(0,0,0,0.06)',
                 position: 'sticky',
                 top: 24,
@@ -365,7 +366,7 @@ function Profile() {
                   {/* Profile Image Section */}
                   <Box sx={{
                     position: 'relative',
-                    background: 'linear-gradient(135deg, #e0e7ff 0%, #fdf2f8 100%)',
+                    background: 'linear-gradient(135deg, var(--profile-header-start) 0%, var(--profile-header-end) 100%)',
                     height: 140,
                     borderRadius: '12px 12px 0 0',
                     display: 'flex',
@@ -462,7 +463,7 @@ function Profile() {
                     </Typography>
 
                     <Typography variant="body1" sx={{
-                      color: '#718096',
+                      color: 'var(--id-text-muted)',
                       mb: 3,
                       fontWeight: 500,
                       opacity: 0.8
@@ -478,9 +479,9 @@ function Profile() {
                         gap: 2,
                         justifyContent: 'center',
                         p: 2,
-                        background: '#f8fafc',
+                        background: 'var(--id-bg-card)',
                         borderRadius: 2,
-                        border: '1px solid #e2e8f0',
+                        border: '1px solid var(--id-border)',
                         transition: 'all 0.25s ease',
                         '&:hover': {
                           transform: 'translateY(-2px)',
@@ -488,7 +489,7 @@ function Profile() {
                         }
                       }}>
                         <Box sx={{
-                          color: '#667eea',
+                          color: 'var(--id-primary)',
                           fontSize: 20,
                           p: 1,
                           background: 'rgba(102, 126, 234, 0.1)',
@@ -500,10 +501,10 @@ function Profile() {
                           ✉️
                         </Box>
                         <Box sx={{ textAlign: 'left', flex: 1 }}>
-                          <Typography variant="caption" sx={{ color: '#718096', display: 'block' }}>
+                          <Typography variant="caption" sx={{ color: 'var(--id-text-muted)', display: 'block' }}>
                             {t('Email')}
                           </Typography>
-                          <Typography variant="body2" sx={{ color: '#2d3748', fontWeight: 500 }}>
+                          <Typography variant="body2" sx={{ color: 'var(--id-text)', fontWeight: 500 }}>
                             {values.email}
                           </Typography>
                         </Box>
@@ -515,9 +516,9 @@ function Profile() {
                         gap: 2,
                         justifyContent: 'center',
                         p: 2,
-                        background: '#f8fafc',
+                        background: 'var(--id-bg-card)',
                         borderRadius: 2,
-                        border: '1px solid #e2e8f0',
+                        border: '1px solid var(--id-border)',
                         transition: 'all 0.25s ease',
                         '&:hover': {
                           transform: 'translateY(-2px)',
@@ -537,10 +538,10 @@ function Profile() {
                           📞
                         </Box>
                         <Box sx={{ textAlign: 'left', flex: 1 }}>
-                          <Typography variant="caption" sx={{ color: '#718096', display: 'block' }}>
+                          <Typography variant="caption" sx={{ color: 'var(--id-text-muted)', display: 'block' }}>
                             {t('Phone')}
                           </Typography>
-                          <Typography variant="body2" sx={{ color: '#2d3748', fontWeight: 500 }}>
+                          <Typography variant="body2" sx={{ color: 'var(--id-text)', fontWeight: 500 }}>
                             {values.phone || t('NotSpecified')}
                           </Typography>
                         </Box>
@@ -552,9 +553,9 @@ function Profile() {
                         gap: 2,
                         justifyContent: 'center',
                         p: 2,
-                        background: '#f8fafc',
+                        background: 'var(--id-bg-card)',
                         borderRadius: 2,
-                        border: '1px solid #e2e8f0',
+                        border: '1px solid var(--id-border)',
                         transition: 'all 0.25s ease',
                         '&:hover': {
                           transform: 'translateY(-2px)',
@@ -574,10 +575,10 @@ function Profile() {
                           📅
                         </Box>
                         <Box sx={{ textAlign: 'left', flex: 1 }}>
-                          <Typography variant="caption" sx={{ color: '#718096', display: 'block' }}>
+                          <Typography variant="caption" sx={{ color: 'var(--id-text-muted)', display: 'block' }}>
                             {t('BirthDate')}
                           </Typography>
-                          <Typography variant="body2" sx={{ color: '#2d3748', fontWeight: 500 }}>
+                          <Typography variant="body2" sx={{ color: 'var(--id-text)', fontWeight: 500 }}>
                             {values.birthdate ? values.birthdate.format('DD/MM/YYYY') : t('NotSpecified')}
                           </Typography>
                         </Box>
@@ -589,7 +590,7 @@ function Profile() {
                     {/* Creative Quick Actions */}
                     <Typography variant="h6" fontWeight="bold" sx={{
                       mb: 3,
-                      color: '#2d3748',
+                      color: 'var(--id-text)',
                       textAlign: 'center'
                     }}>
                       ⚡ {t('QuickActions')}
@@ -680,8 +681,8 @@ function Profile() {
               <Fade in timeout={800}>
                 <Card sx={{
                   borderRadius: 4,
-                  background: '#ffffff',
-                  border: '1px solid #e2e8f0',
+                  background: 'var(--id-bg-card)',
+                  border: '1px solid var(--id-border)',
                   boxShadow: '0 12px 32px rgba(0,0,0,0.06)',
                   position: 'relative',
                   overflow: 'hidden',
@@ -734,16 +735,16 @@ function Profile() {
                           }}>
                             {t('PersonalInformation')}
                           </Typography>
-                          <Typography variant="body2" sx={{ color: '#718096', fontSize: '0.9rem' }}>
+                          <Typography variant="body2" sx={{ color: 'var(--id-text-muted)', fontSize: '0.9rem' }}>
                             {t('EditBasicInfo')}
                           </Typography>
                         </Box>
                       </Box>
                     }
                     sx={{
-                      background: 'rgba(248, 250, 252, 0.8)',
+                      background: 'var(--id-bg-card)',
                       backdropFilter: 'blur(10px)',
-                      borderBottom: '1px solid rgba(226, 232, 240, 0.5)',
+                      borderBottom: '1px solid var(--id-border)',
                       pb: 3
                     }}
                   />
@@ -784,27 +785,27 @@ function Profile() {
                           sx={{
                             '& .MuiOutlinedInput-root': {
                               borderRadius: 3,
-                              background: 'rgba(255,255,255,0.8)',
+                              background: 'var(--id-bg-card)',
                               backdropFilter: 'blur(10px)',
-                              border: '1px solid rgba(102, 126, 234, 0.1)',
+                              border: '1px solid var(--id-border)',
                               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                               '&:hover': {
-                                background: 'rgba(255,255,255,0.9)',
-                                borderColor: 'rgba(102, 126, 234, 0.3)',
+                                background: 'var(--id-bg-card)',
+                                borderColor: 'var(--id-primary)',
                                 transform: 'translateY(-2px)',
                                 boxShadow: '0 8px 25px rgba(102, 126, 234, 0.15)'
                               },
                               '&.Mui-focused': {
-                                background: 'rgba(255,255,255,0.95)',
-                                borderColor: '#667eea',
+                                background: 'var(--id-bg-card)',
+                                borderColor: 'var(--id-primary)',
                                 boxShadow: '0 0 0 3px rgba(102, 126, 234, 0.1)',
                                 transform: 'translateY(-2px)'
                               }
                             },
                             '& .MuiInputLabel-root': {
-                              color: '#718096',
+                              color: 'var(--id-text-muted)',
                               fontWeight: 500,
-                              '&.Mui-focused': { color: '#667eea' }
+                              '&.Mui-focused': { color: 'var(--id-primary)' }
                             }
                           }}
                         />
@@ -830,27 +831,27 @@ function Profile() {
                           sx={{
                             '& .MuiOutlinedInput-root': {
                               borderRadius: 3,
-                              background: 'rgba(255,255,255,0.8)',
+                              background: 'var(--id-bg-card)',
                               backdropFilter: 'blur(10px)',
-                              border: '1px solid rgba(240, 147, 251, 0.1)',
+                              border: '1px solid var(--id-border)',
                               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                               '&:hover': {
-                                background: 'rgba(255,255,255,0.9)',
-                                borderColor: 'rgba(240, 147, 251, 0.3)',
+                                background: 'var(--id-bg-card)',
+                                borderColor: 'var(--id-primary)',
                                 transform: 'translateY(-2px)',
                                 boxShadow: '0 8px 25px rgba(240, 147, 251, 0.15)'
                               },
                               '&.Mui-focused': {
-                                background: 'rgba(255,255,255,0.95)',
-                                borderColor: '#f093fb',
+                                background: 'var(--id-bg-card)',
+                                borderColor: 'var(--id-primary)',
                                 boxShadow: '0 0 0 3px rgba(240, 147, 251, 0.1)',
                                 transform: 'translateY(-2px)'
                               }
                             },
                             '& .MuiInputLabel-root': {
-                              color: '#718096',
+                              color: 'var(--id-text-muted)',
                               fontWeight: 500,
-                              '&.Mui-focused': { color: '#f093fb' }
+                              '&.Mui-focused': { color: 'var(--id-primary)' }
                             }
                           }}
                         />
@@ -878,27 +879,31 @@ function Profile() {
                         sx={{
                           '& .MuiOutlinedInput-root': {
                             borderRadius: 3,
-                            background: 'rgba(255,255,255,0.8)',
+                            background: 'var(--id-bg-card)',
                             backdropFilter: 'blur(10px)',
-                            border: '1px solid rgba(74, 172, 254, 0.1)',
+                            border: '1px solid var(--id-border)',
                             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                             '&:hover': {
-                              background: 'rgba(255,255,255,0.9)',
-                              borderColor: 'rgba(74, 172, 254, 0.3)',
+                              background: 'var(--id-bg-card)',
+                              borderColor: 'var(--id-primary)',
                               transform: 'translateY(-2px)',
                               boxShadow: '0 8px 25px rgba(74, 172, 254, 0.15)'
                             },
                             '&.Mui-focused': {
-                              background: 'rgba(255,255,255,0.95)',
-                              borderColor: '#4facfe',
+                              background: 'var(--id-bg-card)',
+                              borderColor: 'var(--id-primary)',
                               boxShadow: '0 0 0 3px rgba(74, 172, 254, 0.1)',
                               transform: 'translateY(-2px)'
-                            }
+                            },
+                            '& .MuiInputBase-input': { color: 'var(--id-text)' },
+                            '& .MuiInputBase-input.Mui-disabled': { color: 'var(--id-text) !important', WebkitTextFillColor: 'var(--id-text) !important' },
+                            '& .MuiOutlinedInput-input.Mui-disabled': { color: 'var(--id-text) !important', WebkitTextFillColor: 'var(--id-text) !important' },
+                            '&.Mui-disabled': { opacity: 0.8 }
                           },
                           '& .MuiInputLabel-root': {
-                            color: '#718096',
+                            color: 'var(--id-text-muted)',
                             fontWeight: 500,
-                            '&.Mui-focused': { color: '#4facfe' }
+                            '&.Mui-focused': { color: 'var(--id-primary)' }
                           }
                         }}
                         disabled
@@ -926,27 +931,27 @@ function Profile() {
                         sx={{
                           '& .MuiOutlinedInput-root': {
                             borderRadius: 3,
-                            background: 'rgba(255,255,255,0.8)',
+                            background: 'var(--id-bg-card)',
                             backdropFilter: 'blur(10px)',
-                            border: '1px solid rgba(245, 87, 108, 0.1)',
+                            border: '1px solid var(--id-border)',
                             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                             '&:hover': {
-                              background: 'rgba(255,255,255,0.9)',
-                              borderColor: 'rgba(245, 87, 108, 0.3)',
+                              background: 'var(--id-bg-card)',
+                              borderColor: 'var(--id-primary)',
                               transform: 'translateY(-2px)',
                               boxShadow: '0 8px 25px rgba(245, 87, 108, 0.15)'
                             },
                             '&.Mui-focused': {
-                              background: 'rgba(255,255,255,0.95)',
-                              borderColor: '#f5576c',
+                              background: 'var(--id-bg-card)',
+                              borderColor: 'var(--id-primary)',
                               boxShadow: '0 0 0 3px rgba(245, 87, 108, 0.1)',
                               transform: 'translateY(-2px)'
                             }
                           },
                           '& .MuiInputLabel-root': {
-                            color: '#718096',
+                            color: 'var(--id-text-muted)',
                             fontWeight: 500,
-                            '&.Mui-focused': { color: '#f5576c' }
+                            '&.Mui-focused': { color: 'var(--id-primary)' }
                           }
                         }}
                       />
@@ -973,27 +978,27 @@ function Profile() {
                         sx={{
                           '& .MuiOutlinedInput-root': {
                             borderRadius: 3,
-                            background: 'rgba(255,255,255,0.8)',
+                            background: 'var(--id-bg-card)',
                             backdropFilter: 'blur(10px)',
-                            border: '1px solid rgba(0, 212, 170, 0.1)',
+                            border: '1px solid var(--id-border)',
                             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                             '&:hover': {
-                              background: 'rgba(255,255,255,0.9)',
-                              borderColor: 'rgba(0, 212, 170, 0.3)',
+                              background: 'var(--id-bg-card)',
+                              borderColor: 'var(--id-primary)',
                               transform: 'translateY(-2px)',
                               boxShadow: '0 8px 25px rgba(0, 212, 170, 0.15)'
                             },
                             '&.Mui-focused': {
-                              background: 'rgba(255,255,255,0.95)',
-                              borderColor: '#00d4aa',
+                              background: 'var(--id-bg-card)',
+                              borderColor: 'var(--id-primary)',
                               boxShadow: '0 0 0 3px rgba(0, 212, 170, 0.1)',
                               transform: 'translateY(-2px)'
                             }
                           },
                           '& .MuiInputLabel-root': {
-                            color: '#718096',
+                            color: 'var(--id-text-muted)',
                             fontWeight: 500,
-                            '&.Mui-focused': { color: '#00d4aa' }
+                            '&.Mui-focused': { color: 'var(--id-primary)' }
                           }
                         }}
                       />
@@ -1021,27 +1026,27 @@ function Profile() {
                               sx: {
                                 '& .MuiOutlinedInput-root': {
                                   borderRadius: 3,
-                                  background: 'rgba(255,255,255,0.8)',
+                                  background: 'var(--id-bg-card)',
                                   backdropFilter: 'blur(10px)',
-                                  border: '1px solid rgba(255, 149, 0, 0.1)',
+                                  border: '1px solid var(--id-border)',
                                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                                   '&:hover': {
-                                    background: 'rgba(255,255,255,0.9)',
-                                    borderColor: 'rgba(255, 149, 0, 0.3)',
+                                    background: 'var(--id-bg-card)',
+                                    borderColor: 'var(--id-primary)',
                                     transform: 'translateY(-2px)',
                                     boxShadow: '0 8px 25px rgba(255, 149, 0, 0.15)'
                                   },
                                   '&.Mui-focused': {
-                                    background: 'rgba(255,255,255,0.95)',
-                                    borderColor: '#ff9500',
+                                    background: 'var(--id-bg-card)',
+                                    borderColor: 'var(--id-primary)',
                                     boxShadow: '0 0 0 3px rgba(255, 149, 0, 0.1)',
                                     transform: 'translateY(-2px)'
                                   }
                                 },
                                 '& .MuiInputLabel-root': {
-                                  color: '#718096',
+                                  color: 'var(--id-text-muted)',
                                   fontWeight: 500,
-                                  '&.Mui-focused': { color: '#ff9500' }
+                                  '&.Mui-focused': { color: 'var(--id-primary)' }
                                 }
                               }
                             }
@@ -1054,18 +1059,18 @@ function Profile() {
                     <Box sx={{
                       mb: 3,
                       p: 3,
-                      background: '#f8fafc',
+                      background: 'var(--id-bg-card)',
                       borderRadius: 3,
-                      border: '1px solid #e2e8f0'
+                      border: '1px solid var(--id-border)'
                     }}>
                       <Typography variant="subtitle1" fontWeight="bold" sx={{
                         mb: 2,
-                        color: '#2d3748',
+                        color: 'var(--id-text)',
                         display: 'flex',
                         alignItems: 'center',
                         gap: 1
                       }}>
-                        <Box sx={{ color: '#667eea', fontSize: 20 }}>⚧️</Box>
+                        <Box sx={{ color: 'var(--id-primary)', fontSize: 20 }}>⚧️</Box>
                         {t('Gender')}
                       </Typography>
 
@@ -1075,7 +1080,7 @@ function Profile() {
                         flexWrap: 'wrap'
                       }}>
                         {[
-                          { value: '', label: t('NotSpecified'), emoji: '🤷‍♂️', color: '#718096' },
+                          { value: '', label: t('NotSpecified'), emoji: '🤷‍♂️', color: 'var(--id-text-muted)' },
                           { value: 'Erkek', label: t('Male'), emoji: '👨', color: '#667eea' },
                           { value: 'Kadın', label: t('Female'), emoji: '👩', color: '#f093fb' },
                           { value: 'Diğer', label: t('Other'), emoji: '🧑', color: '#4facfe' }
@@ -1088,10 +1093,10 @@ function Profile() {
                               minWidth: '140px',
                               p: 2,
                               borderRadius: 3,
-                              border: `2px solid ${values.sex === option.value ? option.color : 'rgba(255,255,255,0.3)'}`,
+                              border: `2px solid ${values.sex === option.value ? option.color : 'var(--id-border)'}`,
                               background: values.sex === option.value
                                 ? `linear-gradient(135deg, ${option.color}15, ${option.color}08)`
-                                : 'rgba(255,255,255,0.6)',
+                                : 'var(--id-bg-elevated)',
                               cursor: 'pointer',
                               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                               textAlign: 'center',
@@ -1127,7 +1132,7 @@ function Profile() {
                               {option.emoji}
                             </Typography>
                             <Typography variant="body2" fontWeight="500" sx={{
-                              color: values.sex === option.value ? option.color : '#4a5568'
+                              color: values.sex === option.value ? option.color : 'var(--id-text-muted)'
                             }}>
                               {option.label}
                             </Typography>
@@ -1140,31 +1145,31 @@ function Profile() {
                     <Box sx={{
                       position: 'relative',
                       '& .MuiTextField-root': {
-                        '& .MuiOutlinedInput-root': {
+                          '& .MuiOutlinedInput-root': {
                           borderRadius: 3,
-                          background: 'rgba(255,255,255,0.8)',
+                          background: 'var(--id-bg-card)',
                           backdropFilter: 'blur(10px)',
-                          border: '1px solid rgba(102, 126, 234, 0.1)',
+                          border: '1px solid var(--id-border)',
                           minHeight: '120px',
                           alignItems: 'flex-start',
                           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                           '&:hover': {
-                            background: 'rgba(255,255,255,0.9)',
-                            borderColor: 'rgba(102, 126, 234, 0.3)',
+                            background: 'var(--id-bg-card)',
+                            borderColor: 'var(--id-primary)',
                             transform: 'translateY(-2px)',
                             boxShadow: '0 8px 25px rgba(102, 126, 234, 0.15)'
                           },
                           '&.Mui-focused': {
-                            background: 'rgba(255,255,255,0.95)',
-                            borderColor: '#667eea',
+                            background: 'var(--id-bg-card)',
+                            borderColor: 'var(--id-primary)',
                             boxShadow: '0 0 0 3px rgba(102, 126, 234, 0.1)',
                             transform: 'translateY(-2px)'
                           }
                         },
                         '& .MuiInputLabel-root': {
-                          color: '#718096',
+                          color: 'var(--id-text-muted)',
                           fontWeight: 500,
-                          '&.Mui-focused': { color: '#667eea' }
+                          '&.Mui-focused': { color: 'var(--id-primary)' }
                         }
                       }
                     }}>
@@ -1212,7 +1217,7 @@ function Profile() {
                 <Card sx={{
                   borderRadius: 3,
                   boxShadow: '0 10px 40px rgba(0,0,0,0.08)',
-                  border: '1px solid #e2e8f0'
+                  border: '1px solid var(--id-border)'
                 }}>
                   <CardHeader
                     title={
@@ -1224,8 +1229,8 @@ function Profile() {
                       </Box>
                     }
                     sx={{
-                      backgroundColor: '#f8fafc',
-                      borderBottom: '1px solid #e2e8f0',
+                      backgroundColor: 'var(--id-bg-card)',
+                      borderBottom: '1px solid var(--id-border)',
                       '& .MuiCardHeader-title': { fontSize: '1.1rem' }
                     }}
                   />
@@ -1239,13 +1244,17 @@ function Profile() {
                           value={values.identity}
                           onChange={handleChange('identity')}
                           variant="outlined"
-                          sx={{
-                            '& .MuiOutlinedInput-root': {
-                              borderRadius: 2,
-                              '&:hover fieldset': { borderColor: '#667eea' },
-                              '&.Mui-focused fieldset': { borderColor: '#667eea' }
-                            }
-                          }}
+                            sx={{
+                              '& .MuiOutlinedInput-root': {
+                                borderRadius: 2,
+                                background: 'var(--id-bg-card)',
+                                border: '1px solid var(--id-border)',
+                                '&:hover fieldset': { borderColor: 'var(--id-primary)' },
+                                '&.Mui-focused fieldset': { borderColor: 'var(--id-primary)' },
+                                '& .MuiInputBase-input': { color: 'var(--id-text)' }
+                              },
+                              '& .MuiInputLabel-root': { color: 'var(--id-text-muted)', '&.Mui-focused': { color: 'var(--id-primary)' } }
+                            }}
                         />
                       </Grid>
 
@@ -1256,13 +1265,17 @@ function Profile() {
                           value={values.pass_number}
                           onChange={handleChange('pass_number')}
                           variant="outlined"
-                          sx={{
-                            '& .MuiOutlinedInput-root': {
-                              borderRadius: 2,
-                              '&:hover fieldset': { borderColor: '#667eea' },
-                              '&.Mui-focused fieldset': { borderColor: '#667eea' }
-                            }
-                          }}
+                            sx={{
+                              '& .MuiOutlinedInput-root': {
+                                borderRadius: 2,
+                                background: 'var(--id-bg-card)',
+                                border: '1px solid var(--id-border)',
+                                '&:hover fieldset': { borderColor: 'var(--id-primary)' },
+                                '&.Mui-focused fieldset': { borderColor: 'var(--id-primary)' },
+                                '& .MuiInputBase-input': { color: 'var(--id-text)' }
+                              },
+                              '& .MuiInputLabel-root': { color: 'var(--id-text-muted)', '&.Mui-focused': { color: 'var(--id-primary)' } }
+                            }}
                         />
                       </Grid>
                     </Grid>
@@ -1275,7 +1288,7 @@ function Profile() {
                 <Card sx={{
                   borderRadius: 3,
                   boxShadow: '0 10px 40px rgba(0,0,0,0.08)',
-                  border: '1px solid #e2e8f0',
+                  border: '1px solid var(--id-border)',
                   position: 'sticky',
                   bottom: 24,
                   zIndex: 10
@@ -1290,7 +1303,7 @@ function Profile() {
                     }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         {isDirty && (
-                          <Typography variant="body2" sx={{ color: '#718096', fontStyle: 'italic' }}>
+                          <Typography variant="body2" sx={{ color: 'var(--id-text-muted)', fontStyle: 'italic' }}>
                             {t('UnsavedChanges')}
                           </Typography>
                         )}
@@ -1306,7 +1319,11 @@ function Profile() {
                             borderRadius: 2,
                             textTransform: 'none',
                             px: 3,
-                            '&:hover': { backgroundColor: '#f7fafc' }
+                            color: 'var(--id-text)',
+                            border: '1px solid var(--id-border)',
+                            borderColor: 'var(--id-border)',
+                            '&:hover': { backgroundColor: 'var(--id-bg-elevated)', borderColor: 'var(--id-primary)' },
+                            '&.Mui-disabled': { color: 'var(--id-text-muted)', borderColor: 'var(--id-border)', opacity: 0.7 }
                           }}
                         >
                           {t('Cancel')}
@@ -1390,7 +1407,16 @@ function Profile() {
       <ThemeModal
         open={showTheme}
         onClose={() => setShowTheme(false)}
-        onSave={({ dark, primary }) => { localStorage.setItem('theme_prefs', JSON.stringify({ dark, primary })); setShowTheme(false); toast.success(t('ThemeSettingsUpdated')); }}
+        onSave={({ dark, primary }) => {
+          console.log('Profile saving theme:', { dark, primary });
+          localStorage.setItem('theme_prefs', JSON.stringify({ dark, primary }));
+          try { applyTheme({ dark, primary }); } catch (e) { console.error(e); }
+          // Dispatch custom event to notify Header of theme change
+          console.log('Dispatching themechange event');
+          window.dispatchEvent(new CustomEvent('themechange', { detail: { dark, primary } }));
+          setShowTheme(false);
+          toast.success(t('ThemeSettingsUpdated'));
+        }}
         initial={JSON.parse(localStorage.getItem('theme_prefs') || '{}')}
       />
     </Box>

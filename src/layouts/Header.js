@@ -13,6 +13,7 @@ import {
 import "./scss/_header.scss";
 import { AuthContext } from "../context/usercontext.tsx";
 import { useLanguage } from "../context/LanguageContext.js";
+import { palettes } from "../utils/theme.js";
 
 const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -22,8 +23,23 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [scrolled, setScrolled] = useState(false);
+  const [themeColor, setThemeColor] = useState('#59018b');
+  const [themeLightColor, setThemeLightColor] = useState('#7a1fa8');
   const location = useLocation();
   const navigate = useNavigate();
+
+  const toRgba = (color, alpha) => {
+    if (!color || typeof color !== 'string') return `rgba(89, 1, 139, ${alpha})`;
+    const hex = color.replace('#', '').trim();
+    // #RRGGBB or #RRGGBBAA
+    if (hex.length === 6 || hex.length === 8) {
+      const r = parseInt(hex.slice(0, 2), 16);
+      const g = parseInt(hex.slice(2, 4), 16);
+      const b = parseInt(hex.slice(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+    return color;
+  };
 
   const toggleDropdown = () => setDropdownOpen((prev) => !prev);
 
@@ -36,6 +52,34 @@ const Header = () => {
 
   useEffect(() => {
     setIsLoading(false);
+
+    // Load theme from localStorage
+    const loadTheme = () => {
+      try {
+        const themePrefs = localStorage.getItem('theme_prefs');
+        const prefs = themePrefs ? JSON.parse(themePrefs) : { dark: false, primary: 'home' };
+        const primaryPalette = palettes[prefs.primary] || palettes.home || palettes.indigo;
+
+        if (prefs.dark) {
+          setThemeColor(primaryPalette[2] || primaryPalette[0]);
+          setThemeLightColor(primaryPalette[1] || primaryPalette[0]);
+        } else {
+          setThemeColor(primaryPalette[0]);
+          setThemeLightColor(primaryPalette[1] || primaryPalette[0]);
+        }
+      } catch {
+        const homePalette = palettes.home || palettes.indigo;
+        setThemeColor(homePalette[0]);
+        setThemeLightColor(homePalette[1] || homePalette[0]);
+      }
+    };
+    loadTheme();
+
+    // Listen for theme changes
+    const handleThemeChange = () => {
+      loadTheme();
+    };
+    window.addEventListener('themechange', handleThemeChange);
 
     // Window resize listener
     const handleResize = () => {
@@ -51,6 +95,7 @@ const Header = () => {
     window.addEventListener('scroll', handleScroll);
 
     return () => {
+      window.removeEventListener('themechange', handleThemeChange);
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('scroll', handleScroll);
     };
@@ -83,11 +128,11 @@ const Header = () => {
   return (
     <>
       <Navbar
-        className="navbar"
+       
         style={{
           background: scrolled
-            ? 'linear-gradient(135deg, rgba(89, 1, 139, 0.98) 0%, rgba(122, 31, 168, 0.98) 100%)'
-            : 'linear-gradient(135deg, #59018b 0%, #7a1fa8 100%)',
+            ? `linear-gradient(135deg, ${toRgba(themeColor, 0.98)} 0%, ${toRgba(themeLightColor, 0.98)} 100%)`
+            : `linear-gradient(135deg, ${themeColor} 0%, ${themeLightColor} 100%)`,
           height: "70px",
           position: "fixed",
           top: 0,
@@ -95,13 +140,12 @@ const Header = () => {
           right: 0,
           zIndex: 1030,
           boxShadow: scrolled
-            ? '0 8px 30px rgba(89, 1, 139, 0.4)'
-            : '0 2px 15px rgba(89, 1, 139, 0.2)',
+            ? `0 8px 30px ${toRgba(themeColor, 0.4)}`
+            : `0 2px 15px ${toRgba(themeColor, 0.2)}`,
           transition: 'all 0.3s ease',
           backdropFilter: scrolled ? 'blur(10px)' : 'none',
           WebkitBackdropFilter: scrolled ? 'blur(10px)' : 'none'
         }}
-        dark
         expand="md"
       >
         {isLogin ? (
@@ -553,11 +597,11 @@ const Header = () => {
                 to="/login"
                 className="text-decoration-none"
                 style={{
-                  color: '#59018b',
+                  color: '#59018b ',
                   fontWeight: 600,
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px'
+                  gap: '8px' 
                 }}
               >
                 <i className="bi bi-person-fill"></i> {t('Login')}

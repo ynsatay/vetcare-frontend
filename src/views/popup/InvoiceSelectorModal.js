@@ -9,6 +9,7 @@ import axiosInstance from '../../api/axiosInstance.ts';
 import dayjs from 'dayjs';
 import { trTR } from '@mui/x-data-grid/locales';
 import { useLanguage } from '../../context/LanguageContext.js';
+import './InvoiceSelectorModal.css';
 
 const InvoiceSelectorModal = ({ open, onClose, onSelect }) => {
   const { t, lang } = useLanguage();
@@ -111,7 +112,10 @@ const InvoiceSelectorModal = ({ open, onClose, onSelect }) => {
       fullWidth
       fullScreen={isMobile}
       scroll="paper"
-      PaperProps={{ sx: isMobile ? { width: '100%', m: 0, borderRadius: 0 } : {} }}
+      PaperProps={{
+        className: 'invoice-selector-modal',
+        sx: isMobile ? { width: '100%', m: 0, borderRadius: 0 } : {},
+      }}
     >
       <DialogTitle sx={{ p: isMobile ? 1 : 2 }}>{t('InvoiceSelection')}</DialogTitle>
       <DialogContent sx={{ p: isMobile ? 1 : 2 }}>
@@ -176,7 +180,7 @@ const InvoiceSelectorModal = ({ open, onClose, onSelect }) => {
               mt: 2,
               cursor: 'pointer',
               '& .MuiDataGrid-row.Mui-selected': {
-                backgroundColor: '#d0f0fd !important',
+                backgroundColor: 'rgba(var(--id-primary-rgb, 99, 102, 241), 0.18) !important',
               },
               '& .MuiDataGrid-cell': {
                 py: isMobile ? 0.5 : 1

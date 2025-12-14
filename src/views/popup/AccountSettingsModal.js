@@ -34,10 +34,10 @@ const AccountSettingsModal = ({ open, onClose, onSave, initial }) => {
           <TextField fullWidth label={t('Username')} value={form.username} onChange={set('username')} InputProps={{ startAdornment: <Box sx={{ mr: 1.5, fontSize: 16 }}>@</Box> }} />
           <TextField fullWidth label={t('Email')} value={form.email} onChange={set('email')} InputProps={{ startAdornment: <Box sx={{ mr: 1.5, fontSize: 18 }}>✉️</Box> }} />
           <TextField fullWidth label={t('Phone')} value={form.phone} onChange={set('phone')} InputProps={{ startAdornment: <Box sx={{ mr: 1.5, fontSize: 18 }}>📞</Box> }} />
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'auto 1fr' }, alignItems: 'center', gap: 2, p: 2, border: '1px solid #e2e8f0', borderRadius: 2, background: 'linear-gradient(180deg,#fff,#f8fafc)' }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'auto 1fr' }, alignItems: 'center', gap: 2, p: 2, border: '1px solid var(--id-border, #e2e8f0)', borderRadius: 2, background: 'var(--id-bg-card, linear-gradient(180deg,#fff,#f8fafc))' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
               <Box sx={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(102,126,234,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🌐</Box>
-              <Typography fontWeight={600}>{t('Language')}</Typography>
+              <Typography fontWeight={600} sx={{ color: 'var(--id-text, #0f172a)' }}>{t('Language')}</Typography>
             </Box>
             <ToggleButtonGroup
               exclusive

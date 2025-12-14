@@ -1,9 +1,11 @@
 
   .nav-link:hover {
-    background-color: #f0f0f0;
+    background-color: var(--sidebar-hover-bg, #e8e8e8);
+    transition: all 0.3s ease;
   }
 
   .sub-nav-item .nav-link:hover {
-    background-color: #e0e0e0;
+    background-color: var(--sidebar-hover-bg, #dcdcdc);
+    transition: all 0.3s ease;
   }
 

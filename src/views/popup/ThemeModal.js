@@ -9,6 +9,7 @@ const ThemeModal = ({ open, onClose, onSave, initial }) => {
     setPrimary(initial?.primary || 'indigo');
   }, [initial, open]);
   const palettePreview = {
+    home: ['#59018b', '#764ba2', '#532c80ff'],
     indigo: ['#6366F1', '#8B5CF6', '#A5B4FC'],
     emerald: ['#10B981', '#34D399', '#6EE7B7'],
     rose: ['#F43F5E', '#FB7185', '#FDA4AF'],
@@ -29,16 +30,17 @@ const ThemeModal = ({ open, onClose, onSave, initial }) => {
         <Stack spacing={2}>
           <FormControlLabel control={<Switch checked={dark} onChange={(e) => setDark(e.target.checked)} />} label={t('DarkMode')} />
           <ToggleButtonGroup exclusive value={primary} onChange={(e, v) => v && setPrimary(v)} size="small">
+            <ToggleButton value="home">Home</ToggleButton>
             <ToggleButton value="indigo">Indigo</ToggleButton>
             <ToggleButton value="emerald">Emerald</ToggleButton>
             <ToggleButton value="rose">Rose</ToggleButton>
             <ToggleButton value="sky">Sky</ToggleButton>
           </ToggleButtonGroup>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 8, p: 2, borderRadius: 2, border: '1px solid #e2e8f0', background: 'linear-gradient(180deg,#fff,#f8fafc)' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 8, p: 2, borderRadius: 2, border: '1px solid var(--id-border, #e2e8f0)', background: 'var(--id-bg-card, linear-gradient(180deg,#fff,#f8fafc))' }}>
             {palettePreview.map((c, i) => (
               <Box key={i} sx={{ width: 48, height: 32, borderRadius: 1.5, background: c, boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.6)' }} />
             ))}
-            <Box sx={{ flex: 1, textAlign: 'right', color: 'text.secondary' }}>{primary.toUpperCase()}</Box>
+            <Box sx={{ flex: 1, textAlign: 'right', color: 'var(--id-text-secondary, text.secondary)' }}>{primary.toUpperCase()}</Box>
           </Box>
         </Stack>
       </DialogContent>

@@ -9,6 +9,7 @@ import dayjs from "dayjs";
 import { printInvoice } from "../../utils/printInvoice";
 import { trTR } from '@mui/x-data-grid/locales';
 import { useLanguage } from "../../context/LanguageContext.js";
+import '../list/ListTheme.css';
 
 
 function StockInvoicePage() {
@@ -187,7 +188,7 @@ function StockInvoicePage() {
   };
 
   return (
-    <Box sx={{ p: 2 }}>
+    <Box className="list-page" sx={{ p: 2 }}>
       <Paper elevation={2} sx={{ p: 3, borderRadius: 3, background: "linear-gradient(135deg,#f7f7fb,#ffffff)" }}>
         <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
           <Typography variant="h5">🧾 {t('NewInvoice')}</Typography>
@@ -229,7 +230,7 @@ function StockInvoicePage() {
                 <Button variant="contained" color="primary" onClick={handleSave} disabled={!isFormValid || !isEditing}>{t('Save')}</Button>
                 <Button variant="outlined" color="error" onClick={handleCancel} disabled={!isEditing}>{t('Cancel')}</Button>
               </Stack>
-              <Box sx={{ height: 520, width: "100%" }}>
+              <Box className="list-data-grid" sx={{ height: 520, width: "100%" }}>
                 <DataGrid
                   apiRef={apiRef}
                   rows={stocks}

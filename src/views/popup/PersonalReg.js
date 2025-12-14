@@ -145,7 +145,7 @@ const PersonalReg = React.forwardRef((props, ref) => {
               type="select"
               id="exampleSelect"
               name="select"
-              style={{ backgroundColor: '#EEF5F9', width: '100%', height: '100%', border: 'none' }}
+              style={{ backgroundColor: 'var(--id-bg-elevated, #EEF5F9)', color: 'var(--id-text, #0f172a)', width: '100%', height: '100%', border: 'none' }}
               value={role}
               onChange={(e) => setRole(e.target.value)}>
               <option value="0">-</option>

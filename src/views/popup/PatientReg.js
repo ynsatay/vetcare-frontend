@@ -6,6 +6,7 @@ import { useConfirm } from '../../components/ConfirmContext';
 import Animals from '../popup/Animals.js';
 import '../ui/IdentityInfo.css';
 import { useLanguage } from '../../context/LanguageContext.js';
+import { palettes } from '../../utils/theme.js';
 
 const PatientReg = forwardRef((props, ref) => {
   const {
@@ -34,10 +35,44 @@ const PatientReg = forwardRef((props, ref) => {
   const [animalFormResults, setAnimalFormResults] = useState([]);
   const [existingAnimalSelected, setExistingAnimalSelected] = useState(null);
   const [isAnimalFormValid, setIsAnimalFormValid] = useState(false);
+  const [themeColor, setThemeColor] = useState('#667eea');
+  const [themeLightColor, setThemeLightColor] = useState('#764ba2');
+  const [isDark, setIsDark] = useState(false);
   const { confirm } = useConfirm();
   const animalsRef = useRef(null);
   const userIdForAnimals = personelData?.user_id || personelData?.id || selectedOwner?.user_id || selectedOwner?.id || null;
   const { t } = useLanguage();
+
+  useEffect(() => {
+    const loadTheme = () => {
+      const themePrefs = localStorage.getItem('theme_prefs');
+      if (themePrefs) {
+        const prefs = JSON.parse(themePrefs);
+        const primaryPalette = palettes[prefs.primary] || palettes.indigo;
+        
+        setIsDark(prefs.dark);
+        if (prefs.dark) {
+          // Dark mode: koyu ana renk + açık gradient sonı
+          setThemeColor(primaryPalette[2]);
+          setThemeLightColor(primaryPalette[0]);
+        } else {
+          // Light mode: normal renkler
+          setThemeColor(primaryPalette[0]);
+          setThemeLightColor(primaryPalette[1]);
+        }
+      }
+    };
+    loadTheme();
+
+    const handleThemeChange = () => {
+      loadTheme();
+    };
+    window.addEventListener('themechange', handleThemeChange);
+
+    return () => {
+      window.removeEventListener('themechange', handleThemeChange);
+    };
+  }, []);
 
   useEffect(() => {
     const isValid =
@@ -463,9 +498,21 @@ const PatientReg = forwardRef((props, ref) => {
   };
 
   return (
-    <div style={{ padding: 0, borderRadius: 16, background: '#fff', overflow: 'hidden' }}>
+    <div style={{ 
+      padding: 0, 
+      borderRadius: 16, 
+      background: isDark ? '#1f2937' : 'var(--id-bg-card, #fff)',
+      overflow: 'hidden',
+      transition: 'all 0.6s ease',
+    }}>
       {/* Header Section */}
-      <div style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', padding: '32px 24px', borderRadius: '16px 16px 0 0', marginBottom: 0 }}>
+      <div style={{ 
+        background: `linear-gradient(135deg, ${themeColor} 0%, ${themeLightColor} 100%)`, 
+        padding: '32px 24px', 
+        borderRadius: '16px 16px 0 0', 
+        marginBottom: 0,
+        transition: 'all 0.6s ease',
+      }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
           <div>
             <div style={{ fontSize: 28, fontWeight: 800, color: '#fff', lineHeight: 1.2, marginBottom: 4 }}>
@@ -489,10 +536,10 @@ const PatientReg = forwardRef((props, ref) => {
               setShowAnimalForm(false);
             }}
             style={{ display: 'flex', alignItems: 'center', gap: 0, background: 'rgba(255,255,255,0.25)', padding: '8px', borderRadius: 50, cursor: 'pointer', transition: 'all 200ms ease', backdropFilter: 'blur(10px)' }}>
-            <div style={{ padding: '6px 16px', borderRadius: 50, background: !searchByAnimalId ? '#fff' : 'transparent', color: !searchByAnimalId ? '#667eea' : 'rgba(255,255,255,0.7)', fontWeight: 600, fontSize: 12, transition: 'all 200ms ease', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ padding: '6px 16px', borderRadius: 50, background: !searchByAnimalId ? '#fff' : 'transparent', color: !searchByAnimalId ? themeColor : 'rgba(255,255,255,0.7)', fontWeight: 600, fontSize: 12, transition: 'all 200ms ease', display: 'flex', alignItems: 'center', gap: 6 }}>
               <span>🆔</span> {t('TC')}
             </div>
-            <div style={{ padding: '6px 16px', borderRadius: 50, background: searchByAnimalId ? '#fff' : 'transparent', color: searchByAnimalId ? '#667eea' : 'rgba(255,255,255,0.7)', fontWeight: 600, fontSize: 12, transition: 'all 200ms ease', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ padding: '6px 16px', borderRadius: 50, background: searchByAnimalId ? '#fff' : 'transparent', color: searchByAnimalId ? themeColor : 'rgba(255,255,255,0.7)', fontWeight: 600, fontSize: 12, transition: 'all 200ms ease', display: 'flex', alignItems: 'center', gap: 6 }}>
               <span>🐾</span> {t('AnimalID')}
             </div>
           </div>
@@ -500,10 +547,21 @@ const PatientReg = forwardRef((props, ref) => {
       </div>
 
       {/* Search Section */}
-      <div style={{ padding: '24px 24px', background: '#fff' }}>
+      <div style={{ 
+        padding: '24px 24px', 
+        background: isDark ? '#111827' : 'var(--id-bg-card, #fff)',
+        transition: 'all 0.3s ease',
+      }}>
         <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end' }}>
           <div style={{ flex: 1 }}>
-            <label style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 8 }}>
+            <label style={{ 
+              fontSize: 12, 
+              fontWeight: 600, 
+              color: isDark ? '#d1d5db' : '#6b7280', 
+              display: 'block', 
+              marginBottom: 8,
+              transition: 'all 0.3s ease',
+            }}>
               {searchByAnimalId ? `🐾 ${t('AnimalIdNumber')}` : `🆔 ${t('IdentityNumber')}`}
             </label>
             <input
@@ -517,15 +575,39 @@ const PatientReg = forwardRef((props, ref) => {
                   handleSearch();
                 }
               }}
-              style={{ width: '100%', padding: '12px 16px', borderRadius: 10, border: '1px solid #e6e9f2', fontSize: 14, outline: 'none', background: '#f8f9fc', transition: 'all 200ms ease' }}
-              onFocus={(e) => e.target.style.borderColor = '#667eea'}
-              onBlur={(e) => e.target.style.borderColor = '#e6e9f2'}
+              style={{ 
+                width: '100%', 
+                padding: '12px 16px', 
+                borderRadius: 10, 
+                border: `1px solid ${isDark ? '#374151' : '#e6e9f2'}`,
+                fontSize: 14, 
+                outline: 'none', 
+                background: isDark ? '#1f2937' : '#f8f9fc',
+                color: isDark ? '#e5e7eb' : '#000',
+                transition: 'all 200ms ease'
+              }}
+              onFocus={(e) => e.target.style.borderColor = themeColor}
+              onBlur={(e) => e.target.style.borderColor = isDark ? '#374151' : '#e6e9f2'}
             />
           </div>
 
           <button 
             onClick={handleSearch} 
-            style={{ padding: '12px 24px', backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: '#fff', padding: '12px 32px', borderRadius: 10, border: 'none', fontWeight: 600, cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8, transition: 'all 200ms ease', boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)' }}
+            style={{ 
+              padding: '12px 32px', 
+              background: `linear-gradient(135deg, ${themeColor} 0%, ${themeLightColor} 100%)`,
+              color: '#fff', 
+              borderRadius: 10, 
+              border: 'none', 
+              fontWeight: 600, 
+              cursor: 'pointer', 
+              fontSize: 14, 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 8, 
+              transition: 'all 200ms ease', 
+              boxShadow: `0 4px 15px ${themeColor}4d`
+            }}
             onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
             onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
           >
@@ -559,9 +641,9 @@ const PatientReg = forwardRef((props, ref) => {
                 <span style={{ fontSize: 18 }}>👤</span> {t('PatientInfo')}
               </div>
               
-              <div style={{ borderRadius: 12, border: '1px solid #e6e9f2', padding: 16, background: '#fff', marginBottom: 16, wordBreak: 'break-word', whiteSpace: 'normal' }}>
+              <div style={{ borderRadius: 12, border: '1px solid var(--id-border, #e6e9f2)', padding: 16, background: 'var(--id-bg-card, #fff)', marginBottom: 16, wordBreak: 'break-word', whiteSpace: 'normal' }}>
                 <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', marginBottom: 14 }}>
-                  <div style={{ width: 56, height: 56, borderRadius: 12, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 22 }}>
+                  <div style={{ width: 56, height: 56, borderRadius: 12, background: 'linear-gradient(135deg, var(--id-primary, #667eea) 0%, var(--id-primary-light, #764ba2) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 22 }}>
                     {(personelData.name || '')[0].toUpperCase()}
                   </div>
                   <div style={{ flex: 1 }}>
@@ -573,11 +655,11 @@ const PatientReg = forwardRef((props, ref) => {
                   </div>
                 </div>
 
-                {personelData.sex && <div style={{ padding: '8px 12px', background: '#f3f4f6', borderRadius: 8, fontSize: 12, marginBottom: 8 }}>
-                  <span style={{ fontWeight: 600, color: '#4b5563' }}>{t('Gender')}:</span> {personelData.sex}
+                {personelData.sex && <div style={{ padding: '8px 12px', background: 'var(--id-bg-elevated, #f3f4f6)', borderRadius: 8, fontSize: 12, marginBottom: 8 }}>
+                  <span style={{ fontWeight: 600, color: 'var(--id-text, #4b5563)' }}>{t('Gender')}:</span> {personelData.sex}
                 </div>}
-                {personelData.birthdate && <div style={{ padding: '8px 12px', background: '#f3f4f6', borderRadius: 8, fontSize: 12 }}>
-                  <span style={{ fontWeight: 600, color: '#4b5563' }}>{t('BirthDate')}:</span> {personelData.birthdate}
+                {personelData.birthdate && <div style={{ padding: '8px 12px', background: 'var(--id-bg-elevated, #f3f4f6)', borderRadius: 8, fontSize: 12 }}>
+                  <span style={{ fontWeight: 600, color: 'var(--id-text, #4b5563)' }}>{t('BirthDate')}:</span> {personelData.birthdate}
                 </div>}
               </div>
             </div>
@@ -604,9 +686,9 @@ const PatientReg = forwardRef((props, ref) => {
 
           {/* Seçilen Sahip Bilgileri */}
           {selectedOwner && (
-            <div style={{ borderRadius: 12, border: '1px solid #e6e9f2', padding: 16, background: '#fff', wordBreak: 'break-word', whiteSpace: 'normal' }}>
+            <div style={{ borderRadius: 12, border: '1px solid var(--id-border, #e6e9f2)', padding: 16, background: 'var(--id-bg-card, #fff)', wordBreak: 'break-word', whiteSpace: 'normal' }}>
               <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', marginBottom: 14 }}>
-                <div style={{ width: 56, height: 56, borderRadius: 12, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 22 }}>
+                <div style={{ width: 56, height: 56, borderRadius: 12, background: 'linear-gradient(135deg, var(--id-primary, #667eea) 0%, var(--id-primary-light, #764ba2) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 22 }}>
                   {(selectedOwner.user_name || '')[0].toUpperCase()}
                 </div>
                 <div style={{ flex: 1 }}>
@@ -616,11 +698,11 @@ const PatientReg = forwardRef((props, ref) => {
                 </div>
               </div>
 
-              {selectedOwner.birthdate && <div style={{ padding: '8px 12px', background: '#f3f4f6', borderRadius: 8, fontSize: 12, marginBottom: 8 }}>
-                <span style={{ fontWeight: 600, color: '#4b5563' }}>{t('BirthDate')}:</span> {selectedOwner.birthdate}
+              {selectedOwner.birthdate && <div style={{ padding: '8px 12px', background: 'var(--id-bg-elevated, #f3f4f6)', borderRadius: 8, fontSize: 12, marginBottom: 8 }}>
+                <span style={{ fontWeight: 600, color: 'var(--id-text, #4b5563)' }}>{t('BirthDate')}:</span> {selectedOwner.birthdate}
               </div>}
-              {selectedOwner.animalidentnumber && <div style={{ padding: '8px 12px', background: '#f3f4f6', borderRadius: 8, fontSize: 12 }}>
-                <span style={{ fontWeight: 600, color: '#4b5563' }}>{t('IdentityNo')}:</span> {selectedOwner.animalidentnumber}
+              {selectedOwner.animalidentnumber && <div style={{ padding: '8px 12px', background: 'var(--id-bg-elevated, #f3f4f6)', borderRadius: 8, fontSize: 12 }}>
+                <span style={{ fontWeight: 600, color: 'var(--id-text, #4b5563)' }}>{t('IdentityNo')}:</span> {selectedOwner.animalidentnumber}
               </div>}
             </div>
           )}
@@ -684,12 +766,12 @@ const PatientReg = forwardRef((props, ref) => {
         </div>
 
         {/* Actions Panel (stacked below content) */}
-        <div style={{ padding: '18px 24px', background: '#f8f9fc', display: 'flex', flexDirection: 'column', gap: 12, boxSizing: 'border-box', borderTop: '1px solid #e6e9f2' }}>
+        <div style={{ padding: '18px 24px', background: 'var(--id-bg-card, #f8f9fc)', display: 'flex', flexDirection: 'column', gap: 12, boxSizing: 'border-box', borderTop: '1px solid var(--id-border, #e6e9f2)' }}>
           {personelData && !searchByAnimalId && !showAnimalForm && (
             <>
               <button 
                 onClick={handleAddAnimalClick} 
-                style={{ width: '100%', padding: '12px 16px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: '#fff', border: 'none', borderRadius: 10, fontWeight: 600, cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all 200ms ease' }}
+                style={{ width: '100%', padding: '12px 16px', background: 'linear-gradient(135deg, var(--id-primary, #667eea) 0%, var(--id-primary-light, #764ba2) 100%)', color: '#fff', border: 'none', borderRadius: 10, fontWeight: 600, cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all 200ms ease' }}
               >
                 ➕ {t('AddAnimal')}
               </button>
@@ -710,8 +792,8 @@ const PatientReg = forwardRef((props, ref) => {
                 style={{
                   width: '100%',
                   padding: '12px 16px',
-                  backgroundColor: (searchByAnimalId && patientAutoFilled) ? '#d1d5db' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  background: (searchByAnimalId && patientAutoFilled) ? '#d1d5db' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  backgroundColor: (searchByAnimalId && patientAutoFilled) ? '#d1d5db' : 'linear-gradient(135deg, var(--id-primary, #667eea) 0%, var(--id-primary-light, #764ba2) 100%)',
+                  background: (searchByAnimalId && patientAutoFilled) ? '#d1d5db' : 'linear-gradient(135deg, var(--id-primary, #667eea) 0%, var(--id-primary-light, #764ba2) 100%)',
                   color: '#fff',
                   borderRadius: 10,
                   border: 'none',
@@ -743,7 +825,7 @@ const PatientReg = forwardRef((props, ref) => {
               style={{
                 width: '100%',
                 padding: '12px 16px',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: 'linear-gradient(135deg, var(--id-primary, #667eea) 0%, var(--id-primary-light, #764ba2) 100%)',
                 color: '#fff',
                 borderRadius: 10,
                 border: 'none',

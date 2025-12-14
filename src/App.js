@@ -9,6 +9,7 @@ import { ConfirmProvider } from './components/ConfirmContext';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useLanguage } from './context/LanguageContext.js';
+import applyTheme from './utils/theme';
 
 const App = () => {
   useEffect(() => {
@@ -27,11 +28,26 @@ const App = () => {
     };
   }, []);
 
+  // apply saved theme prefs on app start
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('theme_prefs') || '{}');
+      // Set default if not set
+      if (!localStorage.getItem('theme_prefs')) {
+        const defaultTheme = { dark: false, primary: 'indigo' };
+        localStorage.setItem('theme_prefs', JSON.stringify(defaultTheme));
+      }
+      applyTheme(saved);
+    } catch (e) {
+      console.error('Theme apply failed', e);
+    }
+  }, []);
+
   const routing = useRoutes(Themeroutes);
   const { lang } = useLanguage();
 
   return (
-    <div className="dark">
+    <div>
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={lang}>
         <ConfirmProvider>
           <ToastContainer />

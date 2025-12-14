@@ -1,4 +1,4 @@
-import React, { useState, useContext, useRef } from 'react';
+import React, { useState, useContext, useRef, useEffect } from 'react';
 import { Button, Nav, NavItem } from "reactstrap";
 import Logo from "./Logo";
 import { Link, useLocation } from "react-router-dom";
@@ -8,6 +8,7 @@ import './scss/_sidebar.scss';
 import PatientReg from '../views/popup/PatientReg.js';
 import MainModal from '../components/MainModal.js';
 import { useLanguage } from '../context/LanguageContext.js';
+import { palettes } from '../utils/theme.js';
 import {
   faCat,
   faHomeUser,
@@ -37,6 +38,8 @@ const Sidebar = () => {
   const [modalTitle, setModalTitle] = useState(''); // Modal baslığını saklamak için state
   const [showFooter, setShowFooter] = useState(true);
   const { t } = useLanguage();
+  const [sidebarColor, setSidebarColor] = useState('#f5f5f5');
+  const [sidebarHoverColor, setSidebarHoverColor] = useState('#e8e8e8');
 
   const patientRef = useRef();
 
@@ -247,6 +250,42 @@ const Sidebar = () => {
   ];
 
   let location = useLocation();
+
+  // Load theme colors for sidebar
+  useEffect(() => {
+    const loadThemeColors = () => {
+      const themePrefs = localStorage.getItem('theme_prefs');
+      if (themePrefs) {
+        const prefs = JSON.parse(themePrefs);
+        const primaryPalette = palettes[prefs.primary] || palettes.indigo;
+        
+        if (prefs.dark) {
+          // Dark mode: çok daha koyu renkler
+          setSidebarColor(`${primaryPalette[2]}1a`); // Son rakam = opasite (10%)
+          setSidebarHoverColor(`${primaryPalette[2]}33`); // (20%)
+          document.documentElement.style.setProperty('--sidebar-bg', `${primaryPalette[2]}1a`);
+          document.documentElement.style.setProperty('--sidebar-hover-bg', `${primaryPalette[2]}33`);
+        } else {
+          // Light mode: açık renkler
+          setSidebarColor(`${primaryPalette[0]}0f`); // (6%)
+          setSidebarHoverColor(`${primaryPalette[0]}1a`); // (10%)
+          document.documentElement.style.setProperty('--sidebar-bg', `${primaryPalette[0]}0f`);
+          document.documentElement.style.setProperty('--sidebar-hover-bg', `${primaryPalette[0]}1a`);
+        }
+      }
+    };
+    loadThemeColors();
+
+    // Listen for theme changes
+    const handleThemeChange = () => {
+      loadThemeColors();
+    };
+    window.addEventListener('themechange', handleThemeChange);
+
+    return () => {
+      window.removeEventListener('themechange', handleThemeChange);
+    };
+  }, []);
 
   const toggleMenu = (index) => {
     setOpenMenus({

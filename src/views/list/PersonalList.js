@@ -8,6 +8,7 @@ import MainModal from '../../components/MainModal';
 import axiosInstance from '../../api/axiosInstance.ts';
 import { trTR } from '@mui/x-data-grid/locales';
 import { useLanguage } from '../../context/LanguageContext.js';
+import './ListTheme.css';
 
 const PersonalList = () => {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -114,7 +115,7 @@ const PersonalList = () => {
     ];
 
     return (
-        <div>
+        <div className="list-page">
             <Card>
                 <CardBody>
                     <div className="d-flex justify-content-between align-items-center mb-3">
@@ -129,20 +130,20 @@ const PersonalList = () => {
                         </Button>
                     </div>
 
-                    <div style={{ height: 600, width: '100%' }}>
+                    <div className="list-data-grid" style={{ height: 600, width: '100%' }}>
                         <DataGrid
                             rows={personalList}
                             columns={columns}
                             getRowId={(row) => row.id}
                             disableRowSelectionOnClick
                             sx={{
-                                border: '1px solid #ccc',
+                                border: '1px solid var(--id-border, #e2e8f0)',
                                 '& .MuiDataGrid-cell': {
-                                    borderBottom: '1px solid #ddd',
+                                    borderBottom: '1px solid var(--id-border, #e2e8f0)',
                                 },
                                 '& .MuiDataGrid-columnHeaders': {
-                                    backgroundColor: '#f5f5f5',
-                                    borderBottom: '1px solid #ccc',
+                                    backgroundColor: 'var(--id-bg-elevated, #f1f5f9)',
+                                    borderBottom: '1px solid var(--id-border, #e2e8f0)',
                                 },
                             }}
                             localeText={{

@@ -1,0 +1,191 @@
+/* Shared list-page dark/theme styling
+   Scoped to list screens by wrapper classes to avoid affecting public pages.
+*/
+
+.list-page .card {
+  background: var(--id-bg-card, #ffffff) !important;
+  color: var(--id-text, #0f172a) !important;
+  border: 1px solid var(--id-border, #e2e8f0) !important;
+}
+
+.list-page .card-title,
+.list-page h1,
+.list-page h2,
+.list-page h3,
+.list-page h4,
+.list-page h5,
+.list-page h6 {
+  color: var(--id-text, #0f172a);
+}
+
+.list-page .text-muted {
+  color: var(--id-text-muted, rgba(15, 23, 42, 0.65)) !important;
+}
+
+body.dark .list-page .text-muted {
+  color: var(--id-text-muted, rgba(230, 238, 248, 0.72)) !important;
+}
+
+/* Bootstrap inputs */
+.list-page .form-control {
+  background: var(--id-bg-elevated, #f1f5f9);
+  color: var(--id-text, #0f172a);
+  border: 1px solid var(--id-border, #e2e8f0);
+}
+
+.list-page .form-control::placeholder {
+  color: var(--id-text-muted, rgba(15, 23, 42, 0.55));
+}
+
+body.dark .list-page .form-control::placeholder {
+  color: var(--id-text-muted, rgba(230, 238, 248, 0.55));
+}
+
+.list-page .form-control:focus {
+  border-color: var(--id-primary, #667eea);
+  box-shadow: 0 0 0 0.2rem rgba(var(--id-primary-rgb, 99, 102, 241), 0.16);
+}
+
+/* MUI DataGrid */
+.list-data-grid .MuiDataGrid-root {
+  color: var(--id-text, #0f172a);
+  border-color: var(--id-border, #e2e8f0);
+}
+
+.list-data-grid .MuiDataGrid-columnHeaders {
+  background: var(--id-bg-elevated, #f1f5f9);
+  color: var(--id-text, #0f172a);
+  border-bottom: 1px solid var(--id-border, #e2e8f0);
+}
+
+.list-data-grid .MuiDataGrid-cell {
+  border-bottom: 1px solid var(--id-border, #e2e8f0);
+}
+
+.list-data-grid .MuiDataGrid-columnSeparator,
+.list-data-grid .MuiDataGrid-iconSeparator {
+  color: var(--id-border, #e2e8f0);
+}
+
+.list-data-grid .MuiDataGrid-menuIcon button,
+.list-data-grid .MuiDataGrid-sortIcon,
+.list-data-grid .MuiDataGrid-iconButtonContainer button,
+.list-data-grid .MuiDataGrid-filterIcon,
+.list-data-grid .MuiDataGrid-columnHeaderDraggableContainer svg {
+  color: var(--id-text, #0f172a);
+}
+
+body.dark .list-data-grid .MuiDataGrid-menuIcon button,
+body.dark .list-data-grid .MuiDataGrid-sortIcon,
+body.dark .list-data-grid .MuiDataGrid-iconButtonContainer button,
+body.dark .list-data-grid .MuiDataGrid-filterIcon,
+body.dark .list-data-grid .MuiDataGrid-columnHeaderDraggableContainer svg {
+  color: var(--id-text, #e6eef8);
+}
+
+.list-data-grid .MuiCheckbox-root {
+  color: var(--id-text-muted, rgba(15, 23, 42, 0.55));
+}
+
+.list-data-grid .MuiCheckbox-root.Mui-checked {
+  color: var(--id-primary, #667eea);
+}
+
+.list-data-grid .MuiDataGrid-row:hover {
+  background: rgba(var(--id-primary-rgb, 99, 102, 241), 0.06);
+}
+
+.list-data-grid .MuiDataGrid-row.Mui-selected {
+  background: rgba(var(--id-primary-rgb, 99, 102, 241), 0.14) !important;
+}
+
+.list-data-grid .MuiDataGrid-row.Mui-selected:hover {
+  background: rgba(var(--id-primary-rgb, 99, 102, 241), 0.18) !important;
+}
+
+/* DataGrid footer / pagination */
+.list-data-grid .MuiTablePagination-root,
+.list-data-grid .MuiTablePagination-selectLabel,
+.list-data-grid .MuiTablePagination-displayedRows,
+.list-data-grid .MuiTablePagination-select,
+.list-data-grid .MuiTablePagination-actions,
+.list-data-grid .MuiDataGrid-selectedRowCount {
+  color: var(--id-text, #0f172a) !important;
+}
+
+body.dark .list-data-grid .MuiTablePagination-root,
+body.dark .list-data-grid .MuiTablePagination-selectLabel,
+body.dark .list-data-grid .MuiTablePagination-displayedRows,
+body.dark .list-data-grid .MuiTablePagination-select,
+body.dark .list-data-grid .MuiTablePagination-actions,
+body.dark .list-data-grid .MuiDataGrid-selectedRowCount {
+  color: var(--id-text, #e6eef8) !important;
+}
+
+.list-data-grid .MuiTablePagination-actions button,
+.list-data-grid .MuiTablePagination-actions svg {
+  color: var(--id-text, #0f172a) !important;
+}
+
+body.dark .list-data-grid .MuiTablePagination-actions button,
+body.dark .list-data-grid .MuiTablePagination-actions svg {
+  color: var(--id-text, #e6eef8) !important;
+}
+
+/* Disabled MUI buttons in dark mode (purchase-invoices etc.) */
+body.dark .list-page .MuiButton-root.Mui-disabled {
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+}
+
+body.dark .list-page .MuiButton-contained.Mui-disabled {
+  background: rgba(var(--id-primary-rgb, 99, 102, 241), 0.18) !important;
+  color: var(--id-text-muted, rgba(230, 238, 248, 0.72)) !important;
+  box-shadow: none !important;
+}
+
+body.dark .list-page .MuiButton-outlined.Mui-disabled {
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: var(--id-text-muted, rgba(230, 238, 248, 0.72)) !important;
+  border-color: var(--id-border, rgba(255,255,255,0.12)) !important;
+}
+
+body.dark .list-page .MuiButton-text.Mui-disabled {
+  color: var(--id-text-muted, rgba(230, 238, 248, 0.72)) !important;
+}
+
+/* MUI Chip / Typography text in dark mode (purchase-invoices: Details/Items/Total chips) */
+body.dark .list-page .MuiTypography-root {
+  color: var(--id-text, #e6eef8) !important;
+}
+
+body.dark .list-page .MuiChip-root {
+  color: var(--id-text, #e6eef8) !important;
+}
+
+body.dark .list-page .MuiChip-filled {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid var(--id-border, rgba(255,255,255,0.10)) !important;
+}
+
+body.dark .list-page .MuiChip-outlined {
+  border-color: var(--id-border, rgba(255,255,255,0.16)) !important;
+}
+
+/* Disabled MUI TextField label/input in dark mode (purchase-invoices Invoice Date) */
+body.dark .list-page .MuiFormLabel-root.Mui-disabled,
+body.dark .list-page .MuiInputLabel-root.Mui-disabled {
+  color: var(--id-text, #e6eef8) !important;
+  -webkit-text-fill-color: var(--id-text, #e6eef8) !important;
+}
+
+body.dark .list-page .MuiInputBase-root.Mui-disabled,
+body.dark .list-page .MuiInputBase-root.Mui-disabled input,
+body.dark .list-page .MuiInputBase-root.Mui-disabled textarea {
+  color: var(--id-text, #e6eef8) !important;
+  -webkit-text-fill-color: var(--id-text, #e6eef8) !important;
+}
+
+body.dark .list-page .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-notchedOutline {
+  border-color: var(--id-border, rgba(255,255,255,0.16)) !important;
+}

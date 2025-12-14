@@ -220,8 +220,9 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
           backgroundColor: 'rgba(0,0,0,0.5)',
           display: 'flex', justifyContent: 'center', alignItems: 'center',
           zIndex: 1000,
+          borderRadius: 16,
         }}>
-          <div style={{ backgroundColor: 'white', borderRadius: 8, width: 400 }}>
+          <div style={{ backgroundColor: 'white', borderRadius: 16, width: 400 }}>
             <AppPatientSearch
               onSelect={handlePatientSelect}
               onClose={() => setShowPatientSearch(false)}

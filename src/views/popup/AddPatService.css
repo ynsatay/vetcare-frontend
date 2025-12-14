@@ -8,6 +8,54 @@
 .select-data-grid { width: 100%; min-width: 0; overflow-x: auto; }
 .select-footer { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 12px; justify-content: flex-end; }
 
+/* MUI inputs (TextField) */
+.select-card .MuiInputBase-root { color: var(--id-text); }
+.select-card .MuiInputBase-input { color: var(--id-text); }
+.select-card .MuiFormLabel-root { color: var(--id-text-muted); }
+.select-card .MuiFormLabel-root.Mui-focused { color: var(--id-primary); }
+.select-card .MuiOutlinedInput-notchedOutline { border-color: var(--id-border); }
+.select-card .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline { border-color: var(--id-primary-light); }
+.select-card .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline { border-color: var(--id-primary); }
+.select-card .MuiInputAdornment-root, .select-card .MuiSvgIcon-root { color: var(--id-text-muted); }
+
+/* MUI DataGrid */
+.select-card .MuiDataGrid-root {
+  color: var(--id-text);
+  background: var(--id-bg-elevated);
+  border-color: var(--id-border);
+}
+.select-card .MuiDataGrid-columnHeaders {
+  background: var(--id-bg-card);
+  border-bottom-color: var(--id-border);
+}
+.select-card .MuiDataGrid-columnHeaderTitle,
+.select-card .MuiDataGrid-cellContent,
+.select-card .MuiDataGrid-cell { color: var(--id-text); }
+.select-card .MuiDataGrid-footerContainer { border-top-color: var(--id-border); }
+.select-card .MuiDataGrid-iconButtonContainer .MuiButtonBase-root,
+.select-card .MuiDataGrid-sortIcon,
+.select-card .MuiDataGrid-menuIconButton,
+.select-card .MuiDataGrid-columnSeparator,
+.select-card .MuiDataGrid-filterIcon { color: var(--id-text-muted); }
+
+/* Buttons */
+.select-card .MuiButton-outlined { color: var(--id-text); border-color: var(--id-border); }
+.select-card .MuiButton-outlined:hover { background: var(--id-bg-elevated); border-color: var(--id-primary-light); }
+
+/* DataGrid footer pagination ("Sayfa başına satır") */
+.select-card .MuiTablePagination-root { color: var(--id-text-secondary); }
+.select-card .MuiTablePagination-selectLabel,
+.select-card .MuiTablePagination-displayedRows { color: var(--id-text-muted); }
+.select-card .MuiTablePagination-root .MuiInputBase-root,
+.select-card .MuiTablePagination-root .MuiSelect-select { color: var(--id-text); }
+.select-card .MuiTablePagination-root .MuiOutlinedInput-notchedOutline { border-color: var(--id-border); }
+.select-card .MuiTablePagination-root .MuiSvgIcon-root,
+.select-card .MuiTablePagination-root .MuiButtonBase-root { color: var(--id-text-muted); }
+
+/* "1 satır seçildi" */
+.select-card .MuiDataGrid-footerContainer { color: var(--id-text-secondary); border-top-color: var(--id-border); }
+.select-card .MuiDataGrid-selectedRowCount { color: var(--id-text-muted); }
+
 @media (max-width: 768px) {
   .select-card { padding: 12px; }
   .select-header { flex-direction: column; align-items: flex-start; gap: 10px; }

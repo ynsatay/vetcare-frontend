@@ -45,6 +45,7 @@ import axios from 'axios';
 import { AuthContext } from '../../context/usercontext.tsx';
 import { BASE_URL } from "../../config.js";
 import { useLanguage } from '../../context/LanguageContext.js';
+import applyTheme from '../../utils/theme.js';
 
 
 const Login = () => {
@@ -74,6 +75,19 @@ const Login = () => {
         setLanguage(saved);
       }
     } catch {}
+  }, []);
+
+  // Login page should not be affected by user theme/dark mode.
+  // Force light + Home colors while this page is mounted, then restore stored theme on unmount.
+  useEffect(() => {
+    try {
+      applyTheme({ dark: false, primary: 'home' });
+    } catch {}
+    return () => {
+      try {
+        applyTheme();
+      } catch {}
+    };
   }, []);
 
   useEffect(() => {

@@ -100,7 +100,7 @@ const AddPatStock = ({ onClose, onSelect }) => {
                         sx={{
                             cursor: 'pointer',
                             '& .MuiDataGrid-row.Mui-selected': {
-                                backgroundColor: '#d0f0fd !important',
+                                backgroundColor: 'rgba(var(--id-primary-rgb, 99, 102, 241), 0.18) !important',
                             },
                         }}
                         autoHeight

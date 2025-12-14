@@ -107,7 +107,18 @@ export const AuthContextProvider: React.FC<{ children: React.ReactNode }> = ({ c
     setUserid(0);
     setUserRole(0);
     setProfileImage(null);
+
+    // Ensure app returns to light mode on logout (Landing should never be dark)
+    try {
+      if (typeof document !== 'undefined') {
+        document.body.classList.remove('dark');
+      }
+    } catch {}
+
     localStorage.clear();
+
+    // Default theme for logged-out state
+    localStorage.setItem('theme_prefs', JSON.stringify({ dark: false, primary: 'home' }));
   };
   logoutRef = logout;
   return (

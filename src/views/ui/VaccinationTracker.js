@@ -258,8 +258,8 @@ const VaccinationTracker = () => {
 
           <div className="vaccination-stat-item">
             <div className="vaccination-stat-left">
-              <div className="vaccination-stat-indicator overdue" style={{ background: '#f44336' }} />
-              <span className="vaccination-stat-name">Günü Geçti</span>
+              <div className="vaccination-stat-indicator overdue" />
+              <span className="vaccination-stat-name">{t('Overdue')}</span>
             </div>
             <span className="vaccination-stat-count">{stats.overdue}</span>
           </div>

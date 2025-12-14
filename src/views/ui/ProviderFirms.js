@@ -8,6 +8,7 @@ import EditProviderFirm from '../popup/EditProviderFirm.js'; // Firma düzenleme
 import { trTR } from '@mui/x-data-grid/locales';
 import { toast } from 'react-toastify';
 import { useLanguage } from '../../context/LanguageContext.js';
+import '../list/ListTheme.css';
 
 // columns are defined inside component to access i18n
 
@@ -115,7 +116,16 @@ const ProviderFirmsList = () => {
     };
 
     return (
-        <div style={{ backgroundColor: 'white', padding: '10px', borderRadius: '10px' }}>
+        <div
+            className="list-page"
+            style={{
+                backgroundColor: 'var(--id-bg-card, #ffffff)',
+                color: 'var(--id-text, #0f172a)',
+                border: '1px solid var(--id-border, #e2e8f0)',
+                padding: '10px',
+                borderRadius: '10px',
+            }}
+        >
             <h4 className="mb-3">🏢 {t('ProviderFirms')}</h4>
 
             <Row className="mb-3 g-2">
@@ -160,7 +170,7 @@ const ProviderFirmsList = () => {
                 </Col>
             </Row>
 
-            <div style={{ width: '100%', height: 600 }}>
+            <div className="list-data-grid" style={{ width: '100%', height: 600 }}>
                 <DataGrid
                     rows={Array.isArray(filteredList) ? filteredList : []}
                     columns={columns}

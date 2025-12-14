@@ -9,6 +9,7 @@ import { useConfirm } from '../../components/ConfirmContext';
 import { trTR } from '@mui/x-data-grid/locales';
 import { toast } from 'react-toastify';
 import { useLanguage } from '../../context/LanguageContext.js';
+import './ListTheme.css';
 
 const StockList = () => {
     const { t, lang } = useLanguage();
@@ -176,7 +177,16 @@ const StockList = () => {
     };
 
     return (
-        <div style={{ backgroundColor: 'white', padding: '10px', borderRadius: '10px' }}>
+        <div
+            className="list-page"
+            style={{
+                backgroundColor: 'var(--id-bg-card, #ffffff)',
+                color: 'var(--id-text, #0f172a)',
+                border: '1px solid var(--id-border, #e2e8f0)',
+                padding: '10px',
+                borderRadius: '10px',
+            }}
+        >
             <h4 className="mb-3">📦 {t('StockListTitle')}</h4>
             <Row className="mb-3 g-2">
                 <Col xs={12} md={4}>
@@ -217,7 +227,7 @@ const StockList = () => {
                 </Col>
             </Row>
 
-            <div style={{ width: '100%', height: 620 }}>
+            <div className="list-data-grid" style={{ width: '100%', height: 620 }}>
                 <DataGrid
                     rows={filteredList}
                     columns={columns}

@@ -9,6 +9,7 @@ import MainModal from '../../components/MainModal';
 import axiosInstance from '../../api/axiosInstance.ts';
 import { trTR } from '@mui/x-data-grid/locales';
 import { useLanguage } from '../../context/LanguageContext.js';
+import './ListTheme.css';
 
 const OfficeList = () => {
   const [officelist, setOfficelist] = useState([]);
@@ -104,13 +105,13 @@ const OfficeList = () => {
   ];
 
   return (
-    <div>
+    <div className="list-page">
       <Card>
         <CardBody>
           <CardTitle tag="h5">🏛️ {t('OfficeListTitle')}</CardTitle>
           <CardSubtitle className="mb-2 text-muted" tag="h6">{t('ClinicOffices')}</CardSubtitle>
 
-          <div style={{ height: 500, width: '100%', overflowX: 'auto' }}>
+          <div className="list-data-grid" style={{ height: 500, width: '100%', overflowX: 'auto' }}>
             <DataGrid
               rows={officelist}
               columns={columns}

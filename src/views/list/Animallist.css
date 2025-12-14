@@ -1,0 +1,119 @@
+/* Animals list screen: theme-aware + dark-mode friendly */
+
+.animals-list-page {
+  color: var(--id-text);
+}
+
+.animals-list-page .card {
+  background: var(--id-bg-card);
+  border: 1px solid var(--id-border);
+  color: var(--id-text);
+}
+
+.animals-list-page .card .card-title,
+.animals-list-page .card h5,
+.animals-list-page .card h4,
+.animals-list-page .card h3 {
+  color: var(--id-text);
+}
+
+.animals-list-page .form-control {
+  background: var(--id-bg-elevated);
+  border: 1px solid var(--id-border);
+  color: var(--id-text);
+}
+
+.animals-list-page .form-control::placeholder {
+  color: var(--id-text-muted);
+}
+
+.animals-list-page .form-control:focus {
+  background: var(--id-bg-card);
+  border-color: var(--id-primary);
+  box-shadow: 0 0 0 3px rgba(var(--id-primary-rgb, 99, 102, 241), 0.18);
+  color: var(--id-text);
+}
+
+/* DataGrid */
+.animals-data-grid {
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.animals-data-grid .MuiDataGrid-root {
+  border: 1px solid var(--id-border);
+  border-radius: 12px;
+  background: var(--id-bg-elevated);
+  color: var(--id-text);
+}
+
+.animals-data-grid .MuiDataGrid-columnHeaders {
+  background: var(--id-bg-card);
+  border-bottom: 1px solid var(--id-border);
+}
+
+.animals-data-grid .MuiDataGrid-columnHeaderTitle,
+.animals-data-grid .MuiDataGrid-cellContent,
+.animals-data-grid .MuiDataGrid-cell {
+  color: var(--id-text);
+}
+
+.animals-data-grid .MuiDataGrid-row {
+  border-bottom: 1px solid var(--id-border);
+}
+
+.animals-data-grid .MuiDataGrid-iconButtonContainer .MuiButtonBase-root,
+.animals-data-grid .MuiDataGrid-sortIcon,
+.animals-data-grid .MuiDataGrid-menuIconButton,
+.animals-data-grid .MuiDataGrid-columnSeparator,
+.animals-data-grid .MuiDataGrid-filterIcon {
+  color: var(--id-text-muted);
+}
+
+.animals-data-grid .MuiCheckbox-root {
+  color: var(--id-text-muted);
+}
+
+.animals-data-grid .MuiCheckbox-root.Mui-checked {
+  color: var(--id-primary);
+}
+
+.animals-data-grid .MuiDataGrid-row.Mui-selected,
+.animals-data-grid .MuiDataGrid-row.Mui-selected:hover {
+  background-color: rgba(var(--id-primary-rgb, 99, 102, 241), 0.18) !important;
+}
+
+/* Footer pagination ("Sayfa başına satır") */
+.animals-data-grid .MuiTablePagination-root {
+  color: var(--id-text-secondary);
+}
+
+.animals-data-grid .MuiTablePagination-selectLabel,
+.animals-data-grid .MuiTablePagination-displayedRows {
+  color: var(--id-text-muted);
+}
+
+.animals-data-grid .MuiTablePagination-root .MuiInputBase-root,
+.animals-data-grid .MuiTablePagination-root .MuiSelect-select {
+  color: var(--id-text);
+}
+
+.animals-data-grid .MuiTablePagination-root .MuiOutlinedInput-notchedOutline {
+  border-color: var(--id-border);
+}
+
+.animals-data-grid .MuiTablePagination-root .MuiSvgIcon-root,
+.animals-data-grid .MuiTablePagination-root .MuiButtonBase-root {
+  color: var(--id-text-muted);
+}
+
+/* "1 satır seçildi" */
+.animals-data-grid .MuiDataGrid-footerContainer {
+  color: var(--id-text-secondary);
+  border-top-color: var(--id-border);
+}
+
+.animals-data-grid .MuiDataGrid-selectedRowCount {
+  color: var(--id-text-muted);
+}

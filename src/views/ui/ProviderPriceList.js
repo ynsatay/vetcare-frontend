@@ -8,6 +8,7 @@ import EditProviderPrice from '../popup/EditProviderPrice.js';
 import { trTR } from '@mui/x-data-grid/locales';
 import { toast } from 'react-toastify';
 import { useLanguage } from '../../context/LanguageContext.js';
+import '../list/ListTheme.css';
 
 // columns defined inside component to access i18n
 
@@ -117,7 +118,16 @@ const ProviderPriceList = () => {
   };
 
   return (
-    <div style={{ backgroundColor: 'white', padding: 15, borderRadius: 10 }}>
+    <div
+      className="list-page"
+      style={{
+        backgroundColor: 'var(--id-bg-card, #ffffff)',
+        color: 'var(--id-text, #0f172a)',
+        border: '1px solid var(--id-border, #e2e8f0)',
+        padding: 15,
+        borderRadius: 10,
+      }}
+    >
       <h4 className="mb-3">💰 {t('ProviderPrices')}</h4>
 
       <Row className="mb-3 g-2">
@@ -147,7 +157,7 @@ const ProviderPriceList = () => {
         </Col>
       </Row>
 
-      <div style={{ height: 600, width: '100%' }}>
+      <div className="list-data-grid" style={{ height: 600, width: '100%' }}>
         <DataGrid
           rows={filteredList}
           columns={columns}

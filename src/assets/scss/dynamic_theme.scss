@@ -1,0 +1,629 @@
+/* Dynamic theme overrides — broad dark-mode fallbacks
+   This file applies styles when `body.dark` is present and uses
+   CSS variables (set by utils/theme.js) for colors.
+*/
+
+/* Ensure body background and text use variables */
+body {
+  background: var(--id-bg, #f8fafc);
+  color: var(--id-text, #0f172a);
+}
+
+/* Dark-mode specific tweaks */
+body.dark {
+  background: var(--id-bg, #0f172a);
+  color: var(--id-text, #e6eef8);
+}
+
+ /* Common containers/cards */
+.card,
+.card,
+.panel,
+.identity-section-card,
+.identity-history-card,
+.identity-animal-detail,
+.modal-content,
+.MuiPaper-root {
+  background: var(--id-bg-card, #ffffff) !important;
+  color: var(--id-text, #0f172a) !important;
+  border-color: var(--id-border, #e2e8f0) !important;
+  border-radius: 12px !important;
+}
+
+body.dark .card,
+body.dark .panel,
+body.dark .identity-section-card,
+body.dark .identity-history-card,
+body.dark .identity-animal-detail,
+body.dark .modal-content,
+body.dark .MuiPaper-root {
+  background: var(--id-bg-card, #0b1220) !important;
+  color: var(--id-text, #e6eef8) !important;
+  border-color: var(--id-border, rgba(255,255,255,0.06)) !important;
+  border-radius: 12px !important;
+}
+
+/* Sidebar/header */
+.sidebar,
+.identity-sidebar,
+.app-sidebar {
+  background: var(--id-bg-elevated, #f1f5f9) !important;
+}
+/* Header uses CSS variables for dynamic theme colors */
+.identity-header {
+  color: #ffffff !important;
+}
+/* Sidebar: dark-mode gradient + white text/logo */
+body.dark .sidebar,
+body.dark .identity-sidebar,
+body.dark .app-sidebar {
+  background: linear-gradient(180deg, #0b0f1a 0%, #59018b 100%) !important;
+  color: #ffffff !important;
+  border-right-color: transparent !important;
+}
+
+/* Also target the layout sidebar container used site-wide */
+body.dark .sidebarArea,
+body.dark #sidebarArea {
+  background: var(--sidebar-bg, linear-gradient(180deg, #0b0f1a 0%, #59018b 100%)) !important;
+  color: #ffffff !important;
+  border-right-color: transparent !important;
+}
+
+/* Sidebar content (nav links / items) inside the sidebarArea */
+body.dark .sidebarArea .sidebarNav,
+body.dark #sidebarArea .sidebarNav,
+body.dark .sidebarArea .nav-link,
+body.dark #sidebarArea .nav-link,
+body.dark .sidebarArea .sidenav-bg,
+body.dark #sidebarArea .sidenav-bg {
+  background: transparent !important;
+  color: #ffffff !important;
+}
+
+/* Ensure active/hover states are visible */
+body.dark .sidebarArea .nav-link.text-primary,
+body.dark #sidebarArea .nav-link.text-primary,
+body.dark .sidebarArea .nav-link:hover,
+body.dark #sidebarArea .nav-link:hover {
+  color: #ffffff !important;
+  background: var(--sidebar-hover-bg, rgba(255,255,255,0.03)) !important;
+}
+
+/* Logo and icons inside sidebarArea */
+body.dark .sidebarArea .navbar-brand,
+body.dark #sidebarArea .navbar-brand,
+body.dark .sidebarArea .logo,
+body.dark #sidebarArea .logo,
+body.dark .sidebarArea .bi,
+body.dark #sidebarArea .bi,
+body.dark .sidebarArea i,
+body.dark #sidebarArea i {
+  color: #ffffff !important;
+}
+
+/* Force sidebar images to invert if needed */
+// body.dark .sidebarArea img, body.dark #sidebarArea img {
+//   filter: brightness(0) invert(1) !important;
+// }
+
+/* Navbar gradient is handled by Header.js component with CSS variables */
+body.dark .navbar {
+  color: #ffffff !important;
+}
+
+/* Sidebar links, icons and brand/logo should be white in dark mode */
+body.dark .sidebar .navbar-brand,
+body.dark .identity-sidebar .navbar-brand,
+body.dark .sidebar .logo,
+body.dark .sidebar a,
+body.dark .sidebar .nav-link,
+body.dark .identity-sidebar a,
+body.dark .identity-sidebar .nav-link {
+  color: #ffffff !important;
+}
+
+/* Sidebar icons */
+body.dark .sidebar .bi, body.dark .identity-sidebar .bi, body.dark .sidebar i, body.dark .identity-sidebar i {
+  color: #ffffff !important;
+}
+
+/* Force logo images inside sidebar to appear light/white if they are dark PNGs — adjust if your logo is already colored */
+body.dark .sidebar .navbar-brand img,
+body.dark .identity-sidebar .navbar-brand img,
+body.dark .sidebar .logo img {
+  filter: brightness(0) invert(1) !important;
+}
+
+/* Sidebar link hover/active states */
+body.dark .sidebar a:hover, body.dark .sidebar .nav-link:hover,
+body.dark .identity-sidebar a:hover, body.dark .identity-sidebar .nav-link:hover {
+  color: #ffffff !important;
+  background: rgba(255,255,255,0.03) !important;
+}
+/* Identity header uses CSS variables for dynamic theme colors */
+body.dark .identity-header {
+  color: #ffffff !important;
+}
+
+/* Navbar brand and link contrast */
+.navbar .navbar-brand, .navbar a {
+  color: #ffffff ;
+}
+
+/* Header login button should always be purple in logged-out state */
+.navbar a.header-login-link {
+  color: #59018b !important;
+}
+
+/* Ensure dropdown/menu items are readable in light mode (when body.dark is NOT present) */
+body:not(.dark) .dropdown-menu .dropdown-item,
+body:not(.dark) .dropdown-menu a.dropdown-item,
+body:not(.dark) .dropdown-menu .dropdown-header {
+  color: var(--id-text, #0f172a) !important;
+}
+
+/* Make the dropdown header/title purple in light mode (e.g. 'Kullanıcı') */
+body:not(.dark) .dropdown-menu .dropdown-header,
+body:not(.dark) .dropdown-menu .dropdown-item.header,
+body:not(.dark) .dropdown-menu [role="menuitem"] + .dropdown-item[header],
+body:not(.dark) .dropdown-menu .dropdown-item[header] {
+  color: #59018b !important;
+  font-weight: 700 !important;
+}
+
+/* Links and texts */
+a, button, input, select, textarea {
+  color: inherit;
+}
+
+/* Inputs */
+input, textarea, select {
+  background: var(--id-bg-card, #ffffff) !important;
+  color: var(--id-text, #0f172a) !important;
+ // border: 1px solid var(--id-border, #e2e8f0) !important;
+}
+body.dark input, body.dark textarea, body.dark select {
+  background: var(--id-bg-card, #0b1220) !important;
+  color: var(--id-text, #e6eef8) !important;
+  //border: 1px solid var(--id-border, rgba(255,255,255,0.06)) !important;
+}
+
+/* Buttons primary accent */
+.btn-primary, button[variant="contained"] {
+  background: linear-gradient(135deg, var(--id-primary, #6366F1), var(--id-primary-light, #8B5CF6)) !important;
+  color: #fff !important;
+}
+
+/* small identity specific tweaks */
+.identity-empty,
+.identity-history-empty {
+  color: var(--id-text-muted, #94a3b8);
+}
+
+/* Ensure readable text colors in dark mode for components that set explicit dark text */
+body.dark, body.dark .identity-section-card, body.dark .identity-owner-summary, body.dark .identity-animal-detail, body.dark .identity-history-card, body.dark .identity-history-item, body.dark .identity-history-item-info, body.dark .identity-panel-banner, body.dark .identity-card-title, body.dark .identity-chip, body.dark .identity-content, body.dark .identity-content-grid {
+  color: var(--id-text, #e6eef8) !important;
+}
+
+/* Override Material-UI CardHeader light background in dark mode (e.g. Identity & Security card) */
+body.dark .MuiCardHeader-root {
+  background: var(--id-bg-card, #0b1220) !important;
+  color: var(--id-text, #e6eef8) !important;
+  border-bottom-color: var(--id-border, rgba(255,255,255,0.06)) !important;
+}
+body.dark .MuiCardHeader-root .MuiCardHeader-title {
+  color: var(--id-text, #e6eef8) !important;
+}
+
+/* Inputs, selects, textareas should use readable text color in dark mode */
+body.dark input, body.dark textarea, body.dark select, body.dark .identity-owner-input, body.dark .identity-owner-select, body.dark .identity-search-input {
+  color: var(--id-text, #e6eef8) !important;
+  background: var(--id-bg-card, #0b1220) !important;
+  border-color: var(--id-border, rgba(255,255,255,0.06)) !important;
+}
+
+/* Data grid headers/cells */
+body.dark .identity-data-grid .MuiDataGrid-columnHeaders {
+  background: var(--id-bg-card, #0b1220) !important;
+  color: var(--id-text, #e6eef8) !important;
+  border-bottom: 1px solid var(--id-border, rgba(255,255,255,0.06)) !important;
+}
+body.dark .identity-data-grid .MuiDataGrid-cell {
+  color: var(--id-text, #e6eef8) !important;
+}
+
+/* Ensure labels/placeholder-like small text is readable */
+body.dark .identity-form-label, body.dark .identity-header-meta, body.dark .identity-history-item-date, body.dark .identity-empty-icon {
+  color: var(--id-text-secondary, #c7d2e9) !important;
+}
+
+/* Buttons: keep contrast */
+/* Buttons: keep contrast */
+body.dark .identity-btn, body.dark .identity-btn-success, body.dark .identity-btn-danger {
+  color: var(--id-text, #e6eef8) !important;
+  background: var(--id-bg-card, #0b1220) !important;
+  border: 1px solid var(--id-border, rgba(255,255,255,0.06)) !important;
+}
+
+/* Small variant (pills) used in charts/dashboard for 3/6/12 month selection */
+body.dark .identity-btn.identity-btn-xs,
+body.dark button.identity-btn-xs {
+  background: var(--id-bg-card, #0b1220) !important;
+  color: var(--id-text, #e6eef8) !important;
+  border-color: var(--id-border, rgba(255,255,255,0.06)) !important;
+}
+
+/* Primary (selected) pill keeps header purple gradient */
+body.dark .identity-btn.identity-btn-primary, body.dark .identity-btn-primary {
+  background: linear-gradient(135deg, var(--profile-header-start, #59018b) 0%, var(--profile-header-end, #7a1fa8) 100%) !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+/* Vaccination area: fix hardcoded white backgrounds inside vaccine lists/toolbars */
+body.dark .identity-vax-toolbar {
+  background: var(--id-bg-card, #0b1220) !important;
+  color: var(--id-text, #e6eef8) !important;
+  border: 1px solid var(--id-border, rgba(255,255,255,0.06)) !important;
+  box-shadow: none !important;
+}
+
+body.dark .identity-vax-advanced {
+  background: transparent !important;
+  border-color: var(--id-border, rgba(255,255,255,0.06)) !important;
+}
+
+/* The vaccine list items used inside 'Aşı İsimleri' */
+body.dark .identity-history-body {
+  background: transparent !important;
+}
+
+body.dark .identity-history-item {
+  background: var(--id-bg-card, #0b1220) !important;
+  color: var(--id-text, #e6eef8) !important;
+  border: 1px solid transparent !important;
+}
+
+/* Focused inputs that previously set white background */
+body.dark .identity-owner-input:focus,
+body.dark .identity-search-input:focus {
+  background: var(--id-bg-elevated, #091024) !important;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.06) !important;
+  border-color: var(--id-primary, rgba(99,102,241,0.2)) !important;
+}
+
+/* Animal list hover fix (left column) */
+body.dark .identity-animal-item:hover {
+  background: var(--id-bg-card, #0b1220) !important;
+  border-color: var(--id-border, rgba(255,255,255,0.06)) !important;
+}
+
+/* Homepage vaccine widget (left panel) overrides */
+body.dark .identity-sidebar .identity-section-card.compact {
+  background: var(--id-bg-card, #0b1220) !important;
+  border: 1px solid var(--id-border, rgba(255,255,255,0.06)) !important;
+  box-shadow: none !important;
+  color: var(--id-text, #e6eef8) !important;
+}
+
+body.dark .identity-sidebar .identity-section-card.compact .identity-section-header .identity-card-title {
+  color: #ffffff !important;
+}
+
+body.dark .identity-sidebar .identity-input-group {
+  background: var(--id-bg-card, #0b1220) !important;
+  border: 1px solid var(--id-border, rgba(255,255,255,0.06)) !important;
+}
+
+body.dark .identity-sidebar .identity-checkbox-grid {
+  background: var(--id-bg-card, #0b1220) !important;
+  border-radius: 8px !important;
+  padding: 6px !important;
+}
+
+body.dark .identity-sidebar .identity-checkbox-card {
+  background: transparent !important;
+  border: 1px solid var(--id-border, rgba(255,255,255,0.06)) !important;
+  color: var(--id-text, #e6eef8) !important;
+}
+
+/* Selected vaccines pill area */
+body.dark .identity-sidebar .identity-stat-pill {
+  background: linear-gradient(135deg, var(--id-primary, #3b82f6) 0%, var(--id-primary-dark, #1d4ed8) 100%) !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+body.dark .identity-sidebar .identity-owner-actions {
+  border-top-color: var(--id-border, rgba(255,255,255,0.06)) !important;
+}
+
+/* Dashboard top stat cards: make headings/subtitles more readable in dark mode */
+body.dark .identity-stat-content h4,
+body.dark .identity-panel-title,
+body.dark .identity-panel-sub {
+  color: var(--id-text, #e6eef8) !important;
+  font-weight: 600 !important;
+}
+
+/* Make the smaller/subtitle text more readable in dark mode: brighter and slightly bolder */
+body.dark .identity-stat-content p,
+body.dark .identity-stat-badge,
+body.dark .identity-panel-sub {
+  color: var(--id-text-secondary, #cbd6ea) !important;
+  font-weight: 500 !important;
+  font-size: 0.95rem !important;
+}
+
+/* TopCards subtitle (small.text-muted) — increase contrast in dark mode */
+body.dark .card .circle-box + .ms-3 small.text-muted,
+body.dark .card .ms-3 small.text-muted {
+  color: var(--id-text-secondary, #dbe8ff) !important;
+  font-weight: 600 !important;
+  opacity: 1 !important;
+  font-size: 0.80rem !important;
+}
+
+/* Last resort: ensure direct inline styles don't force black text on common containers */
+body.dark [style*="color: #000"], body.dark [style*="color:#000"] {
+  color: var(--id-text, #e6eef8) !important;
+}
+
+/* Dropdown / user menu (reactstrap) */
+body.dark .dropdown-menu {
+  background: var(--id-bg-card, #0b1220) !important;
+  color: var(--id-text, #e6eef8) !important;
+  border: 1px solid var(--id-border, rgba(255,255,255,0.06)) !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6) !important;
+}
+
+body.dark .dropdown-menu .dropdown-item,
+body.dark .dropdown-menu a.dropdown-item {
+  color: var(--id-text, #e6eef8) !important;
+  background: transparent !important;
+}
+
+body.dark .dropdown-menu .dropdown-item:hover,
+body.dark .dropdown-menu a.dropdown-item:hover {
+  background: var(--id-bg-elevated, #091024) !important;
+  color: var(--id-text, #e6eef8) !important;
+}
+
+/* header inside the dropdown (DropdownItem header) */
+body.dark .dropdown-menu .dropdown-header,
+body.dark .dropdown-menu .dropdown-item.header,
+body.dark .dropdown-menu [role="menuitem"] + .dropdown-item[header],
+body.dark .dropdown-menu .dropdown-item[header] {
+  color: var(--id-text, #e6eef8) !important;
+  font-weight: 700 !important;
+}
+
+/* Divider color */
+body.dark .dropdown-menu .dropdown-divider {
+  border-top-color: var(--id-border, rgba(255,255,255,0.06)) !important;
+}
+
+/* icons inside dropdown items */
+body.dark .dropdown-menu .bi, body.dark .dropdown-menu i {
+  color: var(--id-text-muted, #c7d2e9) !important;
+}
+
+/* ApexCharts tooltip & marker: ensure hover/tooltips are dark in dark mode */
+body.dark .apexcharts-tooltip,
+body.dark .apexcharts-tooltip *,
+body.dark .apexcharts-tooltip[style] {
+  background: var(--id-bg-card, #0b1220) !important;
+  color: var(--id-text, #e6eef8) !important;
+ // border: 1px solid var(--id-border, rgba(255,255,255,0.06)) !important;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.6) !important;
+}
+
+body.dark .apexcharts-tooltip .apexcharts-tooltip-title {
+  color: var(--id-text, #e6eef8) !important;
+  font-weight: 600 !important;
+}
+
+body.dark .apexcharts-tooltip .apexcharts-tooltip-text,
+body.dark .apexcharts-tooltip .apexcharts-tooltip-series-group,
+body.dark .apexcharts-tooltip .apexcharts-tooltip-marker {
+  color: var(--id-text-secondary, #cbd6ea) !important;
+}
+
+/* Make the little color marker inside the tooltip visible on dark backgrounds */
+body.dark .apexcharts-tooltip .apexcharts-tooltip-marker > div,
+body.dark .apexcharts-marker {
+  background: var(--id-bg-card, #0b1220) !important;
+  border: 2px solid var(--id-primary, #3b82f6) !important;
+}
+
+/* Also target chart annotations/popups that may use inline white backgrounds */
+body.dark [class*="apexcharts"] [style*="background: #fff"],
+body.dark [class*="apexcharts"] [style*="background:#fff"] {
+  background: var(--id-bg-card, #0b1220) !important;
+  color: var(--id-text, #e6eef8) !important;
+  border-color: var(--id-border, rgba(255,255,255,0.06)) !important;
+}
+
+/* MUI ToggleButton (language selection) — dark mode */
+body.dark .MuiToggleButton-root {
+  color: var(--id-text, #e6eef8) !important;
+  border-color: var(--id-border, rgba(255,255,255,0.06)) !important;
+  background: transparent !important;
+  transition: all 0.3s ease !important;
+}
+
+body.dark .MuiToggleButton-root:hover {
+  background: rgba(102, 126, 234, 0.08) !important;
+  border-color: var(--id-primary, #667eea) !important;
+}
+
+/* Selected toggle button */
+body.dark .MuiToggleButton-root.Mui-selected {
+  background: linear-gradient(135deg, #667eea 0%, #a5b4fc 100%) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+
+body.dark .MuiToggleButton-root.Mui-selected:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #9ca3f5 100%) !important;
+}
+
+/* Language selection container background - multiple selector approaches for robustness */
+body.dark .MuiBox-root[style*="background: linear-gradient(180deg,#fff,#f8fafc)"],
+body.dark [style*="background: linear-gradient(180deg,#fff,#f8fafc)"],
+body.dark div[style*="background: linear-gradient(180deg,#fff,#f8fafc)"] {
+  background: var(--id-bg-card, #0b1220) !important;
+  border-color: var(--id-border, rgba(255,255,255,0.06)) !important;
+  border: 1px solid var(--id-border, rgba(255,255,255,0.06)) !important;
+  color: var(--id-text, #e6eef8) !important;
+}
+
+/* Generic dialog/box with white gradient background override for dark mode */
+body.dark .MuiDialogContent-root {
+  background: var(--id-bg-card, #0b1220) !important;
+}
+
+body.dark .MuiDialog-paper {
+  background: var(--id-bg-card, #0b1220) !important;
+  border: 1px solid var(--id-border, rgba(255,255,255,0.06)) !important;
+}
+
+/* Bootstrap inputs inside modals (reactstrap/MainModal) */
+body.dark .modal-content .form-control,
+body.dark .modal-content .form-select,
+body.dark .modal-content select,
+body.dark .modal-content textarea {
+  background: var(--id-bg-elevated, #091024) !important;
+  color: var(--id-text, #e6eef8) !important;
+  border-color: var(--id-border, rgba(255,255,255,0.10)) !important;
+}
+
+body.dark .modal-content .form-control::placeholder {
+  color: var(--id-text-muted, rgba(230, 238, 248, 0.55)) !important;
+}
+
+body.dark .modal-content label,
+body.dark .modal-content .form-label {
+  color: var(--id-text, #e6eef8) !important;
+}
+
+body.dark .modal-content .form-control:focus,
+body.dark .modal-content .form-select:focus,
+body.dark .modal-content select:focus,
+body.dark .modal-content textarea:focus {
+  border-color: var(--id-primary, #667eea) !important;
+  box-shadow: 0 0 0 0.2rem rgba(var(--id-primary-rgb, 99, 102, 241), 0.18) !important;
+}
+
+/* MUI Menu / Popover surfaces (DataGrid rows-per-page dropdown etc.) */
+body.dark .MuiPopover-paper,
+body.dark .MuiMenu-paper,
+body.dark .MuiPaper-root.MuiMenu-paper {
+  background: var(--id-bg-card, #0b1220) !important;
+  color: var(--id-text, #e6eef8) !important;
+  border: 1px solid var(--id-border, rgba(255,255,255,0.06)) !important;
+}
+
+body.dark .MuiMenuItem-root,
+body.dark .MuiList-root .MuiMenuItem-root {
+  color: var(--id-text, #e6eef8) !important;
+}
+
+body.dark .MuiMenuItem-root:hover {
+  background: rgba(var(--id-primary-rgb, 99, 102, 241), 0.12) !important;
+}
+
+/* MUI TextField labels in dark mode — Account Settings modal */
+body.dark .MuiTextField-root label,
+body.dark .MuiOutlinedInput-root .MuiInputBase-input::placeholder {
+  color: var(--id-text, #e6eef8) !important;
+}
+
+body.dark .MuiFormLabel-root {
+  color: var(--id-text, #e6eef8) !important;
+}
+
+body.dark .MuiOutlinedInput-root {
+  background: var(--id-bg-elevated, #091024) !important;
+  border-color: var(--id-border, rgba(255,255,255,0.06)) !important;
+}
+
+body.dark .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: var(--id-primary, #667eea) !important;
+}
+
+body.dark .MuiOutlinedInput-input {
+  color: var(--id-text, #e6eef8) !important;
+}
+/* Feeds ListGroupItem dark mode — black to purple gradient background with white text */
+body.dark .list-group-item {
+  background: linear-gradient(135deg, #0b0f1a 0%, #150020 100%) !important;
+  color: #ffffff !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+
+body.dark .list-group-item strong {
+  color: #ffffff !important;
+}
+
+body.dark .list-group-item .text-muted {
+  color: rgba(255,255,255,0.7) !important;
+}
+
+body.dark .list-group-item:hover {
+  background: linear-gradient(135deg, #1a1a2e 0%, #662d91 100%) !important;
+}
+
+/* PatientReg Modal - ensure text is readable in dark mode */
+body.dark input[style*="background: #f8f9fc"],
+body.dark select[style*="background: #f8f9fc"] {
+  background: var(--id-bg-elevated, #091024) !important;
+  color: var(--id-text, #e6eef8) !important;
+  border-color: var(--id-border, rgba(255,255,255,0.06)) !important;
+}
+
+body.dark input[style*="background: #f8f9fc"]:focus,
+body.dark select[style*="background: #f8f9fc"]:focus {
+  border-color: var(--id-primary, #667eea) !important;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+}
+
+/* Header styles from _header.scss */
+$primary-color: #59018b;
+$background-color: white;
+$hover-background-color: #e0d5d7;
+$hover-text-color: white;
+$active-background-color : #cec0c2;
+$renk : #59018b;
+
+.login-button1 {
+  float: right;
+  margin-right: 10px;
+  background-color: $background-color;
+  color: $primary-color;
+  border: none;
+  height: 35px;
+  width: 100px;
+  padding: 0%;
+  font-weight: bold;
+  cursor: pointer;
+  
+  &:hover {
+    background-color: $hover-background-color;
+    color: $primary-color;
+  }
+
+  &:active {
+    background-color: $active-background-color ;
+    color: $primary-color ;
+  }
+}
+
+.login-link{
+    color: $primary-color;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 16px;
+    text-decoration: none;
+}

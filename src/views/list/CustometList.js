@@ -5,6 +5,7 @@ import axiosInstance from '../../api/axiosInstance.ts';
 import { useNavigate } from 'react-router-dom';
 import { trTR } from '@mui/x-data-grid/locales';
 import { useLanguage } from '../../context/LanguageContext.js';
+import './ListTheme.css';
 
 const CustomerList = () => {
   const [customerList, setCustomerList] = useState([]);
@@ -64,7 +65,7 @@ const CustomerList = () => {
   ];
 
   return (
-    <div>
+    <div className="list-page">
       <Card>
         <CardBody>
           <div className="d-flex justify-content-between align-items-center mb-3">
@@ -79,7 +80,7 @@ const CustomerList = () => {
             />
           </div>
 
-          <div style={{ height: 600, width: '100%' }}>
+          <div className="list-data-grid" style={{ height: 600, width: '100%' }}>
             <DataGrid
               rows={filteredCustomers}
               columns={columns}

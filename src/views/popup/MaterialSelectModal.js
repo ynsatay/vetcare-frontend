@@ -11,6 +11,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import axiosInstance from "../../api/axiosInstance.ts";
 import { trTR } from '@mui/x-data-grid/locales';
 import { useLanguage } from "../../context/LanguageContext.js";
+import './MaterialSelectModal.css';
 
 const MaterialSelectModal = ({ open, onClose, onSelect }) => {
     const { t, lang } = useLanguage();
@@ -68,7 +69,13 @@ const MaterialSelectModal = ({ open, onClose, onSelect }) => {
     };
 
     return (
-        <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
+        <Dialog
+            open={open}
+            onClose={onClose}
+            fullWidth
+            maxWidth="md"
+            PaperProps={{ className: 'material-select-modal' }}
+        >
             <DialogTitle>{t('StockSelect')}</DialogTitle>
             <DialogContent>
                 {materials.length === 0 ? (
@@ -83,6 +90,11 @@ const MaterialSelectModal = ({ open, onClose, onSelect }) => {
                         rowSelectionModel={selected}
                         onSelectionModelChange={(ids) => {
                             setSelected(ids.map(id => Number(id)));
+                        }}
+                        sx={{
+                            '& .MuiDataGrid-row.Mui-selected': {
+                                backgroundColor: 'rgba(var(--id-primary-rgb, 99, 102, 241), 0.18) !important',
+                            },
                         }}
                         localeText={{
                             ...trTR.components.MuiDataGrid.defaultProps.localeText,

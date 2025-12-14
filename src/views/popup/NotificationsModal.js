@@ -25,30 +25,30 @@ const NotificationsModal = ({ open, onClose, onSave, initial }) => {
       <DialogContent dividers sx={{ p: 2.5 }}>
         <Stack spacing={2}>
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-            <Box sx={{ p: 2, border: '1px solid #e2e8f0', borderRadius: 2, background: 'linear-gradient(180deg,#fff,#f8fafc)' }}>
+            <Box sx={{ p: 2, border: '1px solid var(--id-border, #e2e8f0)', borderRadius: 2, background: 'var(--id-bg-card, linear-gradient(180deg,#fff,#f8fafc))' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
                 <Box sx={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(102,126,234,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✉️</Box>
-                <Typography fontWeight={600}>E-posta</Typography>
+                <Typography fontWeight={600} sx={{ color: 'var(--id-text, #0f172a)' }}>E-posta</Typography>
               </Box>
               <FormControlLabel control={<Switch checked={prefs.email} onChange={(e) => setPrefs(p => ({ ...p, email: e.target.checked }))} />} label="Active" />
             </Box>
-            <Box sx={{ p: 2, border: '1px solid #e2e8f0', borderRadius: 2, background: 'linear-gradient(180deg,#fff,#f8fafc)' }}>
+            <Box sx={{ p: 2, border: '1px solid var(--id-border, #e2e8f0)', borderRadius: 2, background: 'var(--id-bg-card, linear-gradient(180deg,#fff,#f8fafc))' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
                 <Box sx={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(245,87,108,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>📱</Box>
-                <Typography fontWeight={600}>SMS</Typography>
+                <Typography fontWeight={600} sx={{ color: 'var(--id-text, #0f172a)' }}>SMS</Typography>
               </Box>
               <FormControlLabel control={<Switch checked={prefs.sms} onChange={(e) => setPrefs(p => ({ ...p, sms: e.target.checked }))} />} label="Active" />
             </Box>
-            <Box sx={{ p: 2, border: '1px solid #e2e8f0', borderRadius: 2, background: 'linear-gradient(180deg,#fff,#f8fafc)' }}>
+            <Box sx={{ p: 2, border: '1px solid var(--id-border, #e2e8f0)', borderRadius: 2, background: 'var(--id-bg-card, linear-gradient(180deg,#fff,#f8fafc))' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
                 <Box sx={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>📲</Box>
-                <Typography fontWeight={600}>Push</Typography>
+                <Typography fontWeight={600} sx={{ color: 'var(--id-text, #0f172a)' }}>Push</Typography>
               </Box>
               <FormControlLabel control={<Switch checked={prefs.push} onChange={(e) => setPrefs(p => ({ ...p, push: e.target.checked }))} />} label="Active" />
             </Box>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Typography sx={{ minWidth: 110 }} color="text.secondary">{t('Frequency')}</Typography>
+            <Typography sx={{ minWidth: 110, color: 'var(--id-text, #0f172a)' }} color="text.secondary">{t('Frequency')}</Typography>
             <Select value={prefs.frequency} onChange={(e) => setPrefs(p => ({ ...p, frequency: e.target.value }))} fullWidth>
               <MenuItem value="instant">{t('Instant')}</MenuItem>
               <MenuItem value="hourly">{t('Hourly')}</MenuItem>

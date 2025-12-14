@@ -6,6 +6,7 @@ import axiosInstance from '../../api/axiosInstance.ts';
 import { useNavigate } from 'react-router-dom';
 import { trTR } from '@mui/x-data-grid/locales';
 import { useLanguage } from '../../context/LanguageContext.js';
+import './Animallist.css';
 
 const Animalslist = () => {
   const [animalslist, setAnimalslist] = useState([]);
@@ -89,7 +90,7 @@ const Animalslist = () => {
   ];
 
   return (
-    <div>
+    <div className="animals-list-page">
       <Card>
         <CardBody>
           <div className="d-flex justify-content-between align-items-center mb-3">
@@ -104,7 +105,7 @@ const Animalslist = () => {
             />
           </div>
 
-          <div style={{ height: 600, width: '100%' }}>
+          <div className="animals-data-grid" style={{ height: 600, width: '100%' }}>
             <DataGrid
               rows={filteredAnimals}
               columns={columns}
@@ -112,6 +113,12 @@ const Animalslist = () => {
               rowsPerPageOptions={[5, 10, 20]}
               disableSelectionOnClick
               getRowId={(row) => row.id}
+              sx={{
+                cursor: 'pointer',
+                '& .MuiDataGrid-row.Mui-selected, & .MuiDataGrid-row.Mui-selected:hover': {
+                  backgroundColor: 'rgba(var(--id-primary-rgb, 99, 102, 241), 0.18) !important',
+                },
+              }}
               localeText={{
                 ...trTR.components.MuiDataGrid.defaultProps.localeText,
                 footerRowSelected: (count) =>
