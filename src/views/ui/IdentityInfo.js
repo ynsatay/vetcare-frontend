@@ -43,7 +43,7 @@ const IdentityInfo = () => {
   const [planToApply, setPlanToApply] = useState(null);
   const [selectedVisitIdForApply, setSelectedVisitIdForApply] = useState(null);
   const [vaxFilterText, setVaxFilterText] = useState('');
-  const [vaxStatus, setVaxStatus] = useState(''); // '' | 'planned' | 'applied'
+  const [vaxStatus, setVaxStatus] = useState(''); // '' | 'planned' | 'applied' | 'overdue'
   const [vaxStartDate, setVaxStartDate] = useState('');
   const [vaxEndDate, setVaxEndDate] = useState('');
   const [vaxFilterOpen, setVaxFilterOpen] = useState(false);
@@ -649,8 +649,8 @@ const IdentityInfo = () => {
                       </button>
                       <div className="identity-chip-group">
                         {vaxStatus && (
-                          <span className={`identity-chip ${vaxStatus === 'applied' ? 'success' : 'warning'}`}>
-                            {vaxStatus === 'applied' ? t('Applied') : t('Planned')}
+                          <span className={`identity-chip ${vaxStatus === 'applied' ? 'success' : (vaxStatus === 'overdue' ? 'danger' : 'warning')}`}>
+                            {vaxStatus === 'applied' ? t('Applied') : (vaxStatus === 'overdue' ? t('Overdue') : t('Planned'))}
                           </span>
                         )}
                         {vaxStartDate && <span className="identity-chip">{t('Start')}: {vaxStartDate}</span>}
@@ -681,6 +681,12 @@ const IdentityInfo = () => {
                           {t('Planned')}
                         </button>
                         <button
+                          className={`identity-chip ${vaxStatus === 'overdue' ? 'danger' : ''}`}
+                          onClick={() => setVaxStatus('overdue')}
+                        >
+                          {t('Overdue')}
+                        </button>
+                        <button
                           className={`identity-chip ${vaxStatus === 'applied' ? 'success' : ''}`}
                           onClick={() => setVaxStatus('applied')}
                         >
@@ -708,8 +714,16 @@ const IdentityInfo = () => {
                     {vaccinationList.length > 0 ? vaccinationList
                       .filter((v) => {
                         const nameOk = (v.vaccine_name || '').toLowerCase().includes(vaxFilterText.toLowerCase());
-                        const statusOk = vaxStatus === '' ? true : (vaxStatus === 'applied' ? !!v.is_applied : !v.is_applied);
-                        const refDateStr = v.is_applied ? v.applied_on : v.planned_date;
+                        const appliedVal = Number(v.is_applied || 0);
+                        const plannedDateStr = v.planned_date || null;
+                        const plannedDate = plannedDateStr ? new Date(plannedDateStr) : null;
+                        const today = new Date(); today.setHours(0,0,0,0);
+                        const isOverdueLocal = appliedVal !== 1 && plannedDate && plannedDate <= today;
+                        let statusOk = true;
+                        if (vaxStatus === 'applied') statusOk = appliedVal === 1;
+                        else if (vaxStatus === 'overdue') statusOk = (appliedVal === 2) || isOverdueLocal;
+                        else if (vaxStatus === 'planned') statusOk = !(appliedVal === 1 || appliedVal === 2 || isOverdueLocal);
+                        const refDateStr = appliedVal === 1 ? v.applied_on : v.planned_date;
                         const refDate = refDateStr ? new Date(refDateStr) : null;
                         let dateOk = true;
                         if (vaxStartDate && refDate) {
@@ -731,25 +745,34 @@ const IdentityInfo = () => {
                         onClick={() => v?.pa_id && navigate(`/patientFile/${v.pa_id}`)}
                         style={{ cursor: v?.pa_id ? 'pointer' : 'default' }}
                       >
-                        <div className="identity-history-item-info" style={{ display: 'flex', flexDirection: 'row', gap: 12, alignItems: 'center', flexWrap: 'wrap', columnGap: 40, rowGap: 6, width: '100%' }}>
-                          <span className="identity-history-item-title">{v.vaccine_name || t('Vaccinations')}</span>
-                          <span className="identity-history-item-title">{t('Visit')} {v.pa_id || '-'}</span>
-                          <span className="identity-history-item-date" style={{ color: 'var(--id-text)' }}>{formatDate(v.planned_date || v.applied_on)}</span>
-                          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
-                            {!v.is_applied && (
-                              <button
-                                className="identity-btn identity-btn-success identity-btn-xs"
-                                onClick={(e) => { e.stopPropagation(); handleApplyPlan(v); }}
-                              >
-                                {t('Apply')}
-                              </button>
-                            )}
-                            <span className={`identity-history-item-status ${v.is_applied ? 'completed' : 'pending'}`}>
-                              {v.is_applied ? t('Applied') : t('Planned')}
-                            </span>
-                            
-                          </div>
-                        </div>
+                        {(() => {
+                          const appliedVal = Number(v.is_applied || 0);
+                          const plannedDateStr = v.planned_date || null;
+                          const plannedDate = plannedDateStr ? new Date(plannedDateStr) : null;
+                          const today = new Date(); today.setHours(0,0,0,0);
+                          const isOverdueLocal = appliedVal !== 1 && plannedDate && plannedDate <= today;
+
+                          return (
+                            <div className="identity-history-item-info" style={{ display: 'flex', flexDirection: 'row', gap: 12, alignItems: 'center', flexWrap: 'wrap', columnGap: 40, rowGap: 6, width: '100%' }}>
+                              <span className="identity-history-item-title">{v.vaccine_name || t('Vaccinations')}</span>
+                              <span className="identity-history-item-title">{t('Visit')} {v.pa_id || '-'}</span>
+                              <span className="identity-history-item-date" style={{ color: 'var(--id-text)' }}>{formatDate(v.planned_date || v.applied_on)}</span>
+                              <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+                                {appliedVal !== 1 && (
+                                  <button
+                                    className="identity-btn identity-btn-success identity-btn-xs"
+                                    onClick={(e) => { e.stopPropagation(); handleApplyPlan(v); }}
+                                  >
+                                    {t('Apply')}
+                                  </button>
+                                )}
+                                <span className={`identity-history-item-status ${appliedVal === 1 ? 'completed' : ((appliedVal === 2 || isOverdueLocal) ? 'overdue' : 'pending')}`}>
+                                  {appliedVal === 1 ? t('Applied') : ((appliedVal === 2 || isOverdueLocal) ? t('Overdue') : t('Planned'))}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </div>
                     )) : <div className="identity-history-empty">{t('NoVaccinationPlans')}</div>}
                   </div>

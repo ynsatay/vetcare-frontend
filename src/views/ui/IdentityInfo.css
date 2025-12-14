@@ -650,6 +650,13 @@
   color: #b45309;
   border-color: rgba(245, 158, 11, 0.35);
 }
+
+.identity-vax-toolbar .identity-chip.danger,
+.identity-vax-advanced .identity-chip.danger {
+  background: rgba(244, 67, 54, 0.12);
+  color: #f44336;
+  border-color: rgba(244, 67, 54, 0.25);
+}
 .identity-vax-toolbar .identity-chip.primary,
 .identity-vax-advanced .identity-chip.primary {
   background: rgba(99, 102, 241, 0.15);
@@ -724,6 +731,11 @@
 .identity-history-item-status.cancelled {
   background: rgba(239, 68, 68, 0.15);
   color: #dc2626;
+}
+
+.identity-history-item-status.overdue {
+  background: rgba(244, 67, 54, 0.12);
+  color: #f44336;
 }
 
 .identity-history-empty {
