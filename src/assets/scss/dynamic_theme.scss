@@ -55,9 +55,20 @@ body.dark .MuiPaper-root {
 }
 /* Sidebar: dark-mode gradient + white text/logo */
 body.dark .sidebar,
-body.dark .identity-sidebar,
 body.dark .app-sidebar {
   background: linear-gradient(180deg, #0b0f1a 0%, #59018b 100%) !important;
+  color: #ffffff !important;
+  border-right-color: transparent !important;
+}
+
+/* Identity sidebar (e.g., vaccine names panel) — keep separate from main layout sidebar */
+body.dark .identity-sidebar {
+  background: linear-gradient(
+    180deg,
+    var(--id-bg-card, #0b1220) 0%,
+    rgba(var(--id-primary-rgb, 99, 102, 241), 0.18) 55%,
+    var(--id-primary-dark, #4338ca) 100%
+  ) !important;
   color: #ffffff !important;
   border-right-color: transparent !important;
 }

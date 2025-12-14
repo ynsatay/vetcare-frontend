@@ -186,8 +186,8 @@ const StockUsageChartYear = () => {
   return (
     <div className="identity-section-card">
       <div className="identity-panel-banner" style={{ 
-        background: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #0ea5e9 100%)",
-        boxShadow: "0 4px 20px rgba(79, 70, 229, 0.3)"
+        background: "linear-gradient(135deg, var(--id-primary-dark, #4f46e5) 0%, var(--id-primary, #6366f1) 50%, var(--id-primary-light, #818cf8) 100%)",
+        boxShadow: "0 4px 20px rgba(var(--id-primary-rgb), 0.3)"
       }}>
         <div>
           <div className="identity-panel-title" style={{ fontSize: "1.75rem", fontWeight: 700, marginBottom: 4 }}>
@@ -248,25 +248,25 @@ const StockUsageChartYear = () => {
           <div className="identity-layout" style={{ gap: 20 }}>
             <aside className="identity-sidebar" style={{ alignSelf: "stretch", position: "static", height: "100%" }}>
               <div className="identity-section-card compact" style={{ 
-                background: "linear-gradient(135deg, #faf7ff 0%, #f3e8ff 100%)",
-                border: "1px solid #e9d5ff",
-                boxShadow: "0 4px 20px rgba(139, 92, 246, 0.08)",
+                background: "linear-gradient(135deg, rgba(var(--id-primary-rgb), 0.14) 0%, rgba(var(--id-primary-rgb), 0.06) 100%)",
+                border: "1px solid rgba(var(--id-primary-rgb), 0.25)",
+                boxShadow: "0 4px 20px rgba(var(--id-primary-rgb), 0.12)",
                 height: isMobile ? 520 : 640,
                 display: "flex",
                 flexDirection: "column"
               }}>
                   <div className="identity-section-header">
-                  <h3 className="identity-card-title" style={{ color: "#6b21a8", fontSize: "1.1rem" }}>
+                  <h3 className="identity-card-title" style={{ color: "var(--id-text, #0f172a)", fontSize: "1.1rem" }}>
                     📦 {t('StockNames')}
                   </h3>
                 </div>
                 <div className="identity-input-group" style={{ 
                   marginBottom: 12,
-                  background: "#ffffff",
-                  border: "1px solid #e2e8f0",
+                  background: "var(--id-bg-card, #ffffff)",
+                  border: "1px solid var(--id-border, #e2e8f0)",
                   borderRadius: 8
                 }}>
-                  <Search className="identity-input-icon" size={16} color="#64748b" />
+                  <Search className="identity-input-icon" size={16} color="var(--id-text-muted, #64748b)" />
                   <input 
                     className="identity-owner-input" 
                     placeholder={t('SearchStockPlaceholder')} 
@@ -280,7 +280,7 @@ const StockUsageChartYear = () => {
                   minHeight: 0,
                   overflowY: "auto",
                   padding: 4,
-                  background: "rgba(255, 255, 255, 0.6)",
+                  background: "var(--id-bg-elevated, #f1f5f9)",
                   borderRadius: 8,
                   gridTemplateColumns: "1fr"
                 }}>
@@ -288,20 +288,24 @@ const StockUsageChartYear = () => {
                     <label key={n} className="identity-checkbox-card" style={{ 
                       padding: "8px 12px",
                       borderRadius: 6,
-                      border: "1px solid #f1f5f9",
-                      background: selectedStocks.includes(n) ? "#f1f5f9" : "transparent"
+                      border: "1px solid var(--id-border, #e2e8f0)",
+                      background: selectedStocks.includes(n)
+                        ? "rgba(var(--id-primary-rgb), 0.10)"
+                        : "transparent"
                     }}>
                       <input type="checkbox" checked={selectedStocks.includes(n)} onChange={() => toggleStock(n)} />
                       <span style={{ 
                         fontSize: "0.9rem",
-                        color: selectedStocks.includes(n) ? "#3b82f6" : "#475569"
+                        color: selectedStocks.includes(n)
+                          ? "var(--id-primary, #6366f1)"
+                          : "var(--id-text-secondary, #475569)"
                       }}>{n}</span>
                     </label>
                   ))}
                 </div>
                 <div className="identity-owner-actions" style={{ 
                   paddingTop: 12,
-                  borderTop: "1px solid #f1f5f9",
+                  borderTop: "1px solid var(--id-border, #e2e8f0)",
                   marginTop: 8
                 }}>
                   <button className="identity-btn identity-btn-primary identity-btn-xs" onClick={selectAll}>
@@ -320,19 +324,19 @@ const StockUsageChartYear = () => {
                   gap: 8, 
                   marginTop: 12,
                   padding: 12,
-                  background: "rgba(255, 255, 255, 0.8)",
+                  background: "linear-gradient(135deg, var(--id-bg-card, #ffffff) 0%, rgba(var(--id-primary-rgb), 0.08) 100%)",
                   borderRadius: 8,
-                  border: "1px solid #f1f5f9",
+                  border: "1px solid var(--id-border, #e2e8f0)",
                   maxHeight: 140,
                   overflowY: "auto",
                   alignContent: "flex-start"
                 }}>
-                  <div style={{ fontSize: "0.8rem", color: "#64748b", marginBottom: 4 }}>
+                  <div style={{ fontSize: "0.8rem", color: "var(--id-text-muted, #64748b)", marginBottom: 4 }}>
                     {t('SelectedStocks')} ({selectedStocks.length}):
                   </div>
                   {selectedStocks.map((n) => (
                     <span key={n} className="identity-stat-pill" style={{ 
-                      background: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
+                      background: "linear-gradient(135deg, var(--id-primary, #6366f1) 0%, var(--id-primary-dark, #4f46e5) 100%)",
                       color: "white",
                       border: "none",
                       fontSize: "0.8rem",

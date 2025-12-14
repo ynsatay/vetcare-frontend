@@ -44,6 +44,11 @@ function Profile() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  const themeKeyToNumber = (key) => {
+    const map = { home: 1, indigo: 2, emerald: 3, rose: 4, sky: 5 };
+    return map[key] || 2;
+  };
+
   const [values, setValues] = useState({
     name: '',
     surname: '',
@@ -1416,6 +1421,21 @@ function Profile() {
           window.dispatchEvent(new CustomEvent('themechange', { detail: { dark, primary } }));
           setShowTheme(false);
           toast.success(t('ThemeSettingsUpdated'));
+
+          // Persist to DB (users.dark_mode + users.theme)
+          try {
+            if (userid && userid > 0) {
+              const fd = new FormData();
+              fd.append('userId', userid.toString());
+              fd.append('dark_mode', dark ? '1' : '0');
+              fd.append('theme', String(themeKeyToNumber(primary)));
+              axiosInstance.post('/update-profile', fd).catch((err) => {
+                console.error('Tema kaydetme isteği başarısız:', err);
+              });
+            }
+          } catch (err) {
+            console.error('Tema kaydetme isteği başarısız:', err);
+          }
         }}
         initial={JSON.parse(localStorage.getItem('theme_prefs') || '{}')}
       />
