@@ -1,4 +1,68 @@
 
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-brand-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--id-primary, #59018b);
+}
+
+.sidebar-brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+.sidebar-brand-logo {
+  display: inline-block;
+  background-color: var(--id-primary, #59018b);
+  -webkit-mask: var(--brand-logo-url) no-repeat center / contain;
+  mask: var(--brand-logo-url) no-repeat center / contain;
+}
+
+body.dark .sidebar-brand-logo {
+  background-color: var(--id-primary-light, var(--id-primary, #a78bfa));
+}
+
+.sidebar-brand-img-fallback {
+  display: none;
+}
+
+@supports not ((-webkit-mask: url("")) or (mask: url(""))) {
+  .sidebar-brand-logo {
+    display: none;
+  }
+
+  .sidebar-brand-img-fallback {
+    display: block;
+  }
+}
+
+.sidebar-brand-img {
+  display: block;
+}
+
+body.dark .sidebar-brand-link {
+  color: var(--id-primary-light, #a78bfa);
+}
+
+@supports (color: color-mix(in srgb, #fff 50%, #000 50%)) {
+  body.dark .sidebar-brand-link {
+    color: color-mix(in srgb, #ffffff 70%, rgb(var(--id-primary-rgb, 99, 102, 241)) 30%);
+  }
+}
+
   .nav-link:hover {
     background-color: var(--sidebar-hover-bg, #e8e8e8);
     transition: all 0.3s ease;
