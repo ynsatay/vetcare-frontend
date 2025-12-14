@@ -205,9 +205,9 @@ import { useLanguage } from "../../context/LanguageContext.js";
               📅 {t('ThisMonth')}: <strong style={{ color: "#fff", fontSize: "1.1em" }}>{Math.round(currentMonthTotal)}</strong>
             </div>
             <div className="identity-stat-pill" style={{ 
-              background: growth >= 0 ? "rgba(16, 185, 129, 0.3)" : "rgba(239, 68, 68, 0.3)",
+              background: growth >= 0 ? "rgba(255, 255, 255, 0.3)" : "rgba(239, 68, 68, 0.3)",
               border: "none",
-              color: growth >= 0 ? "#10b981" : "#ef4444"
+              color: growth >= 0 ? "#ffffffff" : "#ef4444"
             }}>
               📈 {t('Change')}: <strong>{growth >= 0 ? "+" : ""}{Math.round(growth)}%</strong>
             </div>
