@@ -12,10 +12,12 @@ import {
 import './IdentityInfo.css';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from 'reactstrap';
 import { toast } from 'react-toastify';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 const IdentityInfo = () => {
   const location = useLocation();
   const { userId, identity, animalId } = location.state || {};
+  const { t, lang } = useLanguage();
 
   const [animalsList, setAnimalsList] = useState([]);
   const [selectedAnimal, setSelectedAnimal] = useState(null);
@@ -176,17 +178,17 @@ const IdentityInfo = () => {
 
   const handleSave = async () => {
     if (!selectedAnimal?.data_id) {
-      confirm("Hayvan seçili değil.", "Tamam", "", "Uyarı");
+      confirm(t('AnimalNotSelected'), t('Ok'), "", t('Warning'));
       return;
     }
     setIsSaving(true);
     try {
       const { data_id, ...payload } = selectedAnimal;
       const res = await axiosInstance.put(`/animalslistUpdate/${data_id}`, payload);
-      confirm(res.status === 200 ? "Güncellendi." : "Hata.", "Tamam", "", res.status === 200 ? "Bilgi" : "Uyarı");
+      confirm(res.status === 200 ? t('Updated') : t('Error'), t('Ok'), "", res.status === 200 ? t('Info') : t('Warning'));
     } catch (err) {
       if (err.__demo_blocked) return; 
-      confirm("Hata.", "Tamam", "", "Uyarı");
+      confirm(t('Error'), t('Ok'), "", t('Warning'));
     } finally {
       setIsSaving(false);
     }
@@ -202,19 +204,18 @@ const IdentityInfo = () => {
         return d >= today && (a.status === 0 || a.status === 1);
       });
       if (upcoming.length > 0) {
-        await confirm("Randevusu olan hayvan silinemez.", "Tamam", "", "Uyarı");
+        await confirm(t('CannotDeleteWithAppointment'), t('Ok'), "", t('Warning'));
         return;
       }
       if (visitList?.length > 0) {
-        await confirm("Geliş kaydı olan hayvan silinemez.", "Tamam", "", "Uyarı");
+        await confirm(t('CannotDeleteWithVisit'), t('Ok'), "", t('Warning'));
         return;
       }
-      const proceed = await confirm("Hayvan silinecek. Devam?", "Evet", "Hayır", "Uyarı");
+      const proceed = await confirm(t('DeleteAnimalConfirm'), t('Yes'), t('No'), t('Warning'));
       if (!proceed) return;
       const res = await axiosInstance.delete(`/animalslistDel/${selectedAnimal.data_id}`);
       if (res.status === 200) {
-        //await confirm("Silindi.", "Tamam", "", "Bilgi");
-        toast.success('Geliş başarıyla silindi!');
+        toast.success(t('VisitDeleted'));
         const aRes = await axiosInstance.get('/animalslist', { params: { user_id: ownerInfo?.id || userId } });
         const animals = aRes.data.response || [];
         setAnimalsList(animals);
@@ -222,7 +223,7 @@ const IdentityInfo = () => {
       }
     } catch (err) {
       if (err.__demo_blocked) return; 
-      confirm("Hata.", "Tamam", "", "Uyarı");
+      confirm(t('Error'), t('Ok'), "", t('Warning'));
     } finally {
       setIsDeletingAnimal(false);
     }
@@ -235,10 +236,10 @@ const IdentityInfo = () => {
       const { picture, sex, uname, ...rest } = ownerInfo;
       const payload = { ...rest, sex: sex || '', username: uname || '' };
       const res = await axiosInstance.put(`/updatepersonel/${ownerInfo.id}`, payload);
-      confirm(res.status === 200 && res.data.status === 'success' ? "Güncellendi." : "Hata.", "Tamam", "", "Bilgi");
+      confirm(res.status === 200 && res.data.status === 'success' ? t('Updated') : t('Error'), t('Ok'), "", t('Info'));
     } catch (err) {
       if (err.__demo_blocked) return; 
-      confirm("Hata.", "Tamam", "", "Uyarı");
+      confirm(t('Error'), t('Ok'), "", t('Warning'));
     } finally {
       setIsSavingOwner(false);
     }
@@ -247,10 +248,10 @@ const IdentityInfo = () => {
   const handleOwnerDelete = async () => {
     if (!ownerInfo?.id) return;
     if (animalsList?.length > 0) {
-      await confirm("Sahibe bağlı hayvanlar bulunduğu için silinemez.", "Tamam", "", "Uyarı");
+      await confirm(t('CannotDeleteOwnerWithAnimals'), t('Ok'), "", t('Warning'));
       return;
     }
-    await confirm("Sahip silme özelliği bu sürümde devre dışı.", "Tamam", "", "Bilgi");
+    await confirm(t('OwnerDeleteDisabled'), t('Ok'), "", t('Info'));
   };
 
   const getAnimalStatus = (animal) => {
@@ -272,6 +273,19 @@ const IdentityInfo = () => {
     if (t.includes('keçi') || t.includes('keci') || t.includes('goat')) return '🐐';
     return '🐾';
   };
+  const translateAnimalType = (type) => {
+    const v = (type || '').toLowerCase();
+    if (v.includes('kedi') || v.includes('cat')) return 'Cat';
+    if (v.includes('köpek') || v.includes('kopek') || v.includes('dog')) return 'Dog';
+    if (v.includes('balık') || v.includes('balik') || v.includes('fish')) return 'Fish';
+    if (v.includes('inek') || v.includes('cow') || v.includes('sığır') || v.includes('sigir')) return 'Cow';
+    if (v.includes('koyun') || v.includes('sheep')) return 'Sheep';
+    if (v.includes('tavşan') || v.includes('tavsan') || v.includes('rabbit')) return 'Rabbit';
+    if (v.includes('kuş') || v.includes('kus') || v.includes('bird')) return 'Bird';
+    if (v.includes('at') || v.includes('horse')) return 'Horse';
+    if (v.includes('keçi') || v.includes('keci') || v.includes('goat')) return 'Goat';
+    return type || '';
+  };
 
   const getInitials = (name, surname) => {
     return `${(name || '')[0] || ''}${(surname || '')[0] || ''}`.toUpperCase();
@@ -279,12 +293,13 @@ const IdentityInfo = () => {
 
   const formatDate = (date) => {
     if (!date) return '-';
-    return new Date(date).toLocaleDateString('tr-TR');
+    const loc = lang === 'en' ? 'en-GB' : 'tr-TR';
+    return new Date(date).toLocaleDateString(loc);
   };
 
   const getAppointmentStatus = (status) => {
-    const map = { 0: { text: 'Bekliyor', class: 'pending' }, 1: { text: 'Geldi', class: 'pending' }, 2: { text: 'Tamamlandı', class: 'completed' }, 3: { text: 'İptal', class: 'cancelled' } };
-    return map[status] || { text: 'Bilinmiyor', class: 'pending' };
+    const map = { 0: { text: t('Waiting'), class: 'pending' }, 1: { text: t('Arrived'), class: 'pending' }, 2: { text: t('Completed'), class: 'completed' }, 3: { text: t('Cancelled'), class: 'cancelled' } };
+    return map[status] || { text: t('Waiting'), class: 'pending' };
   };
 
   const handleApplyPlan = async (plan) => {
@@ -324,7 +339,7 @@ const IdentityInfo = () => {
       <div className="identity-page">
         <div className="identity-loading">
           <div className="identity-spinner" />
-          <span style={{ color: 'var(--id-text-muted)' }}>Yükleniyor...</span>
+          <span style={{ color: 'var(--id-text-muted)' }}>{t('Loading')}</span>
         </div>
       </div>
     );
@@ -356,8 +371,8 @@ const IdentityInfo = () => {
               {ownerInfo ? getInitials(ownerInfo.name, ownerInfo.surname) : '?'}
             </div>
             <div className="identity-header-info">
-              <h1>{ownerInfo ? `${ownerInfo.name} ${ownerInfo.surname}` : 'Bilgi Yok'}</h1>
-              <div className="identity-header-meta"><CreditCard size={14} /> TC: {ownerInfo?.tc || 'Belirtilmemiş'}</div>
+              <h1>{ownerInfo ? `${ownerInfo.name} ${ownerInfo.surname}` : t('NoInfo')}</h1>
+              <div className="identity-header-meta"><CreditCard size={14} /> TC: {ownerInfo?.tc || t('NotSpecified')}</div>
             </div>
           </div>
           <div className="identity-header-stats">
@@ -371,11 +386,11 @@ const IdentityInfo = () => {
         <div className="identity-layout">
           <aside className="identity-sidebar">
             <div className="identity-animals-header">
-              <h3 className="identity-animals-title"><PawPrint size={18} /> Hayvanlar</h3>
+              <h3 className="identity-animals-title"><PawPrint size={18} /> {t('Animals')}</h3>
               <button className="identity-add-btn" onClick={() => setIsAddModalOpen(true)}><Plus size={18} /></button>
             </div>
             <div className="identity-search">
-              <input className="identity-search-input" placeholder="Ara..." value={filterText} onChange={(e) => setFilterText(e.target.value)} />
+              <input className="identity-search-input" placeholder={t('SearchPlaceholder')} value={filterText} onChange={(e) => setFilterText(e.target.value)} />
             </div>
             <div className="identity-animals-list">
               {filteredAnimals.map(animal => (
@@ -383,35 +398,35 @@ const IdentityInfo = () => {
                   <div className="identity-animal-emoji">{getAnimalEmoji(animal.animal_name)}</div>
                   <div className="identity-animal-details">
                     <h4 className="identity-animal-name">{animal.animalname}</h4>
-                    <p className="identity-animal-breed">{animal.animal_name}</p>
+                    <p className="identity-animal-breed">{lang === 'en' ? translateAnimalType(animal.animal_name) : (animal.animal_name || '')}</p>
                   </div>
                   <span className={`identity-animal-badge ${getAnimalStatus(animal).class}`}>{getAnimalStatus(animal).text}</span>
                 </div>
               ))}
-              {filteredAnimals.length === 0 && <div className="identity-empty"><div className="identity-empty-icon">🐾</div><p>Sonuç yok</p></div>}
+              {filteredAnimals.length === 0 && <div className="identity-empty"><div className="identity-empty-icon">🐾</div><p>{t('NoResults')}</p></div>}
             </div>
 
             <div className="identity-section-card" style={{ marginTop: 16 }}>
               <div className="identity-section-header">
-                <h4>Randevu Durumları</h4>
+                <h4>{t('AppointmentStatuses')}</h4>
                 <span className="identity-history-count">{appointmentList.length}</span>
               </div>
               <div className="identity-status-list">
-                <div className="identity-status-item"><span className="dot pending"></span><span>Beklemede</span><strong>{appointmentStatusCounts.beklemede}</strong></div>
-                <div className="identity-status-item"><span className="dot arrived"></span><span>Geldi</span><strong>{appointmentStatusCounts.geldi}</strong></div>
-                <div className="identity-status-item"><span className="dot completed"></span><span>Tamamlandı</span><strong>{appointmentStatusCounts.tamamlandi}</strong></div>
-                <div className="identity-status-item"><span className="dot cancelled"></span><span>İptal</span><strong>{appointmentStatusCounts.iptal}</strong></div>
+                <div className="identity-status-item"><span className="dot pending"></span><span>{t('Waiting')}</span><strong>{appointmentStatusCounts.beklemede}</strong></div>
+                <div className="identity-status-item"><span className="dot arrived"></span><span>{t('Arrived')}</span><strong>{appointmentStatusCounts.geldi}</strong></div>
+                <div className="identity-status-item"><span className="dot completed"></span><span>{t('Completed')}</span><strong>{appointmentStatusCounts.tamamlandi}</strong></div>
+                <div className="identity-status-item"><span className="dot cancelled"></span><span>{t('Cancelled')}</span><strong>{appointmentStatusCounts.iptal}</strong></div>
               </div>
             </div>
 
             <div className="identity-section-card" style={{ marginTop: 16 }}>
               <div className="identity-section-header">
-                <h4>Geliş Durumları</h4>
+                <h4>{t('VisitStatuses')}</h4>
                 <span className="identity-history-count">{visitList.length}</span>
               </div>
               <div className="identity-status-list">
-                <div className="identity-status-item"><span className="dot pending"></span><span>Aktif</span><strong>{visitStatusCounts.aktif}</strong></div>
-                <div className="identity-status-item"><span className="dot completed"></span><span>Tamamlandı</span><strong>{visitStatusCounts.tamamlandi}</strong></div>
+                <div className="identity-status-item"><span className="dot pending"></span><span>{t('Active')}</span><strong>{visitStatusCounts.aktif}</strong></div>
+                <div className="identity-status-item"><span className="dot completed"></span><span>{t('Completed')}</span><strong>{visitStatusCounts.tamamlandi}</strong></div>
               </div>
             </div>
           </aside>
@@ -419,87 +434,87 @@ const IdentityInfo = () => {
           <main className="identity-content">
             <div className="identity-section-card">
               <div className="identity-section-header">
-                <h3>Sahip Bilgileri</h3>
+                <h3>{t('OwnerInfo')}</h3>
                 <button className="identity-collapse-toggle" onClick={() => setOwnerCollapsed(c => !c)}>
-                  {ownerCollapsed ? 'Düzenle' : 'Gizle'}
+                  {ownerCollapsed ? t('Edit') : t('Hide')}
                 </button>
               </div>
               {!ownerCollapsed ? (
                 <div className="identity-owner-grid">
                   <div className="identity-owner-field">
-                    <label className="identity-owner-label">Adı</label>
+                    <label className="identity-owner-label">{t('Name')}</label>
                     <div className="identity-input-group">
                       <User className="identity-input-icon" size={16} />
                       <input className="identity-owner-input" name="name" value={ownerInfo?.name || ''} onChange={handleOwnerInputChange} />
                     </div>
                   </div>
                   <div className="identity-owner-field">
-                    <label className="identity-owner-label">Soyadı</label>
+                    <label className="identity-owner-label">{t('Surname')}</label>
                     <div className="identity-input-group">
                       <User className="identity-input-icon" size={16} />
                       <input className="identity-owner-input" name="surname" value={ownerInfo?.surname || ''} onChange={handleOwnerInputChange} />
                     </div>
                   </div>
                   <div className="identity-owner-field">
-                    <label className="identity-owner-label">Telefon</label>
+                    <label className="identity-owner-label">{t('Phone')}</label>
                     <div className="identity-input-group">
                       <Phone className="identity-input-icon" size={16} />
                       <input className="identity-owner-input" name="phone" value={ownerInfo?.phone || ''} onChange={handleOwnerInputChange} />
                     </div>
                   </div>
                   <div className="identity-owner-field">
-                    <label className="identity-owner-label">E-posta</label>
+                    <label className="identity-owner-label">{t('Email')}</label>
                     <div className="identity-input-group">
                       <Mail className="identity-input-icon" size={16} />
                       <input className="identity-owner-input" name="email" value={ownerInfo?.email || ''} onChange={handleOwnerInputChange} />
                     </div>
                   </div>
                   <div className="identity-owner-field full">
-                    <label className="identity-owner-label">Adres</label>
+                    <label className="identity-owner-label">{t('Address')}</label>
                     <div className="identity-input-group">
                       <MapPin className="identity-input-icon" size={16} />
                       <input className="identity-owner-input" name="address" value={ownerInfo?.address || ''} onChange={handleOwnerInputChange} />
                     </div>
                   </div>
                   <div className="identity-owner-field">
-                    <label className="identity-owner-label">Doğum Tarihi</label>
+                    <label className="identity-owner-label">{t('BirthDate')}</label>
                     <div className="identity-input-group">
                       <Calendar className="identity-input-icon" size={16} />
                       <input type="date" className="identity-owner-input" name="birthdate" value={ownerInfo?.birthdate || ''} onChange={handleOwnerInputChange} />
                     </div>
                   </div>
                   <div className="identity-owner-field">
-                    <label className="identity-owner-label">Cinsiyet</label>
+                    <label className="identity-owner-label">{t('Gender')}</label>
                     <div className="identity-input-group">
                       <User className="identity-input-icon" size={16} />
                       <select className="identity-owner-select" name="sex" value={ownerInfo?.sex || ''} onChange={handleOwnerInputChange}>
-                        <option value="">Seçiniz</option>
-                        <option value="ERKEK">Erkek</option>
-                        <option value="KADIN">Kadın</option>
+                        <option value="">{t('Select')}</option>
+                        <option value="ERKEK">{t('Male')}</option>
+                        <option value="KADIN">{t('Female')}</option>
                       </select>
                     </div>
                   </div>
                 </div>
               ) : (
                 <div className="identity-owner-summary">
-                  <div className="summary-row"><span>Ad Soyad</span><strong>{ownerInfo ? `${ownerInfo.name} ${ownerInfo.surname}` : '-'}</strong></div>
-                  <div className="summary-row"><span>Telefon</span><strong>{ownerInfo?.phone || '-'}</strong></div>
-                  <div className="summary-row"><span>E-posta</span><strong>{ownerInfo?.email || '-'}</strong></div>
-                  <div className="summary-row"><span>Adres</span><strong>{ownerInfo?.address || '-'}</strong></div>
+                  <div className="summary-row"><span>{t('Name')} {t('Surname')}</span><strong>{ownerInfo ? `${ownerInfo.name} ${ownerInfo.surname}` : '-'}</strong></div>
+                  <div className="summary-row"><span>{t('Phone')}</span><strong>{ownerInfo?.phone || '-'}</strong></div>
+                  <div className="summary-row"><span>{t('Email')}</span><strong>{ownerInfo?.email || '-'}</strong></div>
+                  <div className="summary-row"><span>{t('Address')}</span><strong>{ownerInfo?.address || '-'}</strong></div>
                 </div>
               )}
               <div className="identity-owner-actions">
                 <button className="identity-btn identity-btn-primary" onClick={handleOwnerSave} disabled={isSavingOwner}>
-                  <Save size={16} /> {isSavingOwner ? 'Kaydediliyor...' : 'Kaydet'}
+                  <Save size={16} /> {isSavingOwner ? t('Saving') : t('Save')}
                 </button>
               </div>
             </div>
 
             <div className="identity-tabs">
-              <button className={`identity-tab ${activeTab === 'detay' ? 'active' : ''}`} onClick={() => setActiveTab('detay')}>Detay</button>
-              <button className={`identity-tab ${activeTab === 'gelisler' ? 'active' : ''}`} onClick={() => setActiveTab('gelisler')}>Gelişler</button>
-              <button className={`identity-tab ${activeTab === 'randevular' ? 'active' : ''}`} onClick={() => setActiveTab('randevular')}>Randevular</button>
-              <button className={`identity-tab ${activeTab === 'asilar' ? 'active' : ''}`} onClick={() => setActiveTab('asilar')}>Aşılar</button>
+              <button className={`identity-tab ${activeTab === 'detay' ? 'active' : ''}`} onClick={() => setActiveTab('detay')}>{t('Details')}</button>
+              <button className={`identity-tab ${activeTab === 'gelisler' ? 'active' : ''}`} onClick={() => setActiveTab('gelisler')}>{t('Visits')}</button>
+              <button className={`identity-tab ${activeTab === 'randevular' ? 'active' : ''}`} onClick={() => setActiveTab('randevular')}>{t('Appointments')}</button>
+              <button className={`identity-tab ${activeTab === 'asilar' ? 'active' : ''}`} onClick={() => setActiveTab('asilar')}>{t('Vaccinations')}</button>
             </div>
 
             {selectedAnimal ? (
@@ -510,117 +525,117 @@ const IdentityInfo = () => {
                       <div className="identity-animal-detail-avatar">{getAnimalEmoji(selectedAnimal.animal_name)}</div>
                       <div className="identity-animal-detail-info">
                         <h3>{selectedAnimal.animalname}</h3>
-                        <p>{selectedAnimal.animal_name} • {selectedAnimal.species_name || 'Belirtilmemiş'}</p>
+                        <p>{lang === 'en' ? translateAnimalType(selectedAnimal.animal_name) : selectedAnimal.animal_name} • {lang === 'en' ? translateAnimalType(selectedAnimal.species_name) : (selectedAnimal.species_name || t('NotSpecified'))}</p>
                       </div>
                     </div>
                     <div className="identity-animal-detail-actions">
                       <button className="identity-btn identity-btn-success" onClick={() => setIsPatientFileRegOpen(true)} disabled={selectedAnimal?.isdeath || !selectedAnimal?.active}>
-                        <FolderPlus size={16} /> Yeni Geliş
+                        <FolderPlus size={16} /> {t('NewVisit')}
                       </button>
                     </div>
                   </div>
                   <div className="identity-animal-detail-body">
                     <div className="identity-form-row">
                       <div className="identity-form-field">
-                        <label className="identity-form-label">Hayvan Adı</label>
+                        <label className="identity-form-label">{t('AnimalName')}</label>
                         <input className="identity-form-input" name="animalname" value={selectedAnimal.animalname || ''} onChange={handleInputChange} />
                       </div>
                       <div className="identity-form-field">
-                        <label className="identity-form-label">Türü</label>
+                        <label className="identity-form-label">{t('Type')}</label>
                         <input className="identity-form-input" name="animal_name" value={selectedAnimal.animal_name || ''} onChange={handleInputChange} />
                       </div>
                     </div>
                     <div className="identity-form-row">
                       <div className="identity-form-field">
-                        <label className="identity-form-label">Cinsi</label>
-                        <input className="identity-form-input" value={selectedAnimal.species_name || ''} disabled />
+                        <label className="identity-form-label">{t('Breed')}</label>
+                        <input className="identity-form-input" value={lang === 'en' ? translateAnimalType(selectedAnimal.species_name) : (selectedAnimal.species_name || '')} disabled />
                       </div>
                       <div className="identity-form-field">
-                        <label className="identity-form-label"><Hash size={12} /> Kimlik No</label>
+                        <label className="identity-form-label"><Hash size={12} /> {t('IdentityNo')}</label>
                         <input className="identity-form-input" name="animalidentnumber" value={selectedAnimal.animalidentnumber || ''} onChange={handleInputChange} />
                       </div>
                     </div>
                     <div className="identity-form-row">
                       <div className="identity-form-field">
-                        <label className="identity-form-label"><Calendar size={12} /> Doğum Tarihi</label>
+                        <label className="identity-form-label"><Calendar size={12} /> {t('BirthDate')}</label>
                         <input type="date" className="identity-form-input" name="birthdate" value={selectedAnimal.birthdate || ''} onChange={handleInputChange} />
                       </div>
                       <div className="identity-form-field">
-                        <label className="identity-form-label">Ölüm Tarihi</label>
+                        <label className="identity-form-label">{t('DeathDate')}</label>
                         <input type="date" className="identity-form-input" name="deathdate" value={selectedAnimal.deathdate || ''} onChange={handleInputChange} />
                       </div>
                     </div>
                     <div className="identity-checkbox-grid">
                       <label className="identity-checkbox-card">
                         <input type="checkbox" name="active" checked={!!selectedAnimal.active} onChange={handleInputChange} />
-                        <span>Aktif</span>
+                        <span>{t('Active')}</span>
                       </label>
                       <label className="identity-checkbox-card">
                         <input type="checkbox" name="isdeath" checked={!!selectedAnimal.isdeath} disabled />
-                        <span>Vefat Etti</span>
+                        <span>{t('Deceased')}</span>
                       </label>
                     </div>
                   </div>
                   <div className="identity-animal-detail-footer">
                     <button className="identity-btn identity-btn-danger" onClick={handleDeleteAnimal} disabled={isDeletingAnimal}>
-                      <Trash2 size={16} /> {isDeletingAnimal ? 'Siliniyor...' : 'Sil'}
+                      <Trash2 size={16} /> {isDeletingAnimal ? t('Deleting') : t('Delete')}
                     </button>
                     <button className="identity-btn identity-btn-primary" onClick={handleSave} disabled={isSaving}>
-                      <Save size={16} /> {isSaving ? 'Kaydediliyor...' : 'Kaydet'}
+                      <Save size={16} /> {isSaving ? t('Saving') : t('Save')}
                     </button>
                   </div>
                 </div>
               ) : activeTab === 'gelisler' ? (
                 <div className="identity-history-card">
                   <div className="identity-history-header">
-                    <h4 className="identity-history-title visits"><ClipboardList /> Gelişler</h4>
+                    <h4 className="identity-history-title visits"><ClipboardList /> {t('Visits')}</h4>
                     <span className="identity-history-count">{visitList.length}</span>
                   </div>
                   <div className="identity-history-body">
                     {visitList.length > 0 ? visitList.map((v, i) => (
                       <div key={i} className="identity-history-item" onClick={() => v?.id && navigate(`/patientFile/${v.id}`)} style={{ cursor: 'pointer' }}>
                         <div className="identity-history-item-info">
-                          <span className="identity-history-item-title">Geliş #{v.id}</span>
+                          <span className="identity-history-item-title">{t('Visit')} #{v.id}</span>
                           <span className="identity-history-item-date">{formatDate(v.created_at)}</span>
                         </div>
                         <span className={`identity-history-item-status ${v.is_discharge ? 'completed' : 'pending'}`}>
-                          {v.is_discharge ? 'Taburcu' : 'Aktif'}
+                          {v.is_discharge ? t('Discharged') : t('Active')}
                         </span>
                       </div>
-                    )) : <div className="identity-history-empty">Geliş kaydı yok</div>}
+                    )) : <div className="identity-history-empty">{t('NoVisits')}</div>}
                   </div>
                 </div>
               ) : activeTab === 'randevular' ? (
                 <div className="identity-history-card">
                   <div className="identity-history-header">
-                    <h4 className="identity-history-title appointments"><CalendarCheck /> Randevular</h4>
+                    <h4 className="identity-history-title appointments"><CalendarCheck /> {t('Appointments')}</h4>
                     <span className="identity-history-count">{appointmentList.length}</span>
                   </div>
                   <div className="identity-history-body">
                     {appointmentList.length > 0 ? appointmentList.map((a, i) => (
                       <div key={i} className="identity-history-item">
                         <div className="identity-history-item-info">
-                          <span className="identity-history-item-title">{a.app_type === 0 ? 'Muayene' : 'Kontrol'}</span>
+                          <span className="identity-history-item-title">{a.app_type === 0 ? t('Examination') : t('Control')}</span>
                           <span className="identity-history-item-date">{formatDate(a.start_time)}</span>
                         </div>
                         <span className={`identity-history-item-status ${getAppointmentStatus(a.status).class}`}>
                           {getAppointmentStatus(a.status).text}
                         </span>
                       </div>
-                    )) : <div className="identity-history-empty">Randevu yok</div>}
+                    )) : <div className="identity-history-empty">{t('NoAppointments')}</div>}
                   </div>
                 </div>
               ) : (
                 <div className="identity-history-card">
                   <div className="identity-history-header">
-                    <h4 className="identity-history-title vaccinations"><Syringe /> Aşılar</h4>
+                    <h4 className="identity-history-title vaccinations"><Syringe /> {t('Vaccinations')}</h4>
                     <span className="identity-history-count">{vaccinationList.length}</span>
                   </div>
                   <div className="identity-vax-toolbar">
                     <div className="identity-toolbar-left">
                       <input
                         className="identity-search-input identity-search-compact"
-                        placeholder="Aşı adına göre ara"
+                        placeholder={t('SearchPlaceholder')}
                         value={vaxFilterText}
                         onChange={(e) => setVaxFilterText(e.target.value)}
                       />
@@ -630,23 +645,23 @@ const IdentityInfo = () => {
                         className="identity-btn identity-btn-ghost"
                         onClick={() => setVaxFilterOpen(o => !o)}
                       >
-                        {vaxFilterOpen ? 'Filtreyi Gizle' : 'Filtreyi Aç'}
+                        {vaxFilterOpen ? t('HideFilter') : t('ShowFilter')}
                       </button>
                       <div className="identity-chip-group">
                         {vaxStatus && (
                           <span className={`identity-chip ${vaxStatus === 'applied' ? 'success' : 'warning'}`}>
-                            {vaxStatus === 'applied' ? 'Uygulandı' : 'Planlandı'}
+                            {vaxStatus === 'applied' ? t('Applied') : t('Planned')}
                           </span>
                         )}
-                        {vaxStartDate && <span className="identity-chip">Başlangıç: {vaxStartDate}</span>}
-                        {vaxEndDate && <span className="identity-chip">Bitiş: {vaxEndDate}</span>}
-                        {vaxFilterText && <span className="identity-chip">Ara: {vaxFilterText}</span>}
+                        {vaxStartDate && <span className="identity-chip">{t('Start')}: {vaxStartDate}</span>}
+                        {vaxEndDate && <span className="identity-chip">{t('End')}: {vaxEndDate}</span>}
+                        {vaxFilterText && <span className="identity-chip">{t('Search')}: {vaxFilterText}</span>}
                       </div>
                       <button
                         className="identity-btn identity-btn-ghost"
                         onClick={() => { setVaxFilterText(''); setVaxStatus(''); setVaxStartDate(''); setVaxEndDate(''); }}
                       >
-                        Temizle
+                        {t('Clear')}
                       </button>
                     </div>
                   </div>
@@ -657,19 +672,19 @@ const IdentityInfo = () => {
                           className={`identity-chip ${vaxStatus === '' ? 'primary' : ''}`}
                           onClick={() => setVaxStatus('')}
                         >
-                          Tümü
+                          {t('All')}
                         </button>
                         <button
                           className={`identity-chip ${vaxStatus === 'planned' ? 'warning' : ''}`}
                           onClick={() => setVaxStatus('planned')}
                         >
-                          Planlandı
+                          {t('Planned')}
                         </button>
                         <button
                           className={`identity-chip ${vaxStatus === 'applied' ? 'success' : ''}`}
                           onClick={() => setVaxStatus('applied')}
                         >
-                          Uygulandı
+                          {t('Applied')}
                         </button>
                       </div>
                       <div className="identity-date-range">
@@ -717,8 +732,8 @@ const IdentityInfo = () => {
                         style={{ cursor: v?.pa_id ? 'pointer' : 'default' }}
                       >
                         <div className="identity-history-item-info" style={{ display: 'flex', flexDirection: 'row', gap: 12, alignItems: 'center', flexWrap: 'wrap', columnGap: 40, rowGap: 6, width: '100%' }}>
-                          <span className="identity-history-item-title">{v.vaccine_name || 'Aşı'}</span>
-                          <span className="identity-history-item-title">Geliş {v.pa_id || '-'}</span>
+                          <span className="identity-history-item-title">{v.vaccine_name || t('Vaccinations')}</span>
+                          <span className="identity-history-item-title">{t('Visit')} {v.pa_id || '-'}</span>
                           <span className="identity-history-item-date" style={{ color: 'var(--id-text)' }}>{formatDate(v.planned_date || v.applied_on)}</span>
                           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
                             {!v.is_applied && (
@@ -726,24 +741,24 @@ const IdentityInfo = () => {
                                 className="identity-btn identity-btn-success identity-btn-xs"
                                 onClick={(e) => { e.stopPropagation(); handleApplyPlan(v); }}
                               >
-                                Uygula
+                                {t('Apply')}
                               </button>
                             )}
                             <span className={`identity-history-item-status ${v.is_applied ? 'completed' : 'pending'}`}>
-                              {v.is_applied ? 'Uygulandı' : 'Planlandı'}
+                              {v.is_applied ? t('Applied') : t('Planned')}
                             </span>
                             
                           </div>
                         </div>
                       </div>
-                    )) : <div className="identity-history-empty">Aşı planı yok</div>}
+                    )) : <div className="identity-history-empty">{t('NoVaccinationPlans')}</div>}
                   </div>
                 </div>
               )
             ) : (
               <div className="identity-empty">
                 <div className="identity-empty-icon">🐾</div>
-                <p>Hayvan seçin veya yeni ekleyin</p>
+                <p>{t('SelectAnimalOrAdd')}</p>
               </div>
             )}
           </main>
@@ -752,17 +767,17 @@ const IdentityInfo = () => {
         <MainModal
           isOpen={isAddModalOpen}
           toggle={handleAddAnimalClose}
-          title="Yeni Hayvan Ekle"
+          title={t('AddNewAnimal')}
           content={<Animals ident_user_id={ownerInfo?.id || userId} onClose={handleAddAnimalClose} onSave={onAddAnimalSave} />}
           onSave={onAddAnimalSave}
-          saveButtonLabel="Ekle"
+          saveButtonLabel={t('Add')}
           modalStyle={{ width: '100%', maxWidth: '560px', maxHeight: '80vh' }}
         />
 
         <MainModal
           isOpen={isPatientFileRegOpen}
           toggle={() => setIsPatientFileRegOpen(false)}
-          title="Yeni Geliş Dosyası"
+          title={t('NewVisitFile')}
           content={
             <PatientFileReg
               pat_id={ownerInfo?.id || 0}
@@ -772,7 +787,7 @@ const IdentityInfo = () => {
               navigateOnSave={false}
             />
           }
-          saveButtonLabel="Kaydet"
+          saveButtonLabel={t('Save')}
           onSave={(result) => {
             setIsPatientFileRegOpen(false);
             const baseId = selectedAnimal?.id;
@@ -783,10 +798,10 @@ const IdentityInfo = () => {
           }}
         />
         <Modal isOpen={showApplyVisitModal} toggle={() => setShowApplyVisitModal(false)}>
-          <ModalHeader toggle={() => setShowApplyVisitModal(false)}>Aşıyı Uygula</ModalHeader>
+          <ModalHeader toggle={() => setShowApplyVisitModal(false)}>{t('ApplyVaccine')}</ModalHeader>
           <ModalBody>
             {visitList.filter(v => !v.is_discharge).length === 0 ? (
-              <div>Aktif geliş dosyası bulunamadı.</div>
+              <div>{t('NoActiveVisitFile')}</div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {visitList.filter(v => !v.is_discharge).map(v => (
@@ -805,11 +820,11 @@ const IdentityInfo = () => {
                     }}
                   >
                     <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                      <span className="identity-history-item-title">Geliş #{v.id}</span>
-                      <span className="identity-history-item-date">{new Date(v.created_at).toLocaleString('tr-TR')}</span>
+                      <span className="identity-history-item-title">{t('Visit')} #{v.id}</span>
+                      <span className="identity-history-item-date">{new Date(v.created_at).toLocaleString(lang === 'en' ? 'en-GB' : 'tr-TR')}</span>
                     </div>
                     <span className={`identity-history-item-status ${v.is_discharge ? 'completed' : 'pending'}`}>
-                      {v.is_discharge ? 'Taburcu' : 'Aktif'}
+                      {v.is_discharge ? t('Discharged') : t('Active')}
                     </span>
                   </div>
                 ))}
@@ -818,12 +833,12 @@ const IdentityInfo = () => {
           </ModalBody>
           <ModalFooter>
             <Button color="success" disabled={!selectedVisitIdForApply} onClick={applyToSelectedVisit}>
-              Bu Gelişe Uygula
+              {t('ApplyToThisVisit')}
             </Button>
             <Button color="primary" onClick={() => { setIsPatientFileRegOpen(true); }}>
-              Yeni Geliş Oluştur
+              {t('CreateNewVisit')}
             </Button>
-            <Button color="secondary" onClick={() => setShowApplyVisitModal(false)}>İptal</Button>
+            <Button color="secondary" onClick={() => setShowApplyVisitModal(false)}>{t('Cancel')}</Button>
           </ModalFooter>
         </Modal>
       </div>

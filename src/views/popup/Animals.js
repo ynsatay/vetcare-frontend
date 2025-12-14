@@ -3,8 +3,10 @@ import { AuthContext } from '../../context/usercontext.tsx';
 import axiosInstance from '../../api/axiosInstance.ts';
 import { useConfirm } from '../../components/ConfirmContext';
 import { PawPrint, ClipboardList, Calendar, Hash, Trash2 } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 const Animals = React.forwardRef((props, ref) => {
+  const { t, lang } = useLanguage();
   const [animals, setAnimals] = useState([]);
   const [selectedAnimal, setSelectedAnimal] = useState('');
 
@@ -50,11 +52,11 @@ const Animals = React.forwardRef((props, ref) => {
   const handleSave = async () => {
     try {
       if (!useAutoIdentNumber && (!animalIdentNumber || !animalIdentNumber.trim())) {
-        await confirm("Kimlik numarası giriniz veya 'Otomatik al' seçiniz.", "Tamam", "", "Uyarı");
+        await confirm(t('EnterIdentityOrAuto'), t('Ok'), "", t('Warning'));
         return;
       }
       if (!selectedAnimal || !selectedanimalsspecies || !animalname) {
-        await confirm("Lütfen hayvan, tür ve ad alanlarını doldurun.", "Tamam", "", "Uyarı");
+        await confirm(t('FillAnimalSpeciesName'), t('Ok'), "", t('Warning'));
         return;
       }
       // If animal identity number is provided, check if this animal already belongs to this user
@@ -75,22 +77,12 @@ const Animals = React.forwardRef((props, ref) => {
             
             if (alreadyWithSameOwner) {
               // Animal already belongs to this user
-              await confirm(
-                "İşlem iptal edildi. Bu hayvan zaten seçili kullanıcıya kayıtlı.",
-                "Tamam",
-                "",
-                "Bilgi"
-              );
+              await confirm(t('OperationCancelledAnimalAlreadyRegistered'), t('Ok'), "", t('Info'));
               return;
             }
             
             // Animal belongs to different user - confirm attachment
-            const shouldContinue = await confirm(
-              "Sistemde kayıtlı hayvanı başka kullanıcıyada kaydediceksiniz. Kayda devam edilsinmi?",
-              "Evet",
-              "Hayır",
-              "Uyarı"
-            );
+            const shouldContinue = await confirm(t('ConfirmAttachExistingAnimalToAnotherUser'), t('Yes'), t('No'), t('Warning'));
             
             if (!shouldContinue) {
               return;
@@ -318,12 +310,12 @@ const Animals = React.forwardRef((props, ref) => {
       <div className="identity-section-card compact">
         <div className="identity-panel-banner">
           <div>
-            <div className="identity-panel-title">Hayvan Ekle</div>
-            <div className="identity-panel-sub">Hızlı kayıt</div>
+            <div className="identity-panel-title">{t('AddAnimal')}</div>
+            <div className="identity-panel-sub">{t('QuickRegister')}</div>
           </div>
           <div className="identity-segment">
-            <div className={`option ${!useAutoIdentNumber ? 'active' : ''}`} onClick={() => setUseAutoIdentNumber(false)}>Kimlik Gir</div>
-            <div className={`option ${useAutoIdentNumber ? 'active' : ''}`} onClick={() => { setUseAutoIdentNumber(true); setanimalIdentNumber(''); setExistingAnimalFound(null); setWasAutoFilled(false); }}>Otomatik Al</div>
+            <div className={`option ${!useAutoIdentNumber ? 'active' : ''}`} onClick={() => setUseAutoIdentNumber(false)}>{t('EnterIdentity')}</div>
+            <div className={`option ${useAutoIdentNumber ? 'active' : ''}`} onClick={() => { setUseAutoIdentNumber(true); setanimalIdentNumber(''); setExistingAnimalFound(null); setWasAutoFilled(false); }}>{t('AutoAssign')}</div>
           </div>
         </div>
 
@@ -331,27 +323,27 @@ const Animals = React.forwardRef((props, ref) => {
       <div className="identity-owner-grid compact">
         {!useAutoIdentNumber && (
           <div className="identity-owner-field full">
-            <label className="identity-owner-label">Hayvan Kimlik Numarası</label>
+            <label className="identity-owner-label">{t('AnimalIdNumber')}</label>
             <div className="identity-input-group">
               <Hash className="identity-input-icon" size={14} />
               <input
                 type="text"
                 className="identity-owner-input"
                 name="animalIdentNumber"
-                placeholder="Kimlik numarası"
+                placeholder={t('EnterIdentityNumber')}
                 value={animalIdentNumber}
                 onChange={handleAnimalIdentNumberChange}
                 ref={identityInputRef}
               />
             </div>
             {showIdentityHint && (
-              <div className="identity-hint">Önce kimlik bilgilerini giriniz</div>
+              <div className="identity-hint">{t('PleaseEnterIdentityFirst')}</div>
             )}
           </div>
         )}
 
         <div className="identity-owner-field">
-          <label className="identity-owner-label">Hayvan</label>
+          <label className="identity-owner-label">{t('Animal')}</label>
           <div className="identity-input-group" onClick={() => { if (!useAutoIdentNumber && !animalIdentNumber && existingAnimalFound === null) nudgeToIdentity(); }} style={{ cursor: (!useAutoIdentNumber && !animalIdentNumber && existingAnimalFound === null) ? 'not-allowed' : 'auto' }}>
             <PawPrint className="identity-input-icon" size={14} />
             <select
@@ -363,14 +355,29 @@ const Animals = React.forwardRef((props, ref) => {
             >
               <option value=""></option>
               {animals.map((animal) => (
-                <option key={animal.id} value={animal.id}>{animal.name}</option>
+                <option key={animal.id} value={animal.id}>
+                  {lang === 'en' ? (
+                    ({
+                      'kedi': 'Cat',
+                      'köpek': 'Dog',
+                      'papağan': 'Parrot',
+                      'balık': 'Fish',
+                      'inek': 'Cow',
+                      'koyun': 'Sheep',
+                      'tavşan': 'Rabbit',
+                      'kuş': 'Bird',
+                      'at': 'Horse',
+                      'keçi': 'Goat',
+                    }[(animal.name || '').toLowerCase()] || animal.name)
+                  ) : animal.name}
+                </option>
               ))}
             </select>
           </div>
         </div>
 
         <div className="identity-owner-field">
-          <label className="identity-owner-label">Tür</label>
+          <label className="identity-owner-label">{t('Type')}</label>
           <div className="identity-input-group" onClick={() => { if (!useAutoIdentNumber && !animalIdentNumber && existingAnimalFound === null) nudgeToIdentity(); }} style={{ cursor: (!useAutoIdentNumber && !animalIdentNumber && existingAnimalFound === null) ? 'not-allowed' : 'auto' }}>
             <ClipboardList className="identity-input-icon" size={14} />
             <select
@@ -389,7 +396,7 @@ const Animals = React.forwardRef((props, ref) => {
         </div>
 
         <div className="identity-owner-field full">
-          <label className="identity-owner-label">Hayvan Adı</label>
+          <label className="identity-owner-label">{t('AnimalName')}</label>
           <div className="identity-input-group" onClick={() => { if (!useAutoIdentNumber && !animalIdentNumber && existingAnimalFound === null) nudgeToIdentity(); }} style={{ cursor: (!useAutoIdentNumber && !animalIdentNumber && existingAnimalFound === null) ? 'not-allowed' : 'auto' }}>
             <PawPrint className="identity-input-icon" size={14} />
             <input
@@ -405,7 +412,7 @@ const Animals = React.forwardRef((props, ref) => {
         </div>
 
         <div className="identity-owner-field">
-          <label className="identity-owner-label">Doğum Tarihi</label>
+          <label className="identity-owner-label">{t('BirthDate')}</label>
           <div className="identity-input-group" onClick={() => { if (!useAutoIdentNumber && !animalIdentNumber && existingAnimalFound === null) nudgeToIdentity(); }} style={{ cursor: (!useAutoIdentNumber && !animalIdentNumber && existingAnimalFound === null) ? 'not-allowed' : 'auto' }}>
             <Calendar className="identity-input-icon" size={14} />
             <input
@@ -439,7 +446,7 @@ const Animals = React.forwardRef((props, ref) => {
               setWasAutoFilled(false);
             }}
           >
-            <Trash2 size={16} /> Başka Hayvan Ara
+            <Trash2 size={16} /> {t('SearchAnotherAnimal')}
           </button>
         )}
       </div>

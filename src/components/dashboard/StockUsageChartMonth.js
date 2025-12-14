@@ -2,8 +2,10 @@ import { Card, CardBody, CardSubtitle, CardTitle } from "reactstrap";
 import Chart from "react-apexcharts";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../api/axiosInstance.ts";
+import { useLanguage } from "../../context/LanguageContext.js";
 
 const StockUsageChartMonth = () => {
+  const { t } = useLanguage();
   const [chartData, setChartData] = useState({
     series: [],
     options: {
@@ -31,7 +33,7 @@ const StockUsageChartMonth = () => {
           ...prev,
           series: [
             {
-              name: "Kullanım Sayısı",
+              name: t('UsageCount'),
               data: data.map((item) => item.usage_count),
             },
           ],
@@ -50,9 +52,9 @@ const StockUsageChartMonth = () => {
   return (
     <Card>
       <CardBody>
-        <CardTitle tag="h5">Stok Kullanım Özeti</CardTitle>
+        <CardTitle tag="h5">{t('StockUsageSummaryTitle')}</CardTitle>
         <CardSubtitle className="text-muted" tag="h6">
-          Son 30 Gün İçinde Kullanılan Stoklar
+          {t('StockUsageSummarySub')}
         </CardSubtitle>
         <Chart type="area" width="100%" height="300" options={chartData.options} series={chartData.series} />
       </CardBody>

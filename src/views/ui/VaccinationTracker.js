@@ -12,10 +12,12 @@ import VaccinePlanEdit from "../popup/VaccinePlanEdit.js";
 import dayjs from "dayjs";
 import { ChevronLeft, ChevronRight, Plus, Syringe } from "lucide-react";
 import "./VaccinationTracker.css";
+import { useLanguage } from "../../context/LanguageContext.js";
 
 const VaccinationTracker = () => {
   const calendarRef = useRef(null);
   const formRef = useRef(null);
+  const { t, lang } = useLanguage();
 
   const [events, setEvents] = useState([]);
   const [startDate, setStartDate] = useState(null);
@@ -127,7 +129,7 @@ const VaccinationTracker = () => {
       setSelectedPlan(planData);
       setShowEditModal(true);
     } else {
-      confirm("Aşı planı yüklenirken hata oluştu.", "Tamam", "", "Hata");
+      confirm(t('VaccinePlanLoadError'), t('Ok'), "", t('Error'));
     }
   };
 
@@ -138,7 +140,7 @@ const VaccinationTracker = () => {
     clickedDate.setHours(0, 0, 0, 0);
 
     if (clickedDate < today) {
-      confirm("Geçmiş bir güne aşı planı yapılamaz.", "Tamam", "", "Uyarı");
+      confirm(t('CannotPlanPastDay'), t('Ok'), "", t('Warning'));
       return;
     }
 
@@ -183,18 +185,18 @@ const VaccinationTracker = () => {
       });
       
       if (response.data.message) {
-        confirm("Aşı planı tarihi güncellendi.", "Tamam", "", "Bilgi");
+        confirm(t('VaccinePlanDateUpdated'), t('Ok'), "", t('Info'));
         handleUpdateSuccess();
       } else {
         revert();
-        confirm("Tarih güncellenemedi.", "Tamam", "", "Hata");
+        confirm(t('DateUpdateFailed'), t('Ok'), "", t('Error'));
       }
     } catch (error) {
       if (error.__demo_blocked) return; 
       console.error("Aşı planı tarihi güncellenirken hata:", error);
       revert();
-      const errorMsg = error.response?.data?.error || "Tarih güncellenirken hata oluştu.";
-      confirm(errorMsg, "Tamam", "", "Hata");
+      const errorMsg = error.response?.data?.error || t('DateUpdateError');
+      confirm(errorMsg, t('Ok'), "", t('Error'));
     }
   };
 
@@ -218,23 +220,23 @@ const VaccinationTracker = () => {
             </div>
             <div>
               <div className="vaccination-logo-text">VetCare</div>
-              <div className="vaccination-logo-subtitle">Aşı Takibi</div>
+              <div className="vaccination-logo-subtitle">{t('VaccinationTracking')}</div>
             </div>
           </div>
           
           <button className="new-vaccine-btn" onClick={openNewVaccineModal}>
             <Plus size={18} />
-            Yeni Aşı Planı
+            {t('NewVaccinePlan')}
           </button>
         </div>
 
         <div className="vaccination-sidebar-stats">
-          <div className="vaccination-stats-title">Aşı Durumları</div>
+          <div className="vaccination-stats-title">{t('VaccineStatuses')}</div>
           
           <div className="vaccination-stat-item">
             <div className="vaccination-stat-left">
               <div className="vaccination-stat-indicator applied" />
-              <span className="vaccination-stat-name">Uygulandı</span>
+              <span className="vaccination-stat-name">{t('Applied')}</span>
             </div>
             <span className="vaccination-stat-count">{stats.applied}</span>
           </div>
@@ -242,7 +244,7 @@ const VaccinationTracker = () => {
           <div className="vaccination-stat-item">
             <div className="vaccination-stat-left">
               <div className="vaccination-stat-indicator pending" />
-              <span className="vaccination-stat-name">Planlandı</span>
+              <span className="vaccination-stat-name">{t('Planned')}</span>
             </div>
             <span className="vaccination-stat-count">{stats.pending}</span>
           </div>
@@ -270,7 +272,7 @@ const VaccinationTracker = () => {
           </div>
           
           <div className="vaccination-mini-calendar-grid">
-            {['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pa'].map(d => (
+            {(lang === 'en' ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] : ['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pa']).map(d => (
               <div key={d} className="vaccination-mini-day-header">{d}</div>
             ))}
             {miniCalendarDays.map((d, i) => (
@@ -298,7 +300,7 @@ const VaccinationTracker = () => {
               </button>
             </div>
             <button className="vaccination-today-btn" onClick={handleToday}>
-              Bugün
+              {t('Today')}
             </button>
             <h1 className="vaccination-current-date">{currentTitle}</h1>
           </div>
@@ -309,19 +311,19 @@ const VaccinationTracker = () => {
                 className={`vaccination-view-btn ${currentView === "dayGridMonth" ? "active" : ""}`}
                 onClick={() => handleViewChange("dayGridMonth")}
               >
-                Ay
+                {t('Month')}
               </button>
               <button
                 className={`vaccination-view-btn ${currentView === "timeGridWeek" ? "active" : ""}`}
                 onClick={() => handleViewChange("timeGridWeek")}
               >
-                Hafta
+                {t('Week')}
               </button>
               <button
                 className={`vaccination-view-btn ${currentView === "timeGridDay" ? "active" : ""}`}
                 onClick={() => handleViewChange("timeGridDay")}
               >
-                Gün
+                {t('Day')}
               </button>
             </div>
           </div>
@@ -332,7 +334,7 @@ const VaccinationTracker = () => {
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             initialView="dayGridMonth"
             ref={calendarRef}
-            locale={trLocale}
+            locale={lang === 'en' ? undefined : trLocale}
             selectable={true}
             editable={true}
             eventDrop={handleEventDrop}
@@ -352,7 +354,7 @@ const VaccinationTracker = () => {
       <MainModal
         isOpen={showVaccineModal}
         toggle={handleModalClose}
-        title="Aşı Planlama"
+        title={t('VaccinePlanning')}
         content={
           <VaccinationPlanForm
             ref={formRef}
@@ -361,13 +363,13 @@ const VaccinationTracker = () => {
           />
         }
         onSave={handleSave}
-        saveButtonLabel="Kaydet"
+        saveButtonLabel={t('Save')}
       />
 
       <MainModal
         isOpen={showEditModal}
         toggle={handleEditModalClose}
-        title="Aşı Planı Düzenle"
+        title={t('EditVaccinePlan')}
         content={
           <VaccinePlanEdit
             plan={selectedPlan}

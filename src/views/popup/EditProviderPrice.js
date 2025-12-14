@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Form, FormGroup, Label, Input, FormFeedback } from 'reactstrap';
 import axiosInstance from '../../api/axiosInstance.ts';
+import { toast } from 'react-toastify';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 const EditProviderPrice = ({ initialData, onClose }) => {
+    const { t } = useLanguage();
     const [pfId, setPfId] = useState(initialData?.pf_id || '');
     const [materialId, setMaterialId] = useState(initialData?.material_id || '');
     const [purchasePrice, setPurchasePrice] = useState(initialData?.purchase_price || '');
-    const vatRate = useState(initialData?.vat_rate || 0);
+    const [vatRate, setVatRate] = useState(initialData?.vat_rate || 0);
     const [isDefault, setIsDefault] = useState(initialData?.is_default || false);
     const [active, setActive] = useState(initialData?.active !== undefined ? initialData.active : true);
 
@@ -53,9 +56,9 @@ const EditProviderPrice = ({ initialData, onClose }) => {
     // Validation kontrolü
     const validate = () => {
         const newErrors = {};
-        if (!pfId) newErrors.pfId = 'Tedarikçi firma seçiniz';
-        if (!materialId) newErrors.materialId = 'Malzeme seçiniz';
-        if (!purchasePrice || purchasePrice <= 0) newErrors.purchasePrice = 'Geçerli bir fiyat giriniz';
+        if (!pfId) newErrors.pfId = t('SelectProviderFirm');
+        if (!materialId) newErrors.materialId = t('SelectMaterial');
+        if (!purchasePrice || purchasePrice <= 0) newErrors.purchasePrice = t('EnterValidPrice');
         if (vatRate < 0) newErrors.vatRate = 'KDV 0 veya pozitif olmalı';
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -83,14 +86,14 @@ const EditProviderPrice = ({ initialData, onClose }) => {
             onClose();
         } catch (err) {
             if (err.__demo_blocked) return; 
-            alert(err.response?.data?.message || err.message || 'Kayıt işlemi başarısız.');
+            toast.error(err.response?.data?.message || err.message || t('SaveFailed'));
         }
     };
 
     return (
         <Form onSubmit={handleSubmit}>
             <FormGroup>
-                <Label for="providerFirm">Tedarikçi Firma</Label>
+                <Label for="providerFirm">{t('ProviderFirms')}</Label>
                 <Input
                     type="select"
                     id="providerFirm"
@@ -98,7 +101,7 @@ const EditProviderPrice = ({ initialData, onClose }) => {
                     onChange={(e) => setPfId(e.target.value)}
                     invalid={!!errors.pfId}
                 >
-                    <option value="">Seçiniz</option>
+                    <option value="">{t('Select')}</option>
                     {providers.map((pf) => (
                         <option key={pf.id} value={pf.id}>{pf.name}</option>
                     ))}
@@ -107,7 +110,7 @@ const EditProviderPrice = ({ initialData, onClose }) => {
             </FormGroup>
 
             <FormGroup>
-                <Label for="material">Malzeme</Label>
+                <Label for="material">{t('Material')}</Label>
                 <Input
                     type="select"
                     id="material"
@@ -115,7 +118,7 @@ const EditProviderPrice = ({ initialData, onClose }) => {
                     onChange={(e) => setMaterialId(e.target.value)}
                     invalid={!!errors.materialId}
                 >
-                    <option value="">Seçiniz</option>
+                    <option value="">{t('Select')}</option>
                     {materials.map((m) => (
                         <option key={m.id} value={m.id}>{m.name}</option>
                     ))}
@@ -124,7 +127,7 @@ const EditProviderPrice = ({ initialData, onClose }) => {
             </FormGroup>
 
             <FormGroup>
-                <Label for="purchasePrice">Alım Fiyatı (₺)</Label>
+                <Label for="purchasePrice">{t('PricePurchase')}</Label>
                 <Input
                     type="number"
                     id="purchasePrice"
@@ -158,7 +161,7 @@ const EditProviderPrice = ({ initialData, onClose }) => {
                     checked={isDefault}
                     onChange={() => setIsDefault(!isDefault)}
                 />
-                <Label for="isDefault" check>Varsayılan tedarikçi</Label>
+                <Label for="isDefault" check>{t('Default')}</Label>
             </FormGroup>
 
             <FormGroup check className="mt-2">
@@ -168,10 +171,10 @@ const EditProviderPrice = ({ initialData, onClose }) => {
                     checked={active}
                     onChange={() => setActive(!active)}
                 />
-                <Label for="active" check>Aktif</Label>
+                <Label for="active" check>{t('Active')}</Label>
             </FormGroup>
 
-            <Button type="submit" color="primary" className="mt-3">Kaydet</Button>
+            <Button type="submit" color="primary" className="mt-3">{t('Save')}</Button>
         </Form>
     );
 };

@@ -10,12 +10,15 @@ import {
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import trLocale from 'date-fns/locale/tr';
+import enUS from 'date-fns/locale/en-US';
 import dayjs from 'dayjs';
 import axiosInstance from "../../api/axiosInstance.ts";
 import { useConfirm } from '../../components/ConfirmContext';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 const VaccinePlanEdit = ({ plan, onClose, onUpdateSuccess }) => {
   const { confirm } = useConfirm();
+  const { t, lang } = useLanguage();
 
   const [planDate, setPlanDate] = useState(null);
   const [note, setNote] = useState("");
@@ -31,7 +34,7 @@ const VaccinePlanEdit = ({ plan, onClose, onUpdateSuccess }) => {
 
   const handleUpdate = async () => {
     if (!planDate) {
-      confirm("Plan tarihi boş olamaz.", "Tamam", "", "Uyarı");
+      confirm(t('PleaseSelectPlannedDate'), t('Ok'), "", t('Warning'));
       return;
     }
 
@@ -42,63 +45,63 @@ const VaccinePlanEdit = ({ plan, onClose, onUpdateSuccess }) => {
       });
 
       if (response.data.message) {
-        confirm("Aşı planı güncellendi.", "Tamam", "", "Bilgi");
+        confirm(t('VaccinePlanDateUpdated'), t('Ok'), "", t('Info'));
         onUpdateSuccess?.();
         onClose?.();
       } else {
-        confirm("Güncelleme başarısız.", "Tamam", "", "Hata");
+        confirm(t('UpdateFailed'), t('Ok'), "", t('Error'));
       }
     } catch (error) {
       if (error.__demo_blocked) return; 
       console.error("Güncelleme hatası:", error);
-      confirm(error.response?.data?.error || "Bir hata oluştu. Lütfen tekrar deneyin.", "Tamam", "", "Hata");
+      confirm(error.response?.data?.error || t('ErrorTryAgain'), t('Ok'), "", t('Error'));
     }
   };
 
   const handleDelete = async () => {
     try {
-      const result = await confirm("Bu işlemi silmek istediğinize emin misiniz?", "Evet", "Hayır", "Silme Onayı");
+      const result = await confirm(t('DeleteConfirmQuestion'), t('Yes'), t('No'), t('Warning'));
       if (!result) return;
 
       const response = await axiosInstance.delete(`/vaccine/plan/${plan.id}`);
 
       if (response.data.message) {
-        confirm("Aşı planı silindi.", "Tamam", "", "Bilgi");
+        confirm(t('VaccinePlanDeleted'), t('Ok'), "", t('Info'));
         onUpdateSuccess?.();
         onClose?.();
       } else {
-        confirm("Silme işlemi başarısız.", "Tamam", "", "Hata");
+        confirm(t('DeleteFailed'), t('Ok'), "", t('Error'));
       }
     } catch (error) {
       if (error.__demo_blocked) return; 
       console.error("Silme hatası:", error);
-      const errorMessage = error.response?.data?.error || "Bir hata oluştu. Lütfen tekrar deneyin.";
-      confirm(errorMessage, "Tamam", "", "Hata");
+      const errorMessage = error.response?.data?.error || t('ErrorTryAgain');
+      confirm(errorMessage, t('Ok'), "", t('Error'));
     }
   };
 
-  if (!plan) return <Typography>Plan verisi bulunamadı.</Typography>;
+  if (!plan) return <Typography>{t('PlanDataNotFound')}</Typography>;
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={trLocale}>
+    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={lang === 'en' ? enUS : trLocale}>
       <Grid container spacing={2}>
-        <Grid item xs={5}><Typography variant="subtitle1">Sahip Adı:</Typography></Grid>
+        <Grid item xs={5}><Typography variant="subtitle1">{t('OwnerName')}:</Typography></Grid>
         <Grid item xs={7}><Typography variant="body1">{plan.owner_name}</Typography></Grid>
 
-        <Grid item xs={5}><Typography variant="subtitle1">Hayvan Adı:</Typography></Grid>
+        <Grid item xs={5}><Typography variant="subtitle1">{t('AnimalNameLabel')}:</Typography></Grid>
         <Grid item xs={7}><Typography variant="body1">{plan.animal_name}</Typography></Grid>
 
-        <Grid item xs={5}><Typography variant="subtitle1">Aşı Adı:</Typography></Grid>
+        <Grid item xs={5}><Typography variant="subtitle1">{t('VaccineNameLabel')}:</Typography></Grid>
         <Grid item xs={7}><Typography variant="body1">{plan.vaccine_name}</Typography></Grid>
 
         <Grid item xs={12}>
           <FormControlLabel
             control={<Checkbox checked={applied} disabled />}
-            label="Uygulandı"
+            label={t('Applied')}
           />
         </Grid>
 
-        <Grid item xs={5}><Typography variant="subtitle1">Plan Tarihi:</Typography></Grid>
+        <Grid item xs={5}><Typography variant="subtitle1">{t('PlanDateLabel')}:</Typography></Grid>
         <Grid item xs={7}>
           <DatePicker
             value={planDate}
@@ -107,7 +110,7 @@ const VaccinePlanEdit = ({ plan, onClose, onUpdateSuccess }) => {
           />
         </Grid>
 
-        <Grid item xs={5}><Typography variant="subtitle1">Not:</Typography></Grid>
+        <Grid item xs={5}><Typography variant="subtitle1">{t('NoteLabel')}:</Typography></Grid>
         <Grid item xs={7}>
           <TextField
             fullWidth
@@ -119,8 +122,8 @@ const VaccinePlanEdit = ({ plan, onClose, onUpdateSuccess }) => {
         </Grid>
 
         <Grid item xs={12} sx={{ mt: 2, display: "flex", justifyContent: "flex-end", gap: 2 }}>
-          <Button variant="contained" color="error" disabled={applied} onClick={handleDelete}>SİL</Button>
-          <Button variant="contained" onClick={handleUpdate}>Güncelle</Button>
+          <Button variant="contained" color="error" disabled={applied} onClick={handleDelete}>{t('Delete')}</Button>
+          <Button variant="contained" onClick={handleUpdate}>{t('Update')}</Button>
         </Grid>
       </Grid>
     </LocalizationProvider>

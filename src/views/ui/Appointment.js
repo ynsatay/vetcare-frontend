@@ -21,6 +21,7 @@ import AppointmentForm from "../popup/AppointmentForm";
 import AppointmentDetails from "../popup/AppDetail";
 import { useConfirm } from "../../components/ConfirmContext";
 import "./Appointment.css";
+import { useLanguage } from "../../context/LanguageContext.js";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -33,6 +34,7 @@ const statusColors = {
 };
 
 const Appointment = () => {
+  const { t, lang } = useLanguage();
   const [events, setEvents] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -142,12 +144,12 @@ const Appointment = () => {
 
     if (viewType === "dayGridMonth") {
       if (selectedStart.isBefore(now.startOf("day"))) {
-        confirm("Geçmiş bir güne randevu veremezsiniz.", "Tamam", "", "Uyarı");
+        confirm(t('CannotSchedulePastDay'), t('Ok'), "", t('Warning'));
         return;
       }
     } else {
       if (selectedStart.isBefore(now)) {
-        confirm("Geçmiş bir saate randevu veremezsiniz.", "Tamam", "", "Uyarı");
+        confirm(t('CannotSchedulePastTime'), t('Ok'), "", t('Warning'));
         return;
       }
     }
@@ -178,12 +180,12 @@ const Appointment = () => {
       setIsUpdating(true);
       await updateAppointmentTimes(event);
       await fetchAppointments();
-      confirm("Randevu tarihi güncellendi.", "Tamam", "", "Bilgi");
+      confirm(t('AppointmentDateUpdated'), t('Ok'), "", t('Info'));
     } catch (err) {
       if (err.__demo_blocked) return; 
       console.error("Randevu güncelleme hatası:", err);
       revert();
-      confirm("Güncelleme başarısız. Lütfen tekrar deneyin.", "Tamam", "", "Uyarı");
+      confirm(t('UpdateFailedTryAgain'), t('Ok'), "", t('Warning'));
     } finally {
       setIsUpdating(false);
     }
@@ -279,23 +281,23 @@ const Appointment = () => {
             </div>
             <div>
               <div className="logo-text">VetCare</div>
-              <div className="logo-subtitle">Randevu Yönetimi</div>
+              <div className="logo-subtitle">{t('AppointmentManagement')}</div>
             </div>
           </div>
           
           <button className="new-appointment-btn" onClick={openNewAppointmentModal}>
             <Plus size={20} />
-            Yeni Randevu
+            {t('NewAppointment')}
           </button>
         </div>
 
         <div className="sidebar-stats">
-          <div className="stats-title">Randevu Durumları</div>
+          <div className="stats-title">{t('AppointmentStatuses')}</div>
           
           <div className="stat-item">
             <div className="stat-left">
               <div className="stat-indicator pending" />
-              <span className="stat-name">Beklemede</span>
+              <span className="stat-name">{t('Waiting')}</span>
             </div>
             <span className="stat-count">{stats.pending}</span>
           </div>
@@ -303,7 +305,7 @@ const Appointment = () => {
           <div className="stat-item">
             <div className="stat-left">
               <div className="stat-indicator arrived" />
-              <span className="stat-name">Geldi</span>
+              <span className="stat-name">{t('Arrived')}</span>
             </div>
             <span className="stat-count">{stats.arrived}</span>
           </div>
@@ -311,7 +313,7 @@ const Appointment = () => {
           <div className="stat-item">
             <div className="stat-left">
               <div className="stat-indicator completed" />
-              <span className="stat-name">Tamamlandı</span>
+              <span className="stat-name">{t('Completed')}</span>
             </div>
             <span className="stat-count">{stats.completed}</span>
           </div>
@@ -319,7 +321,7 @@ const Appointment = () => {
           <div className="stat-item">
             <div className="stat-left">
               <div className="stat-indicator cancelled" />
-              <span className="stat-name">İptal Edildi</span>
+              <span className="stat-name">{t('Cancelled')}</span>
             </div>
             <span className="stat-count">{stats.cancelled}</span>
           </div>
@@ -347,7 +349,7 @@ const Appointment = () => {
           </div>
           
           <div className="mini-calendar-grid">
-            {['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pa'].map(d => (
+            {(lang === 'en' ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] : ['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pa']).map(d => (
               <div key={d} className="mini-day-header">{d}</div>
             ))}
             {miniCalendarDays.map((d, i) => (
@@ -375,7 +377,7 @@ const Appointment = () => {
               </button>
             </div>
             <button className="today-btn" onClick={handleToday}>
-              Bugün
+              {t('Today')}
             </button>
             <h1 className="current-date">{currentTitle}</h1>
           </div>
@@ -384,7 +386,7 @@ const Appointment = () => {
             {isUpdating && (
               <div className="updating-badge">
                 <div className="updating-dot" />
-                Kaydediliyor...
+                {t('Saving')}
               </div>
             )}
             
@@ -393,19 +395,19 @@ const Appointment = () => {
                 className={`view-btn ${currentView === "dayGridMonth" ? "active" : ""}`}
                 onClick={() => handleViewChange("dayGridMonth")}
               >
-                Ay
+                {t('Month')}
               </button>
               <button
                 className={`view-btn ${currentView === "timeGridWeek" ? "active" : ""}`}
                 onClick={() => handleViewChange("timeGridWeek")}
               >
-                Hafta
+                {t('Week')}
               </button>
               <button
                 className={`view-btn ${currentView === "timeGridDay" ? "active" : ""}`}
                 onClick={() => handleViewChange("timeGridDay")}
               >
-                Gün
+                {t('Day')}
               </button>
             </div>
           </div>
@@ -426,7 +428,7 @@ const Appointment = () => {
             eventDrop={handleEventChange}
             eventResize={handleEventChange}
             eventDisplay="block"
-            locale={tr}
+            locale={lang === 'en' ? undefined : tr}
             timeZone="local"
             firstDay={1}
             height="auto"
@@ -440,7 +442,7 @@ const Appointment = () => {
       <MainModal
         isOpen={showModal}
         toggle={() => setShowModal(false)}
-        title="Randevu Oluştur"
+        title={t('AppointmentCreate')}
         content={
           <AppointmentForm
             ref={formRef}
@@ -451,13 +453,13 @@ const Appointment = () => {
           />
         }
         onSave={handleSave}
-        saveButtonLabel="Kaydet"
+        saveButtonLabel={t('Save')}
       />
 
       <MainModal
         isOpen={showDetailModal}
         toggle={() => setShowDetailModal(false)}
-        title="Randevu Detayı"
+        title={t('AppointmentDetail')}
         content={
           <AppointmentDetails
             event={selectedEvent}
@@ -465,7 +467,7 @@ const Appointment = () => {
             onUpdateSuccess={fetchAppointments}
           />
         }
-        saveButtonLabel="Tamam"
+        saveButtonLabel={t('Ok')}
         onSave={() => setShowDetailModal(false)}
         ShowFooter={false}
       />

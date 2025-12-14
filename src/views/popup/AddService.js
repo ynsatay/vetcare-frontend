@@ -6,8 +6,10 @@ import React, {
 import { Row, Col, FormGroup, Label, Input } from 'reactstrap';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import axiosInstance from '../../api/axiosInstance.ts';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 const AddService = forwardRef(({ service, onClose }, ref) => {
+    const { t } = useLanguage();
     const [formData, setFormData] = useState({
         name: service?.name || '',
         price: service?.price || '',
@@ -18,11 +20,11 @@ const AddService = forwardRef(({ service, onClose }, ref) => {
     const [showConfirm, setShowConfirm] = useState(false);
 
     const categories = [
-        { label: "Muayene", value: 1 },
-        { label: "Aşılama", value: 2 },
-        { label: "Operasyon", value: 3 },
-        { label: "Tedavi", value: 4 },
-        { label: "Diğer", value: 0 }
+        { label: t('Examination'), value: 1 },
+        { label: t('Vaccination'), value: 2 },
+        { label: t('Operation'), value: 3 },
+        { label: t('Treatment'), value: 4 },
+        { label: t('Other'), value: 0 }
     ];
 
     useImperativeHandle(ref, () => ({
@@ -57,7 +59,7 @@ const AddService = forwardRef(({ service, onClose }, ref) => {
         <>
             <FormGroup>
                 <Row>
-                    <Col md={4}><Label>Hizmet Adı*</Label></Col>
+                    <Col md={4}><Label>{`${t('ServiceName')}*`}</Label></Col>
                     <Col md={8}>
                         <Input
                             type="text"
@@ -71,7 +73,7 @@ const AddService = forwardRef(({ service, onClose }, ref) => {
 
             <FormGroup>
                 <Row>
-                    <Col md={4}><Label>Fiyat</Label></Col>
+                    <Col md={4}><Label>{t('Price')}</Label></Col>
                     <Col md={8}>
                         <Input
                             type="number"
@@ -86,7 +88,7 @@ const AddService = forwardRef(({ service, onClose }, ref) => {
 
             <FormGroup>
                 <Row>
-                    <Col md={4}><Label>Kategori</Label></Col>
+                    <Col md={4}><Label>{t('Category')}</Label></Col>
                     <Col md={8}>
                         <Input
                             type="select"
@@ -94,7 +96,7 @@ const AddService = forwardRef(({ service, onClose }, ref) => {
                             value={formData.category}
                             onChange={handleChange}
                         >
-                            <option value="">Seçiniz</option>
+                            <option value="">{t('Select')}</option>
                             {categories.map(opt => (
                                 <option key={opt.value} value={opt.value}>{opt.label}</option>
                             ))}
@@ -105,7 +107,7 @@ const AddService = forwardRef(({ service, onClose }, ref) => {
 
             <FormGroup>
                 <Row>
-                    <Col md={4}><Label>Açıklama</Label></Col>
+                    <Col md={4}><Label>{t('Notes')}</Label></Col>
                     <Col md={8}>
                         <Input
                             type="textarea"
@@ -121,9 +123,9 @@ const AddService = forwardRef(({ service, onClose }, ref) => {
                 isOpen={showConfirm}
                 toggle={() => setShowConfirm(false)}
                 onConfirm={() => setShowConfirm(false)}
-                message="Lütfen zorunlu alanları doldurunuz (Hizmet Adı)."
-                answerTrue="Tamam"
-                toggleMessage="Uyarı"
+                message={`${t('FillRequiredFields')} (${t('ServiceName')})`}
+                answerTrue={t('Ok')}
+                toggleMessage={t('Warning')}
                 answerFalse=""
             />
         </>

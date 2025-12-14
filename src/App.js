@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ConfirmProvider } from './components/ConfirmContext';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { useLanguage } from './context/LanguageContext.js';
 
 const App = () => {
   useEffect(() => {
@@ -27,10 +28,11 @@ const App = () => {
   }, []);
 
   const routing = useRoutes(Themeroutes);
+  const { lang } = useLanguage();
 
   return (
     <div className="dark">
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={lang}>
         <ConfirmProvider>
           <ToastContainer />
           {routing}

@@ -4,8 +4,10 @@ import { DataGrid } from '@mui/x-data-grid';
 import axiosInstance from '../../api/axiosInstance.ts';
 import { trTR } from '@mui/x-data-grid/locales';
 import "./AddPatStock.css";
+import { useLanguage } from '../../context/LanguageContext.js';
 
 const AddPatStock = ({ onClose, onSelect }) => {
+    const { t } = useLanguage();
     const [stocks, setStocks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -19,7 +21,7 @@ const AddPatStock = ({ onClose, onSelect }) => {
                 const res = await axiosInstance.get('/getMaterialsWithQuantity');
                 setStocks(res.data.data || []);
             } catch (err) {
-                setError('Stoklar alınamadı');
+                setError(t('Error'));
             } finally {
                 setLoading(false);
             }
@@ -34,11 +36,11 @@ const AddPatStock = ({ onClose, onSelect }) => {
 
     const columns = [
         { field: 'id', headerName: '#', width: 70 },
-        { field: 'name', headerName: 'Stok Adı', flex: 1 },
-        { field: 'total_quantity', headerName: 'Mevcut Miktar', width: 130 },
+        { field: 'name', headerName: t('StockName'), flex: 1 },
+        { field: 'total_quantity', headerName: t('AvailableQuantity'), width: 130 },
         {
             field: 'price',
-            headerName: 'Birim Fiyat',
+            headerName: t('UnitPrice'),
             width: 130,
             valueFormatter: (params) => `${params.value} ₺`,
         },
@@ -58,19 +60,19 @@ const AddPatStock = ({ onClose, onSelect }) => {
         }
     };
 
-    if (loading) return <div>Yükleniyor...</div>;
+    if (loading) return <div>{t('Loading')}</div>;
     if (error) return <div>{error}</div>;
 
     return (
         <div className="select-modal">
             <div className="select-card">
                 <div className="select-header">
-                    <h3>Stok Seç</h3>
+                    <h3>{t('StockSelect')}</h3>
                 </div>
 
                 <TextField
                     className="select-search"
-                    label="Ara..."
+                    label={t('SearchPlaceholder')}
                     variant="outlined"
                     size="small"
                     fullWidth
@@ -114,7 +116,7 @@ const AddPatStock = ({ onClose, onSelect }) => {
 
                 <div className="select-footer">
                     <TextField
-                        label="Miktar"
+                        label={t('Quantity')}
                         type="number"
                         inputProps={{ min: 1 }}
                         value={quantity}
@@ -127,10 +129,10 @@ const AddPatStock = ({ onClose, onSelect }) => {
                         onClick={handleAddClick}
                         disabled={!selectedRow || quantity < 1}
                     >
-                        Ekle
+                        {t('Add')}
                     </Button>
                     <Button variant="outlined" onClick={onClose}>
-                        Vazgeç
+                        {t('Cancel')}
                     </Button>
                 </div>
             </div>

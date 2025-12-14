@@ -8,14 +8,12 @@ import InvoiceSelectorModal from "../popup/InvoiceSelectorModal.js";
 import dayjs from "dayjs";
 import { printInvoice } from "../../utils/printInvoice";
 import { trTR } from '@mui/x-data-grid/locales';
-const INV_TYPES = [
-  { value: 1, label: "Alım" },
-  { value: 2, label: "İade" },
-];
+import { useLanguage } from "../../context/LanguageContext.js";
 
 
 function StockInvoicePage() {
   const { confirm } = useConfirm();
+  const { t, lang } = useLanguage();
   const [invNo, setInvNo] = useState("");
   const [invDate, setInvDate] = useState("");
   const [invType, setInvType] = useState("");
@@ -28,14 +26,18 @@ function StockInvoicePage() {
   const [canPrint, setCanPrint] = useState(false);
   const [loadedFromExisting, setLoadedFromExisting] = useState(false);
   const apiRef = useGridApiRef();
+  const INV_TYPES = useMemo(() => [
+    { value: 1, label: t('Purchase') },
+    { value: 2, label: t('Return') },
+  ], [t]);
 
   const columns = useMemo(() => [
     { field: "id", headerName: "#", width: 70, headerAlign: "center" },
-    { field: "name", headerName: "Stok", flex: 2, minWidth: 160, headerAlign: "center" },
-    { field: "quantity", headerName: "Miktar", flex: 1, width: 110, headerAlign: "center", editable: isEditing, type: "number" },
-    { field: "price", headerName: "Birim Fiyat", flex: 1, width: 130, headerAlign: "center", editable: isEditing, type: "number", valueFormatter: (p) => `${p.value} ₺` },
-    { field: "total", headerName: "Toplam", flex: 1, width: 130, headerAlign: "center", valueFormatter: (p) => `${p.value} ₺` }
-  ], [isEditing]);
+    { field: "name", headerName: t('StockName'), flex: 2, minWidth: 160, headerAlign: "center" },
+    { field: "quantity", headerName: t('Quantity'), flex: 1, width: 110, headerAlign: "center", editable: isEditing, type: "number" },
+    { field: "price", headerName: t('UnitPrice'), flex: 1, width: 130, headerAlign: "center", editable: isEditing, type: "number", valueFormatter: (p) => `${p.value} ₺` },
+    { field: "total", headerName: t('Total'), flex: 1, width: 130, headerAlign: "center", valueFormatter: (p) => `${p.value} ₺` }
+  ], [isEditing, t]);
 
   const subtotal = useMemo(() => stocks.reduce((sum, s) => sum + Number(s.price) * Number(s.quantity), 0), [stocks]);
   const headerValid = useMemo(() => invNo.trim() !== "" && invDate !== "" && [1, 2].includes(Number(invType)), [invNo, invDate, invType]);
@@ -54,14 +56,14 @@ function StockInvoicePage() {
 
   const handleAddStock = async () => {
     if (!headerValid) {
-      await confirm("Önce fatura bilgilerini doldurun.", "Tamam", "", "Uyarı");
+      await confirm(lang === 'en' ? 'Please fill the invoice header first.' : 'Önce fatura bilgilerini doldurun.', t('Ok'), "", t('Warning'));
       return;
     }
     setSelectOpen(true);
   };
 
   const handleCancel = async () => {
-    const ok = await confirm("Faturayı iptal etmek istediğinize emin misiniz?", "Evet", "Hayır", "İptal Onayı");
+    const ok = await confirm(lang === 'en' ? 'Are you sure you want to cancel the invoice?' : 'Faturayı iptal etmek istediğinize emin misiniz?', t('Yes'), t('No'), t('Warning'));
     if (!ok) return;
     setInvNo("");
     setInvDate("");
@@ -144,12 +146,12 @@ function StockInvoicePage() {
           });
         }
       }
-      await confirm("Fatura ve stok hareketleri kaydedildi.", "Tamam", "", "Başarılı");
+      await confirm(lang === 'en' ? 'Invoice and stock movements saved.' : 'Fatura ve stok hareketleri kaydedildi.', t('Ok'), "", t('Info'));
       setIsEditing(false);
       setCanPrint(true);
     } catch (err) {
       if (err.__demo_blocked) return;
-      await confirm(err.response?.data?.message || err.message || "Kaydetme sırasında hata oluştu.", "Tamam", "", "Hata");
+      await confirm(err.response?.data?.message || err.message || (lang === 'en' ? 'An error occurred while saving.' : 'Kaydetme sırasında hata oluştu.'), t('Ok'), "", t('Error'));
     }
   };
 
@@ -157,7 +159,7 @@ function StockInvoicePage() {
     try {
       const invoiceRes = await axiosInstance.get("/material-invoice/list");
       const invoice = invoiceRes.data.find(i => i.id === invoiceId);
-      if (!invoice) throw new Error("Fatura bulunamadı");
+      if (!invoice) throw new Error(lang === 'en' ? 'Invoice not found' : 'Fatura bulunamadı');
       setInvNo(invoice.inv_no);
       setInvDate(invoice.inv_date ? dayjs(invoice.inv_date).format("YYYY-MM-DD") : "");
       setInvType(invoice.inv_type);
@@ -188,11 +190,11 @@ function StockInvoicePage() {
     <Box sx={{ p: 2 }}>
       <Paper elevation={2} sx={{ p: 3, borderRadius: 3, background: "linear-gradient(135deg,#f7f7fb,#ffffff)" }}>
         <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
-          <Typography variant="h5">🧾 Stok Fatura</Typography>
+          <Typography variant="h5">🧾 {t('NewInvoice')}</Typography>
           <Stack direction="row" spacing={1}>
-            <Button variant="contained" onClick={handleNewInvoice} disabled={isEditing}>Yeni Fatura</Button>
-            <Button variant="outlined" onClick={() => setShowInvoiceModal(true)} disabled={isEditing}>Fatura Aç</Button>
-            <Button variant="outlined" color="secondary" onClick={handlePrint} disabled={!canPrint}>Yazdır</Button>
+            <Button variant="contained" onClick={handleNewInvoice} disabled={isEditing}>{t('NewInvoice')}</Button>
+            <Button variant="outlined" onClick={() => setShowInvoiceModal(true)} disabled={isEditing}>{t('OpenInvoice')}</Button>
+            <Button variant="outlined" color="secondary" onClick={handlePrint} disabled={!canPrint}>{t('Print')}</Button>
           </Stack>
         </Stack>
         <Grid container spacing={2}>
@@ -200,32 +202,32 @@ function StockInvoicePage() {
             <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
               <Grid container spacing={2}>
                 <Grid item xs={12} md={4}>
-                  <TextField label="Fatura No" value={invNo} onChange={(e) => setInvNo(e.target.value)} disabled={!isEditing} fullWidth />
+                  <TextField label={t('InvoiceNo')} value={invNo} onChange={(e) => setInvNo(e.target.value)} disabled={!isEditing} fullWidth />
                 </Grid>
                 <Grid item xs={12} md={4}>
-                  <TextField label="Fatura Tarihi" type="date" value={invDate} onChange={(e) => setInvDate(e.target.value)} disabled={!isEditing} InputLabelProps={{ shrink: true }} fullWidth />
+                  <TextField label={lang === 'en' ? 'Invoice Date' : 'Fatura Tarihi'} type="date" value={invDate} onChange={(e) => setInvDate(e.target.value)} disabled={!isEditing} InputLabelProps={{ shrink: true }} fullWidth />
                 </Grid>
                 <Grid item xs={12} md={4}>
-                  <TextField select label="Fatura Tipi" value={invType} onChange={(e) => setInvType(e.target.value)} disabled={!isEditing} fullWidth>
-                    <MenuItem value="">Seçiniz</MenuItem>
+                  <TextField select label={lang === 'en' ? 'Invoice Type' : 'Fatura Tipi'} value={invType} onChange={(e) => setInvType(e.target.value)} disabled={!isEditing} fullWidth>
+                    <MenuItem value="">{t('Select')}</MenuItem>
                     {INV_TYPES.map(t => <MenuItem key={t.value} value={t.value}>{t.label}</MenuItem>)}
                   </TextField>
                 </Grid>
               </Grid>
               <Divider sx={{ my: 2 }} />
               <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
-                <Chip label={isEditing ? "Yeni Fatura" : "Görüntüleme"} color={isEditing ? "warning" : "default"} />
-                <Chip label={`Kalem: ${stocks.length}`} />
-                <Chip label={`Tutar: ${subtotal.toFixed(2)} ₺`} color="success" />
+                <Chip label={isEditing ? t('NewInvoice') : t('Details')} color={isEditing ? "warning" : "default"} />
+                <Chip label={`${t('Items')}: ${stocks.length}`} />
+                <Chip label={`${t('Total')}: ${subtotal.toFixed(2)} ₺`} color="success" />
               </Stack>
               <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
                 {loadedFromExisting && !isEditing && (
-                  <Button variant="outlined" color="warning" onClick={() => setIsEditing(true)}>Değiştir</Button>
+                  <Button variant="outlined" color="warning" onClick={() => setIsEditing(true)}>{t('EditAction')}</Button>
                 )}
-                <Button variant="contained" color="success" onClick={handleAddStock} disabled={!isEditing}>Stok Ekle</Button>
-                <Button variant="outlined" color="error" disabled={!selectedRows.length || !isEditing} onClick={() => { setStocks(prev => prev.filter(s => !selectedRows.includes(s.id))); setSelectedRows([]); }}>Stok Sil</Button>
-                <Button variant="contained" color="primary" onClick={handleSave} disabled={!isFormValid || !isEditing}>Kaydet</Button>
-                <Button variant="outlined" color="error" onClick={handleCancel} disabled={!isEditing}>İptal</Button>
+                <Button variant="contained" color="success" onClick={handleAddStock} disabled={!isEditing}>{t('AddStock')}</Button>
+                <Button variant="outlined" color="error" disabled={!selectedRows.length || !isEditing} onClick={() => { setStocks(prev => prev.filter(s => !selectedRows.includes(s.id))); setSelectedRows([]); }}>{t('DeleteStock')}</Button>
+                <Button variant="contained" color="primary" onClick={handleSave} disabled={!isFormValid || !isEditing}>{t('Save')}</Button>
+                <Button variant="outlined" color="error" onClick={handleCancel} disabled={!isEditing}>{t('Cancel')}</Button>
               </Stack>
               <Box sx={{ height: 520, width: "100%" }}>
                 <DataGrid
@@ -245,13 +247,13 @@ function StockInvoicePage() {
                   experimentalFeatures={{ newEditingApi: true }}
                   onRowSelectionModelChange={(ids) => setSelectedRows(ids.map(id => Number(id)))}
                   slots={{
-                    noRowsOverlay: () => <Typography sx={{ p: 2, textAlign: "center", color: "text.secondary" }}>Henüz stok eklenmedi.</Typography>
+                    noRowsOverlay: () => <Typography sx={{ p: 2, textAlign: "center", color: "text.secondary" }}>{t('NoRows')}</Typography>
                   }}
                   localeText={{
                     ...trTR.components.MuiDataGrid.defaultProps.localeText,
                     footerRowSelected: (count) =>
-                      count > 1
-                        ? `${count.toLocaleString()} satır seçildi`
+                      lang === 'en'
+                        ? `${count.toLocaleString()} row selected`
                         : `${count.toLocaleString()} satır seçildi`,
                   }}
                 />
@@ -260,11 +262,11 @@ function StockInvoicePage() {
           </Grid>
           <Grid item xs={12} md={4}>
             <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
-              <Typography variant="subtitle1">Özet</Typography>
+              <Typography variant="subtitle1">{t('Summary')}</Typography>
               <Divider sx={{ my: 1 }} />
               <Stack spacing={1}>
-                <Stack direction="row" justifyContent="space-between"><Typography>Kalem</Typography><Typography>{stocks.length}</Typography></Stack>
-                <Stack direction="row" justifyContent="space-between"><Typography>Toplam</Typography><Typography>{subtotal.toFixed(2)} ₺</Typography></Stack>
+                <Stack direction="row" justifyContent="space-between"><Typography>{t('Items')}</Typography><Typography>{stocks.length}</Typography></Stack>
+                <Stack direction="row" justifyContent="space-between"><Typography>{t('Total')}</Typography><Typography>{subtotal.toFixed(2)} ₺</Typography></Stack>
               </Stack>
             </Paper>
           </Grid>

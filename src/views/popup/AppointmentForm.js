@@ -11,12 +11,14 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import trLocale from 'dayjs/locale/tr';
 import { useConfirm } from '../../components/ConfirmContext';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
-dayjs.locale(trLocale);
 
 const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView }, ref) => {
+  const { t, lang } = useLanguage();
+  dayjs.locale(lang === 'en' ? 'en' : 'tr');
   // startDate ve endDate artık dayjs local objeleri
   const [startDate, setStartDate] = useState(startDateProp ? dayjs(startDateProp).local() : null);
   const [endDate, setEndDate] = useState(endDateProp ? dayjs(endDateProp).local() : null);
@@ -44,7 +46,7 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
   useImperativeHandle(ref, () => ({
     handleSave: () => {
       if (!userAnimalId || !startDate || !endDate) {
-        confirm("Lütfen tüm zorunlu alanları doldurun.", "Tamam", "", "Uyarı");
+        confirm(t('PleaseFillRequiredFields'), t('Ok'), "", t('Warning'));
         return null;
       }
       return {
@@ -71,7 +73,7 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
 
   const handleEndDateChange = (newValue) => {
     if (newValue && startDate && newValue.isBefore(startDate)) {
-      confirm("Bitiş tarihi, başlangıç tarihinden önce olamaz.", "Tamam", "", "Uyarı");
+      confirm(t('EndBeforeStart'), t('Ok'), "", t('Warning'));
       setEndDate(startDate.add(30, 'minute'));
     } else {
       setEndDate(newValue ? dayjs(newValue).local() : null);
@@ -93,7 +95,7 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
       {/* Hasta */}
       <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Grid item xs={4}>
-          <Typography variant="subtitle1" gutterBottom>Hasta Adı :</Typography>
+          <Typography variant="subtitle1" gutterBottom>{t('PatientNameLabel')} :</Typography>
         </Grid>
         <Grid item xs={8} sx={{ marginBottom: 2 }}>
           <Grid container spacing={1}>
@@ -102,7 +104,7 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
                 fullWidth
                 value={patientName}
                 InputProps={{ readOnly: true }}
-                placeholder="Hasta seçiniz"
+                placeholder={t('PatientSelectPlaceholder')}
                 variant="outlined"
                 size="small"
               />
@@ -114,7 +116,7 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
                 className='login'
                 onClick={() => setShowPatientSearch(true)}
               >
-                Hasta Ara
+                {t('SearchPatient')}
               </Button>
             </Grid>
           </Grid>
@@ -124,10 +126,10 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
       {/* Başlangıç */}
       <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Grid item xs={4}>
-          <Typography variant="subtitle1" gutterBottom>Başlangıç Tarihi :</Typography>
+          <Typography variant="subtitle1" gutterBottom>{t('StartDate')} :</Typography>
         </Grid>
         <Grid item xs={8}>
-          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={trLocale}>
+          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={lang === 'en' ? 'en' : 'tr'}>
             <DateTimePicker
               value={startDate}
               onChange={handleStartDateChange}
@@ -142,10 +144,10 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
       {/* Bitiş */}
       <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Grid item xs={4}>
-          <Typography variant="subtitle1" gutterBottom>Bitiş Tarihi :</Typography>
+          <Typography variant="subtitle1" gutterBottom>{t('EndDate')} :</Typography>
         </Grid>
         <Grid item xs={8}>
-          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={trLocale}>
+          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={lang === 'en' ? 'en' : 'tr'}>
             <DateTimePicker
               value={endDate}
               onChange={handleEndDateChange}
@@ -160,7 +162,7 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
       {/* Günlere Böl */}
       <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Grid item xs={4}>
-          <Typography variant="subtitle1" gutterBottom>Günlere Böl :</Typography>
+          <Typography variant="subtitle1" gutterBottom>{t('SplitIntoDays')} :</Typography>
         </Grid>
         <Grid item xs={8}>
           <Checkbox
@@ -177,7 +179,7 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
       {/* Randevu Tipi */}
       <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Grid item xs={4}>
-          <Typography variant="subtitle1" gutterBottom>Randevu Tipi :</Typography>
+          <Typography variant="subtitle1" gutterBottom>{t('AppointmentType')} :</Typography>
         </Grid>
         <Grid item xs={8}>
           <Select
@@ -187,7 +189,7 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
             size="small"
             variant="outlined"
           >
-            <MenuItem value={0}>Normal</MenuItem>
+            <MenuItem value={0}>{t('Normal')}</MenuItem>
           </Select>
         </Grid>
       </Grid>
@@ -195,7 +197,7 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
       {/* Notlar */}
       <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Grid item xs={4}>
-          <Typography variant="subtitle1" gutterBottom>Notlar:</Typography>
+          <Typography variant="subtitle1" gutterBottom>{t('Notes')}:</Typography>
         </Grid>
         <Grid item xs={8}>
           <TextField
@@ -205,7 +207,7 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
             variant="outlined"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Opsiyonel not ekleyebilirsiniz"
+            placeholder={t('OptionalNotesPlaceholder')}
             size="small"
           />
         </Grid>

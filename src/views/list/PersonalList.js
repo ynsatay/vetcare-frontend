@@ -7,11 +7,13 @@ import PersonalReg from '../popup/PersonalReg';
 import MainModal from '../../components/MainModal';
 import axiosInstance from '../../api/axiosInstance.ts';
 import { trTR } from '@mui/x-data-grid/locales';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 const PersonalList = () => {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [personalList, setPersonalList] = useState([]);
     const personalFormRef = useRef(null);
+    const { t, lang } = useLanguage();
 
     const togglePersonaldModal = () => {
         setIsAddModalOpen(!isAddModalOpen);
@@ -44,7 +46,7 @@ const PersonalList = () => {
     const columns = [
         {
             field: 'fullName',
-            headerName: 'Adı Soyadı',
+            headerName: t('FullName'),
             width: 230,
             renderCell: (params) => {
                 const person = params.row;
@@ -66,38 +68,37 @@ const PersonalList = () => {
                 );
             }
         },
-        { field: 'username', headerName: 'Kullanıcı Adı', width: 150 },
-        { field: 'phone', headerName: 'Telefon', width: 140 },
+        { field: 'username', headerName: t('Username'), width: 150 },
+        { field: 'phone', headerName: t('Phone'), width: 140 },
         {
             field: 'birthdate',
-            headerName: 'Doğum Tarihi',
+            headerName: t('BirthDate'),
             width: 130,
             valueFormatter: (params) =>
                 new Date(params.value).toLocaleDateString('tr-TR')
         },
         {
             field: 'role',
-            headerName: 'Rol',
+            headerName: t('Role'),
             flex: 1,
             valueFormatter: (params) => {
-                const roleMap = {
-                    2: 'Veteriner Hekim',
-                    3: 'Klinik Yöneticisi'
-                };
-                return roleMap[params.value] || 'Bilinmiyor';
+                const v = params.value;
+                if (v === 2) return t('Veterinarian');
+                if (v === 3) return lang === 'en' ? 'Clinic Manager' : 'Klinik Yöneticisi';
+                return t('Unknown');
             },
         },
         {
             field: 'sexuality',
-            headerName: 'Cinsiyet',
+            headerName: t('Gender'),
             width: 110,
             valueFormatter: (params) =>
                 params.value?.trim().toUpperCase()
         },
-        { field: 'address', headerName: 'Adres', width: 200 },
+        { field: 'address', headerName: t('Address'), width: 200 },
         {
             field: 'active',
-            headerName: 'Durum',
+            headerName: t('Status'),
             width: 90,
             renderCell: (params) => (
                 <span
@@ -118,13 +119,13 @@ const PersonalList = () => {
                 <CardBody>
                     <div className="d-flex justify-content-between align-items-center mb-3">
                         <div>
-                            <CardTitle tag="h5">👥 Personel Yönetim Ekranı</CardTitle>
+                            <CardTitle tag="h5">👥 {t('PersonnelManagement')}</CardTitle>
                             <CardSubtitle className="text-muted" tag="h6">
-                                Tüm personel listesi
+                                {t('AllPersonnelList')}
                             </CardSubtitle>
                         </div>
                         <Button className="login" onClick={togglePersonaldModal}>
-                            Yeni Personel Ekle
+                            {t('AddNewPersonnel')}
                         </Button>
                     </div>
 
@@ -147,8 +148,8 @@ const PersonalList = () => {
                             localeText={{
                                 ...trTR.components.MuiDataGrid.defaultProps.localeText,
                                 footerRowSelected: (count) =>
-                                    count > 1
-                                        ? `${count.toLocaleString()} satır seçildi`
+                                    lang === 'en'
+                                        ? `${count.toLocaleString()} row selected`
                                         : `${count.toLocaleString()} satır seçildi`,
                             }}
                         />
@@ -159,10 +160,10 @@ const PersonalList = () => {
             <MainModal
                 isOpen={isAddModalOpen}
                 toggle={togglePersonaldModal}
-                title="Personel Ekle"
+                title={t('AddPersonnel')}
                 content={<PersonalReg ref={personalFormRef} onClose={togglePersonaldModal} />}
                 onSave={handleSave}
-                saveButtonLabel="Ekle"
+                saveButtonLabel={t('Add')}
             />
         </div>
     );

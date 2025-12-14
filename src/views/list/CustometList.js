@@ -4,11 +4,13 @@ import { DataGrid } from '@mui/x-data-grid';
 import axiosInstance from '../../api/axiosInstance.ts';
 import { useNavigate } from 'react-router-dom';
 import { trTR } from '@mui/x-data-grid/locales';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 const CustomerList = () => {
   const [customerList, setCustomerList] = useState([]);
   const [searchIdentity, setSearchIdentity] = useState('');
   const navigate = useNavigate();
+  const { t, lang } = useLanguage();
 
   const fetchCustomerList = useCallback(async () => {
     try {
@@ -40,14 +42,14 @@ const CustomerList = () => {
 
   // 👇 Kolonlar
   const columns = [
-    { field: 'name', headerName: 'Ad', flex: 1, minWidth: 130 },
-    { field: 'surname', headerName: 'Soyad', flex: 1, minWidth: 130 },
-    { field: 'phone', headerName: 'Telefon', flex: 1, minWidth: 130 },
+    { field: 'name', headerName: t('Name'), flex: 1, minWidth: 130 },
+    { field: 'surname', headerName: t('Surname'), flex: 1, minWidth: 130 },
+    { field: 'phone', headerName: t('Phone'), flex: 1, minWidth: 130 },
     { field: 'email', headerName: 'Email', flex: 1, minWidth: 160 },
-    { field: 'address', headerName: 'Adres', flex: 1, minWidth: 180 },
+    { field: 'address', headerName: t('Address'), flex: 1, minWidth: 180 },
     {
       field: 'actions',
-      headerName: 'İşlem',
+      headerName: t('Actions'),
       width: 120,
       sortable: false,
       renderCell: (params) => (
@@ -55,7 +57,7 @@ const CustomerList = () => {
           className="btn btn-sm btn-primary"
           onClick={() => goToIdentity(params.row)}
         >
-          Kimlik
+          {t('Identity')}
         </button>
       )
     }
@@ -66,10 +68,10 @@ const CustomerList = () => {
       <Card>
         <CardBody>
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <CardTitle tag="h5">👤 Müşteri Listesi</CardTitle>
+            <CardTitle tag="h5">👤 {t('CustomerList')}</CardTitle>
             <input
               type="text"
-              placeholder="TC No ile Ara..."
+              placeholder={t('SearchByID')}
               value={searchIdentity}
               onChange={(e) => setSearchIdentity(e.target.value)}
               className="form-control"
@@ -88,8 +90,8 @@ const CustomerList = () => {
               localeText={{
                 ...trTR.components.MuiDataGrid.defaultProps.localeText,
                 footerRowSelected: (count) =>
-                  count > 1
-                    ? `${count.toLocaleString()} satır seçildi`
+                  lang === 'en'
+                    ? `${count.toLocaleString()} row selected`
                     : `${count.toLocaleString()} satır seçildi`,
               }}
             />

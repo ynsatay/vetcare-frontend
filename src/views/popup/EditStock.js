@@ -7,8 +7,10 @@ import React, {
 import { Row, Col, FormGroup, Label, Input } from 'reactstrap';
 import ConfirmDialog from '../../components/ConfirmDialog.js';
 import axiosInstance from '../../api/axiosInstance.ts';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 const EditStock = forwardRef(({ onClose, initialData }, ref) => {
+    const { t } = useLanguage();
     const [formData, setFormData] = useState({
         name: '',
         price: '',
@@ -25,12 +27,12 @@ const EditStock = forwardRef(({ onClose, initialData }, ref) => {
     const [showConfirm, setShowConfirm] = useState(false);
 
     const categories = [
-        { label: "İlaç", value: 1 },
-        { label: "Sarf", value: 2 },
-        { label: "Temizlik", value: 3 },
-        { label: "Besin", value: 4 },
-        { label: "Aşı", value: 5 },
-        { label: "Diğer", value: 0 }
+        { label: t('Medicine'), value: 1 },
+        { label: t('Consumable'), value: 2 },
+        { label: t('Cleaning'), value: 3 },
+        { label: t('Food'), value: 4 },
+        { label: t('Vaccine'), value: 5 },
+        { label: t('Other'), value: 0 }
     ];
 
     useEffect(() => {
@@ -65,11 +67,11 @@ const EditStock = forwardRef(({ onClose, initialData }, ref) => {
     return (
         <>
             {[
-                { label: "Malzeme Adı*", name: "name" },
-                { label: "Fiyat", name: "price", type: "number" },
+                { label: `${t('StockName')}*`, name: "name" },
+                { label: t('Price'), name: "price", type: "number" },
                 //{ label: "Adet*", name: "quantity", type: "number" },  //Stok Alım Ekanı için kaldırıldı
-                { label: "Min. Stok", name: "min_stock_level", type: "number" },
-                { label: "Barkod", name: "barcode" },
+                { label: t('MinStock'), name: "min_stock_level", type: "number" },
+                { label: t('Barcode'), name: "barcode" },
                 // { label: "Tedarikçi", name: "supplier_name" },
             ].map(({ label, name, type = "text" }) => (
                 <FormGroup key={name}>
@@ -90,7 +92,7 @@ const EditStock = forwardRef(({ onClose, initialData }, ref) => {
 
             <FormGroup>
                 <Row>
-                    <Col md={4}><Label>Kategori</Label></Col>
+                    <Col md={4}><Label>{t('Category')}</Label></Col>
                     <Col md={8}>
                         <Input
                             type="select"
@@ -98,7 +100,7 @@ const EditStock = forwardRef(({ onClose, initialData }, ref) => {
                             value={formData.category ?? ''}
                             onChange={handleChange}
                         >
-                            <option value="">Seçiniz</option>
+                            <option value="">{t('Select')}</option>
                             {categories.map(opt => (
                                 <option key={opt.value} value={opt.value}>{opt.label}</option>
                             ))}
@@ -109,7 +111,7 @@ const EditStock = forwardRef(({ onClose, initialData }, ref) => {
 
             <FormGroup>
                 <Row>
-                    <Col md={4}><Label>Birim*</Label></Col>
+                    <Col md={4}><Label>{t('Type')}*</Label></Col>
                     <Col md={8}>
                         <Input
                             type="select"
@@ -117,12 +119,12 @@ const EditStock = forwardRef(({ onClose, initialData }, ref) => {
                             value={formData.unit ?? ''}  // null/undefined güvenliği
                             onChange={handleChange}
                         >
-                            <option value="">Seçiniz</option>
-                            <option value="0">Adet</option>
-                            <option value="1">Kutu</option>
-                            <option value="2">ML</option>
-                            <option value="3">Gram</option>
-                            <option value="4">Litre</option>
+                            <option value="">{t('Select')}</option>
+                            <option value="0">{t('UnitPiece')}</option>
+                            <option value="1">{t('Box')}</option>
+                            <option value="2">{t('ML')}</option>
+                            <option value="3">{t('Gram')}</option>
+                            <option value="4">{t('Liter')}</option>
                         </Input>
                     </Col>
                 </Row>
@@ -130,7 +132,7 @@ const EditStock = forwardRef(({ onClose, initialData }, ref) => {
 
             <FormGroup>
                 <Row>
-                    <Col md={4}><Label>Açıklama</Label></Col>
+                    <Col md={4}><Label>{t('Notes')}</Label></Col>
                     <Col md={8}>
                         <Input
                             type="textarea"
@@ -146,9 +148,9 @@ const EditStock = forwardRef(({ onClose, initialData }, ref) => {
                 isOpen={showConfirm}
                 toggle={() => setShowConfirm(false)}
                 onConfirm={() => setShowConfirm(false)}
-                message="Lütfen zorunlu alanları doldurunuz."
-                answerTrue="Tamam"
-                toggleMessage="Uyarı"
+                message={t('FillRequiredFields')}
+                answerTrue={t('Ok')}
+                toggleMessage={t('Warning')}
                 answerFalse=""
             />
         </>

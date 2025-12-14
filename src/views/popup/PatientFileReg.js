@@ -8,8 +8,10 @@ import { Hash, ClipboardList, PawPrint, Calendar, User } from 'lucide-react';
 import axiosInstance from '../../api/axiosInstance.ts';
 import { useNavigate } from 'react-router-dom';
 import ConfirmDialog from '../../components/ConfirmDialog.js';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 const PatientFileReg = forwardRef(({ pat_id, pat_name, animal_id, animal_name, navigateOnSave = true }, ref) => {
+    const { t } = useLanguage();
     const userId = localStorage.getItem('userid');
     const [vets, setVets] = useState([]);
     const [formData, setFormData] = useState({
@@ -93,15 +95,15 @@ const PatientFileReg = forwardRef(({ pat_id, pat_name, animal_id, animal_name, n
             <div className="identity-section-card compact">
                 <div className="identity-panel-banner">
                     <div>
-                        <div className="identity-panel-title">Geliş Dosyası Oluştur</div>
-                        <div className="identity-panel-sub">Hızlı kayıt</div>
+                        <div className="identity-panel-title">{t('CreateVisitFile')}</div>
+                        <div className="identity-panel-sub">{t('QuickRegister')}</div>
                     </div>
                 </div>
 
                 <div className="identity-modal-body">
                     <div className="identity-owner-grid compact">
                         <div className="identity-owner-field full">
-                            <label className="identity-owner-label">Hasta Adı</label>
+                            <label className="identity-owner-label">{t('PatientName')}</label>
                             <div className="identity-input-group">
                                 <User className="identity-input-icon" size={14} />
                                 <input type="text" className="identity-owner-input" value={pat_name} disabled />
@@ -109,7 +111,7 @@ const PatientFileReg = forwardRef(({ pat_id, pat_name, animal_id, animal_name, n
                         </div>
 
                         <div className="identity-owner-field full">
-                            <label className="identity-owner-label">Hayvan Adı</label>
+                            <label className="identity-owner-label">{t('AnimalName')}</label>
                             <div className="identity-input-group">
                                 <PawPrint className="identity-input-icon" size={14} />
                                 <input type="text" className="identity-owner-input" value={animal_name} disabled />
@@ -117,24 +119,24 @@ const PatientFileReg = forwardRef(({ pat_id, pat_name, animal_id, animal_name, n
                         </div>
 
                         <div className="identity-owner-field">
-                            <label className="identity-owner-label">Geliş Tipi*</label>
+                            <label className="identity-owner-label">{t('VisitType')}*</label>
                             <div className="identity-input-group">
                                 <ClipboardList className="identity-input-icon" size={14} />
                                 <select className="identity-owner-select" name="type" value={formData.type} onChange={handleChange}>
-                                    <option value="">Seçiniz</option>
-                                    <option value="1">Kontrol</option>
-                                    <option value="2">Acil</option>
-                                    <option value="3">Aşı</option>
+                                    <option value="">{t('Select')}</option>
+                                    <option value="1">{t('Control')}</option>
+                                    <option value="2">{t('Emergency')}</option>
+                                    <option value="3">{t('Vaccination')}</option>
                                 </select>
                             </div>
                         </div>
 
                         <div className="identity-owner-field">
-                            <label className="identity-owner-label">Veteriner*</label>
+                            <label className="identity-owner-label">{t('Veterinarian')}*</label>
                             <div className="identity-input-group">
                                 <Hash className="identity-input-icon" size={14} />
                                 <select className="identity-owner-select" name="vet_u_id" value={formData.vet_u_id} onChange={handleChange}>
-                                    <option value="">Seçiniz</option>
+                                    <option value="">{t('Select')}</option>
                                     {vets.map(vet => (
                                         <option key={vet.id} value={vet.id}>{vet.name + " " + vet.surname}</option>
                                     ))}
@@ -143,7 +145,7 @@ const PatientFileReg = forwardRef(({ pat_id, pat_name, animal_id, animal_name, n
                         </div>
 
                         <div className="identity-owner-field full">
-                            <label className="identity-owner-label">Notlar</label>
+                            <label className="identity-owner-label">{t('Notes')}</label>
                             <div className="identity-input-group">
                                 <ClipboardList className="identity-input-icon" size={14} />
                                 <input type="text" className="identity-owner-input" name="notes" value={formData.notes} onChange={handleChange} />
@@ -151,7 +153,7 @@ const PatientFileReg = forwardRef(({ pat_id, pat_name, animal_id, animal_name, n
                         </div>
 
                         <div className="identity-owner-field full">
-                            <label className="identity-owner-label">Geliş Nedeni</label>
+                            <label className="identity-owner-label">{t('ArrivalReason')}</label>
                             <div className="identity-input-group">
                                 <ClipboardList className="identity-input-icon" size={14} />
                                 <input type="text" className="identity-owner-input" name="arrival_reason" value={formData.arrival_reason} onChange={handleChange} />
@@ -159,7 +161,7 @@ const PatientFileReg = forwardRef(({ pat_id, pat_name, animal_id, animal_name, n
                         </div>
 
                         <div className="identity-owner-field full">
-                            <label className="identity-owner-label">Tanı</label>
+                            <label className="identity-owner-label">{t('Diagnosis')}</label>
                             <div className="identity-input-group">
                                 <ClipboardList className="identity-input-icon" size={14} />
                                 <textarea className="identity-owner-input" name="diagnosis" value={formData.diagnosis} onChange={handleChange} />
@@ -167,7 +169,7 @@ const PatientFileReg = forwardRef(({ pat_id, pat_name, animal_id, animal_name, n
                         </div>
 
                         <div className="identity-owner-field full">
-                            <label className="identity-owner-label">Tedavi Planı</label>
+                            <label className="identity-owner-label">{t('TreatmentPlan')}</label>
                             <div className="identity-input-group">
                                 <Calendar className="identity-input-icon" size={14} />
                                 <textarea className="identity-owner-input" name="treatment_plan" value={formData.treatment_plan} onChange={handleChange} />
@@ -179,9 +181,9 @@ const PatientFileReg = forwardRef(({ pat_id, pat_name, animal_id, animal_name, n
                         isOpen={showConfirm}
                         toggle={() => setShowConfirm(false)}
                         onConfirm={() => setShowConfirm(false)}
-                        message="Zorunlu alanları doldurunuz"
-                        answerTrue="Tamam"
-                        toggleMessage="Uyarı"
+                        message={t('FillRequiredFields')}
+                        answerTrue={t('Ok')}
+                        toggleMessage={t('Warning')}
                         answerFalse=""
                     />
                 </div>

@@ -34,6 +34,7 @@ import AccountSettingsModal from '../popup/AccountSettingsModal.js';
 import NotificationsModal from '../popup/NotificationsModal.js';
 import SecurityModal from '../popup/SecurityModal.js';
 import ThemeModal from '../popup/ThemeModal.js';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 dayjs.locale('tr');
 
@@ -63,6 +64,8 @@ function Profile() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSecurity, setShowSecurity] = useState(false);
   const [showTheme, setShowTheme] = useState(false);
+  const { setLanguage, t, lang } = useLanguage();
+  useEffect(() => { dayjs.locale(lang === 'en' ? 'en' : 'tr'); }, [lang]);
 
   useEffect(() => {
     if (profileImage) setLocalimage(profileImage);
@@ -92,10 +95,13 @@ function Profile() {
           setValues(mapped);
           setOriginal(mapped);
           if (user.picture) setLocalimage(`data:image/png;base64,${user.picture}`);
+          const lg = (user.language === 1) ? 'en' : 'tr';
+          setLanguage(lg);
+          localStorage.setItem('language', lg);
         }
       } catch (err) {
         console.error('Profil verisi alınırken hata:', err);
-        toast.error('Profil verileri alınırken bir hata oluştu', { autoClose: 3000 });
+        toast.error(t('ProfileFetchError'), { autoClose: 3000 });
       } finally {
         setLoading(false);
       }
@@ -160,14 +166,14 @@ function Profile() {
         setProfileImage(localimage);
         setOriginal({ ...values });
         setSelectedFile(null);
-        toast.success('Profil başarıyla güncellendi', { autoClose: 2500 });
+        toast.success(t('ProfileUpdatedSuccess'), { autoClose: 2500 });
       } else {
-        throw new Error(response.data?.error || 'Güncelleme başarısız');
+        throw new Error(response.data?.error || t('UpdateFailed'));
       }
     } catch (err) {
       if (err.__demo_blocked) return; 
-      console.error('Profil güncelleme hatası:', err);
-      toast.error('Profil güncellenirken hata oluştu', { autoClose: 3000 });
+      console.error('Profile update error:', err);
+      toast.error(t('ProfileUpdateError'), { autoClose: 3000 });
     } finally {
       setSaving(false);
     }
@@ -264,7 +270,7 @@ function Profile() {
             mb: 1,
             textShadow: '0 2px 10px rgba(0,0,0,0.3)'
           }}>
-            Profilin Hazırlanıyor
+            {t('ProfilePreparing')}
           </Typography>
 
           <Typography variant="body1" sx={{
@@ -272,7 +278,7 @@ function Profile() {
             fontWeight: 400,
             mb: 2
           }}>
-            Kişisel bilgilerin yükleniyor...
+            {t('PersonalInfoLoading')}
           </Typography>
 
           {/* Progress dots */}
@@ -495,7 +501,7 @@ function Profile() {
                         </Box>
                         <Box sx={{ textAlign: 'left', flex: 1 }}>
                           <Typography variant="caption" sx={{ color: '#718096', display: 'block' }}>
-                            E-posta
+                            {t('Email')}
                           </Typography>
                           <Typography variant="body2" sx={{ color: '#2d3748', fontWeight: 500 }}>
                             {values.email}
@@ -532,10 +538,10 @@ function Profile() {
                         </Box>
                         <Box sx={{ textAlign: 'left', flex: 1 }}>
                           <Typography variant="caption" sx={{ color: '#718096', display: 'block' }}>
-                            Telefon
+                            {t('Phone')}
                           </Typography>
                           <Typography variant="body2" sx={{ color: '#2d3748', fontWeight: 500 }}>
-                            {values.phone || 'Belirtilmemiş'}
+                            {values.phone || t('NotSpecified')}
                           </Typography>
                         </Box>
                       </Box>
@@ -569,10 +575,10 @@ function Profile() {
                         </Box>
                         <Box sx={{ textAlign: 'left', flex: 1 }}>
                           <Typography variant="caption" sx={{ color: '#718096', display: 'block' }}>
-                            Doğum Tarihi
+                            {t('BirthDate')}
                           </Typography>
                           <Typography variant="body2" sx={{ color: '#2d3748', fontWeight: 500 }}>
-                            {values.birthdate ? values.birthdate.format('DD/MM/YYYY') : 'Belirtilmemiş'}
+                            {values.birthdate ? values.birthdate.format('DD/MM/YYYY') : t('NotSpecified')}
                           </Typography>
                         </Box>
                       </Box>
@@ -586,15 +592,15 @@ function Profile() {
                       color: '#2d3748',
                       textAlign: 'center'
                     }}>
-                      ⚡ Hızlı İşlemler
+                      ⚡ {t('QuickActions')}
                     </Typography>
 
                     <Stack spacing={1.5}>
                       {[
-                        { icon: '⚙️', label: 'Hesap Ayarları', color: '#667eea' },
-                        { icon: '🔔', label: 'Bildirimler', color: '#f093fb' },
-                        { icon: '🔒', label: 'Güvenlik', color: '#f5576c' },
-                        { icon: '🎨', label: 'Tema', color: '#4facfe' }
+                        { icon: '⚙️', label: t('AccountSettings'), color: '#667eea' },
+                        { icon: '🔔', label: t('Notifications'), color: '#f093fb' },
+                        { icon: '🔒', label: t('Security'), color: '#f5576c' },
+                        { icon: '🎨', label: t('Theme'), color: '#4facfe' }
                       ].map((action, index) => (
                         <Button
                           key={index}
@@ -632,10 +638,10 @@ function Profile() {
                             }
                           }}
                           onClick={() => {
-                            if (action.label === 'Hesap Ayarları') setShowAccount(true);
-                            else if (action.label === 'Bildirimler') setShowNotifications(true);
-                            else if (action.label === 'Güvenlik') setShowSecurity(true);
-                            else if (action.label === 'Tema') setShowTheme(true);
+                            if (index === 0) setShowAccount(true);
+                            else if (index === 1) setShowNotifications(true);
+                            else if (index === 2) setShowSecurity(true);
+                            else if (index === 3) setShowTheme(true);
                           }}
                         >
                           <Typography variant="body2" fontWeight="500">
@@ -726,10 +732,10 @@ function Profile() {
                             WebkitBackgroundClip: 'text',
                             WebkitTextFillColor: 'transparent'
                           }}>
-                            Kişisel Bilgiler
+                            {t('PersonalInformation')}
                           </Typography>
                           <Typography variant="body2" sx={{ color: '#718096', fontSize: '0.9rem' }}>
-                            Temel bilgilerinizi düzenleyin
+                            {t('EditBasicInfo')}
                           </Typography>
                         </Box>
                       </Box>
@@ -759,7 +765,7 @@ function Profile() {
                       }}>
                         <TextField
                           fullWidth
-                          label="Ad"
+                          label={t('Name')}
                           value={values.name}
                           onChange={handleChange('name')}
                           variant="outlined"
@@ -805,7 +811,7 @@ function Profile() {
 
                         <TextField
                           fullWidth
-                          label="Soyad"
+                          label={t('Surname')}
                           value={values.surname}
                           onChange={handleChange('surname')}
                           variant="outlined"
@@ -853,7 +859,7 @@ function Profile() {
                       {/* Username & Email */}
                       <TextField
                         fullWidth
-                        label="Kullanıcı Adı"
+                        label={t('Username')}
                         value={values.username}
                         onChange={handleChange('username')}
                         variant="outlined"
@@ -900,7 +906,7 @@ function Profile() {
 
                       <TextField
                         fullWidth
-                        label="E-posta"
+                        label={t('Email')}
                         type="email"
                         value={values.email}
                         onChange={handleChange('email')}
@@ -948,7 +954,7 @@ function Profile() {
                       {/* Phone & Birth Date */}
                       <TextField
                         fullWidth
-                        label="Telefon"
+                        label={t('Phone')}
                         value={values.phone}
                         onChange={handleChange('phone')}
                         variant="outlined"
@@ -994,7 +1000,7 @@ function Profile() {
 
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
-                          label="Doğum Tarihi"
+                          label={t('BirthDate')}
                           value={values.birthdate}
                           onChange={(d) => setValues(prev => ({ ...prev, birthdate: d }))}
                           slotProps={{
@@ -1060,7 +1066,7 @@ function Profile() {
                         gap: 1
                       }}>
                         <Box sx={{ color: '#667eea', fontSize: 20 }}>⚧️</Box>
-                        Cinsiyet
+                        {t('Gender')}
                       </Typography>
 
                       <Box sx={{
@@ -1069,10 +1075,10 @@ function Profile() {
                         flexWrap: 'wrap'
                       }}>
                         {[
-                          { value: '', label: 'Belirtmek İstemiyorum', emoji: '🤷‍♂️', color: '#718096' },
-                          { value: 'Erkek', label: 'Erkek', emoji: '👨', color: '#667eea' },
-                          { value: 'Kadın', label: 'Kadın', emoji: '👩', color: '#f093fb' },
-                          { value: 'Diğer', label: 'Diğer', emoji: '🧑', color: '#4facfe' }
+                          { value: '', label: t('NotSpecified'), emoji: '🤷‍♂️', color: '#718096' },
+                          { value: 'Erkek', label: t('Male'), emoji: '👨', color: '#667eea' },
+                          { value: 'Kadın', label: t('Female'), emoji: '👩', color: '#f093fb' },
+                          { value: 'Diğer', label: t('Other'), emoji: '🧑', color: '#4facfe' }
                         ].map((option) => (
                           <Box
                             key={option.value}
@@ -1164,7 +1170,7 @@ function Profile() {
                     }}>
                       <TextField
                         fullWidth
-                        label="Adres"
+                        label={t('Address')}
                         multiline
                         rows={4}
                         value={values.address}
@@ -1213,7 +1219,7 @@ function Profile() {
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Box sx={{ color: '#667eea' }}>🆔</Box>
                         <Typography variant="h6" fontWeight="bold">
-                          Kimlik & Güvenlik
+                          {t('Identity')} & {t('Security')}
                         </Typography>
                       </Box>
                     }
@@ -1229,7 +1235,7 @@ function Profile() {
                       <Grid item xs={12} sm={6}>
                         <TextField
                           fullWidth
-                          label="TC Kimlik No"
+                          label={t('IdentityNo')}
                           value={values.identity}
                           onChange={handleChange('identity')}
                           variant="outlined"
@@ -1246,7 +1252,7 @@ function Profile() {
                       <Grid item xs={12} sm={6}>
                         <TextField
                           fullWidth
-                          label="Pasaport No"
+                          label={t('PassportNo')}
                           value={values.pass_number}
                           onChange={handleChange('pass_number')}
                           variant="outlined"
@@ -1285,7 +1291,7 @@ function Profile() {
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         {isDirty && (
                           <Typography variant="body2" sx={{ color: '#718096', fontStyle: 'italic' }}>
-                            Kaydedilmemiş değişiklikler var
+                            {t('UnsavedChanges')}
                           </Typography>
                         )}
                       </Box>
@@ -1303,7 +1309,7 @@ function Profile() {
                             '&:hover': { backgroundColor: '#f7fafc' }
                           }}
                         >
-                          İptal
+                          {t('Cancel')}
                         </Button>
 
                         <Button
@@ -1327,7 +1333,7 @@ function Profile() {
                             fontWeight: 600
                           }}
                         >
-                          {saving ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet'}
+                          {saving ? t('Saving') : t('Save')}
                         </Button>
                       </Box>
                     </Box>
@@ -1341,29 +1347,50 @@ function Profile() {
       <AccountSettingsModal
         open={showAccount}
         onClose={() => setShowAccount(false)}
-        onSave={(data) => {
+        onSave={async (data) => {
           setValues(v => ({ ...v, ...data }));
           if (data?.language) localStorage.setItem('language', data.language);
+          if (data?.language) setLanguage(data.language);
           setShowAccount(false);
-          toast.success('Hesap ayarları güncellendi');
+            toast.success(t('AccountSettingsUpdated'));
+          try {
+            const fd = new FormData();
+            fd.append('userId', userid.toString());
+            fd.append('name', (data.name ?? values.name) || '');
+            fd.append('surname', (data.surname ?? values.surname) || '');
+            fd.append('phone', (values.phone) || '');
+            fd.append('birthDate', values.birthdate ? values.birthdate.format('YYYY-MM-DD') : '');
+            fd.append('sex', values.sex || '');
+            fd.append('email', (data.email ?? values.email) || '');
+            fd.append('address', values.address || '');
+            fd.append('identity', values.identity || '');
+            fd.append('pass_number', values.pass_number || '');
+            fd.append('uname', (data.username ?? values.username) || '');
+            const langNum = data.language === 'en' ? 1 : 0;
+            fd.append('language', String(langNum));
+            fd.append('lang', String(langNum));
+            await axiosInstance.post('/update-profile', fd);
+          } catch (err) {
+            console.error('Dil güncelleme isteği başarısız:', err);
+          }
         }}
         initial={{ name: values.name, surname: values.surname, username: values.username, email: values.email, phone: values.phone, language: (typeof window !== 'undefined' ? localStorage.getItem('language') || 'tr' : 'tr') }}
       />
       <NotificationsModal
         open={showNotifications}
         onClose={() => setShowNotifications(false)}
-        onSave={(prefs) => { localStorage.setItem('notif_prefs', JSON.stringify(prefs)); setShowNotifications(false); toast.success('Bildirim ayarları güncellendi'); }}
+        onSave={(prefs) => { localStorage.setItem('notif_prefs', JSON.stringify(prefs)); setShowNotifications(false); toast.success(t('NotificationSettingsUpdated')); }}
         initial={JSON.parse(localStorage.getItem('notif_prefs') || '{}')}
       />
       <SecurityModal
         open={showSecurity}
         onClose={() => setShowSecurity(false)}
-        onSave={(form) => { setShowSecurity(false); toast.success('Güvenlik ayarları güncellendi'); }}
+        onSave={(form) => { setShowSecurity(false); toast.success(t('SecuritySettingsUpdated')); }}
       />
       <ThemeModal
         open={showTheme}
         onClose={() => setShowTheme(false)}
-        onSave={({ dark, primary }) => { localStorage.setItem('theme_prefs', JSON.stringify({ dark, primary })); setShowTheme(false); toast.success('Tema ayarları güncellendi'); }}
+        onSave={({ dark, primary }) => { localStorage.setItem('theme_prefs', JSON.stringify({ dark, primary })); setShowTheme(false); toast.success(t('ThemeSettingsUpdated')); }}
         initial={JSON.parse(localStorage.getItem('theme_prefs') || '{}')}
       />
     </Box>

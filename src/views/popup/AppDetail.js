@@ -18,17 +18,13 @@ import tr from "dayjs/locale/tr";
 import axiosInstance from "../../api/axiosInstance.ts";
 import ConfirmDialog from "../../components/ConfirmDialog.js";
 import { useConfirm } from '../../components/ConfirmContext';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.locale(tr);
 
-const statusOptions = [
-  { value: 0, label: "Beklemede" },
-  { value: 1, label: "Geldi" },
-  { value: 2, label: "Tamamlandı" },
-  { value: 3, label: "İptal Edildi" },
-];
+const statusOptions = [0,1,2,3];
 
 const AppointmentDetails = ({ event, onUpdateSuccess, onClose }) => {
   const [start, setStart] = useState(null); 
@@ -36,6 +32,7 @@ const AppointmentDetails = ({ event, onUpdateSuccess, onClose }) => {
   const [status, setStatus] = useState(0);
   const [showConfirm, setShowConfirm] = useState(false);
   const { confirm } = useConfirm();
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (event) {
@@ -104,14 +101,14 @@ const AppointmentDetails = ({ event, onUpdateSuccess, onClose }) => {
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={tr}>
       <Grid container spacing={2}>
         <Grid item xs={5}>
-          <Typography variant="subtitle1">Hasta - Hayvan Adı:</Typography>
+          <Typography variant="subtitle1">{t('Animals')}:</Typography>
         </Grid>
         <Grid item xs={7}>
           <Typography variant="body1">{event.title || "Yok"}</Typography>
         </Grid>
 
         <Grid item xs={5}>
-          <Typography variant="subtitle1">Başlangıç Tarihi:</Typography>
+          <Typography variant="subtitle1">Start Date:</Typography>
         </Grid>
         <Grid item xs={7}>
           <DateTimePicker
@@ -124,7 +121,7 @@ const AppointmentDetails = ({ event, onUpdateSuccess, onClose }) => {
         </Grid>
 
         <Grid item xs={5}>
-          <Typography variant="subtitle1">Bitiş Tarihi:</Typography>
+          <Typography variant="subtitle1">End Date:</Typography>
         </Grid>
         <Grid item xs={7}>
           <DateTimePicker
@@ -137,7 +134,7 @@ const AppointmentDetails = ({ event, onUpdateSuccess, onClose }) => {
         </Grid>
 
         <Grid item xs={5}>
-          <Typography variant="subtitle1">Durum:</Typography>
+          <Typography variant="subtitle1">{t('AppointmentStatuses')}:</Typography>
         </Grid>
         <Grid item xs={7}>
           <TextField
@@ -148,8 +145,8 @@ const AppointmentDetails = ({ event, onUpdateSuccess, onClose }) => {
             size="small"
           >
             {statusOptions.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
+              <MenuItem key={option} value={option}>
+                {option === 0 ? t('Waiting') : option === 1 ? t('Arrived') : option === 2 ? t('Completed') : t('Cancelled')}
               </MenuItem>
             ))}
           </TextField>

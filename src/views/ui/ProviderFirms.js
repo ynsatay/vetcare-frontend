@@ -7,21 +7,9 @@ import { useConfirm } from '../../components/ConfirmContext';
 import EditProviderFirm from '../popup/EditProviderFirm.js'; // Firma düzenleme popup'u
 import { trTR } from '@mui/x-data-grid/locales';
 import { toast } from 'react-toastify';
+import { useLanguage } from '../../context/LanguageContext.js';
 
-const columns = [
-    { field: 'id', headerName: '#', width: 70 },
-    { field: 'name', headerName: 'Firma Adı', flex: 1, minWidth: 150 },
-    { field: 'contact_person', headerName: 'Kontak Kişi', width: 150 },
-    { field: 'phone', headerName: 'Telefon', width: 130 },
-    { field: 'email', headerName: 'E-Posta', width: 180 },
-    { field: 'address', headerName: 'Adres', flex: 1, minWidth: 200 },
-    {
-        field: 'active',
-        headerName: 'Durum',
-        width: 100,
-        valueFormatter: ({ value }) => (value ? 'Aktif' : 'Pasif'),
-    },
-];
+// columns are defined inside component to access i18n
 
 const ProviderFirmsList = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -30,6 +18,21 @@ const ProviderFirmsList = () => {
     const [loading, setLoading] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
     const { confirm } = useConfirm();
+    const { t, lang } = useLanguage();
+    const columns = [
+        { field: 'id', headerName: '#', width: 70 },
+        { field: 'name', headerName: t('CompanyName'), flex: 1, minWidth: 150 },
+        { field: 'contact_person', headerName: t('ContactPerson'), width: 150 },
+        { field: 'phone', headerName: t('Phone'), width: 130 },
+        { field: 'email', headerName: t('Email'), width: 180 },
+        { field: 'address', headerName: t('Address'), flex: 1, minWidth: 200 },
+        {
+            field: 'active',
+            headerName: t('Status'),
+            width: 100,
+            valueFormatter: ({ value }) => (value ? t('Active') : t('Inactive')),
+        },
+    ];
 
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editData, setEditData] = useState(null);
@@ -73,10 +76,12 @@ const ProviderFirmsList = () => {
         if (!selectedRow) return;
 
         const confirmed = await confirm(
-            `"${selectedRow.name}" adlı firmayı silmek istediğinize emin misiniz?`,
-            "Evet",
-            "Hayır",
-            "Silme Onayı"
+            lang === 'en'
+                ? `Are you sure you want to delete "${selectedRow.name}"?`
+                : `"${selectedRow.name}" adlı firmayı silmek istediğinize emin misiniz?`,
+            t('Yes'),
+            t('No'),
+            t('Warning')
         );
         if (!confirmed) return;
 
@@ -84,7 +89,7 @@ const ProviderFirmsList = () => {
             await axiosInstance.delete(`/del-provider-firms/${selectedRow.id}`);
             await fetchFirms();
             setSelectedRow(null);
-            toast.success('Firma başarıyla silindi.');
+            toast.success(lang === 'en' ? 'Firm deleted successfully.' : 'Firma başarıyla silindi.');
         } catch (error) {
             if (error.__demo_blocked) return; 
             await confirm(
@@ -111,12 +116,12 @@ const ProviderFirmsList = () => {
 
     return (
         <div style={{ backgroundColor: 'white', padding: '10px', borderRadius: '10px' }}>
-            <h4 className="mb-3">🏢 Tedarikçi Firmalar</h4>
+            <h4 className="mb-3">🏢 {t('ProviderFirms')}</h4>
 
             <Row className="mb-3 g-2">
                 <Col xs={12} md={4}>
                     <Input
-                        placeholder="Firma Ara"
+                        placeholder={t('FirmSearchPlaceholder')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -125,14 +130,14 @@ const ProviderFirmsList = () => {
 
                 <Col xs={12} md="auto">
                     <div className="d-flex flex-wrap gap-2">
-                        <Button color='primary' onClick={handleSearch}>Ara</Button>
+                        <Button color='primary' onClick={handleSearch}>{t('Search')}</Button>
 
                         <Button
                             color="danger"
                             disabled={!selectedRow}
                             onClick={handleDelete}
                         >
-                            Sil
+                            {t('Delete')}
                         </Button>
 
                         <Button
@@ -140,7 +145,7 @@ const ProviderFirmsList = () => {
                             disabled={!selectedRow}
                             onClick={() => selectedRow && handleEdit(selectedRow)}
                         >
-                            Değiştir
+                            {t('EditAction')}
                         </Button>
                     </div>
                 </Col>
@@ -150,7 +155,7 @@ const ProviderFirmsList = () => {
                         setEditData(null);
                         setIsEditModalOpen(true);
                     }}>
-                        Firma Ekle
+                        {t('FirmAdd')}
                     </Button>
                 </Col>
             </Row>
@@ -174,19 +179,19 @@ const ProviderFirmsList = () => {
                     selectionModel={selectedRow ? [selectedRow.id] : []}
                     disableSelectionOnClick={false}
                     localeText={{
-                                            ...trTR.components.MuiDataGrid.defaultProps.localeText,
-                                            footerRowSelected: (count) =>
-                                                count > 1
-                                                    ? `${count.toLocaleString()} satır seçildi`
-                                                    : `${count.toLocaleString()} satır seçildi`,
-                                        }}
+                        ...trTR.components.MuiDataGrid.defaultProps.localeText,
+                        footerRowSelected: (count) =>
+                            lang === 'en'
+                                ? `${count.toLocaleString()} row selected`
+                                : `${count.toLocaleString()} satır seçildi`,
+                    }}
                 />
             </div>
 
             <MainModal
                 isOpen={isEditModalOpen}
                 toggle={toggleEditModal}
-                title={editData ? 'Firma Düzenle' : 'Firma Ekle'}
+                title={editData ? t('FirmEdit') : t('FirmAdd')}
                 content={
                     <EditProviderFirm initialData={editData} onClose={toggleEditModal} />
                 }

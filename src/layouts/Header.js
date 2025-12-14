@@ -12,10 +12,12 @@ import {
 } from "reactstrap";
 import "./scss/_header.scss";
 import { AuthContext } from "../context/usercontext.tsx";
+import { useLanguage } from "../context/LanguageContext.js";
 
 const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { isLogin, logout, profileImage } = useContext(AuthContext);
+  const { t } = useLanguage();
   const [isLoading, setIsLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -198,7 +200,7 @@ const Header = () => {
                     color: '#59018b',
                     fontSize: '1.1rem'
                   }}>
-                    Kullanıcı
+                    {t('User')}
                   </DropdownItem>
                   <DropdownItem
                     tag={Link}
@@ -217,7 +219,7 @@ const Header = () => {
                       e.currentTarget.style.transform = 'translateX(0)';
                     }}
                   >
-                    <i className="bi bi-person-circle me-2"></i> Hesabım
+                    <i className="bi bi-person-circle me-2"></i> {t('MyAccount')}
                   </DropdownItem>
                   <DropdownItem divider />
                   <DropdownItem
@@ -237,7 +239,7 @@ const Header = () => {
                       e.currentTarget.style.transform = 'translateX(0)';
                     }}
                   >
-                    <i className="bi bi-box-arrow-right me-2"></i> Çıkış Yap
+                    <i className="bi bi-box-arrow-right me-2"></i> {t('Logout')}
                   </DropdownItem>
                 </DropdownMenu>
               </Dropdown>
@@ -309,7 +311,7 @@ const Header = () => {
                     e.currentTarget.style.transform = 'translateY(0)';
                   }}
                 >
-                  Anasayfa
+                  {t('Home')}
                 </a>
               </NavItem>
 
@@ -336,10 +338,10 @@ const Header = () => {
                   onMouseLeave={(e) => {
                     e.currentTarget.style.background = 'transparent';
                     e.currentTarget.style.transform = 'translateY(0)';
-                  }}
-                >
-                  Özellikler
-                </a>
+                }}
+              >
+                {t('Features')}
+              </a>
               </NavItem>
               <NavItem>
                 <a
@@ -364,10 +366,10 @@ const Header = () => {
                   onMouseLeave={(e) => {
                     e.currentTarget.style.background = 'transparent';
                     e.currentTarget.style.transform = 'translateY(0)';
-                  }}
-                >
-                  Fiyatlandırma
-                </a>
+                }}
+              >
+                {t('Pricing')}
+              </a>
               </NavItem>
               <NavItem>
                 <a
@@ -392,10 +394,10 @@ const Header = () => {
                   onMouseLeave={(e) => {
                     e.currentTarget.style.background = 'transparent';
                     e.currentTarget.style.transform = 'translateY(0)';
-                  }}
-                >
-                  Yorumlar
-                </a>
+                }}
+              >
+                {t('Testimonials')}
+              </a>
               </NavItem>
               <NavItem>
                 <a
@@ -420,10 +422,10 @@ const Header = () => {
                   onMouseLeave={(e) => {
                     e.currentTarget.style.background = 'transparent';
                     e.currentTarget.style.transform = 'translateY(0)';
-                  }}
-                >
-                  Videolar
-                </a>
+                }}
+              >
+                {t('Videos')}
+              </a>
               </NavItem>
               <NavItem>
                 <a
@@ -448,10 +450,10 @@ const Header = () => {
                   onMouseLeave={(e) => {
                     e.currentTarget.style.background = 'transparent';
                     e.currentTarget.style.transform = 'translateY(0)';
-                  }}
-                >
-                  Hakkımızda & İletişim
-                </a>
+                }}
+              >
+                {t('AboutContact')}
+              </a>
               </NavItem>
             </Nav>
 
@@ -558,7 +560,7 @@ const Header = () => {
                   gap: '8px'
                 }}
               >
-                <i className="bi bi-person-fill"></i> Giriş Yap
+                <i className="bi bi-person-fill"></i> {t('Login')}
               </Link>
             </Button>
           </div>
@@ -663,7 +665,7 @@ const Header = () => {
                 }}
               >
                 <span style={{ fontSize: '1.3rem' }}>🏠</span>
-                <span>Anasayfa</span>
+                <span>{t('Home')}</span>
               </Link>
               
               <a
@@ -707,7 +709,7 @@ const Header = () => {
                 }}
               >
                 <span style={{ fontSize: '1.3rem' }}>⚙️</span>
-                <span>Özellikler</span>
+                <span>{t('Features')}</span>
               </a>
 
               <a
@@ -751,7 +753,7 @@ const Header = () => {
                 }}
               >
                 <span style={{ fontSize: '1.3rem' }}>💰</span>
-                <span>Fiyatlandırma</span>
+                <span>{t('Pricing')}</span>
               </a>
 
                <a
@@ -795,7 +797,7 @@ const Header = () => {
                 }}
               >
                 <span style={{ fontSize: '1.3rem' }}>💬</span>
-                <span>Yorumlar</span>
+                <span>{t('Testimonials')}</span>
               </a>
 
                <a
@@ -839,7 +841,7 @@ const Header = () => {
                 }}
               >
                 <span style={{ fontSize: '1.3rem' }}>🎥</span>
-                <span>Videolar</span>
+                <span>{t('Videos')}</span>
               </a>
 
               <a
@@ -883,7 +885,7 @@ const Header = () => {
                 }}
               >
                 <span style={{ fontSize: '1.3rem' }}>ℹ️</span>
-                <span>Hakkımızda & İletişim</span>
+                <span>{t('AboutContact')}</span>
               </a>
               <Link
                 to="/login"
@@ -915,7 +917,7 @@ const Header = () => {
                 }}
               >
                 <i className="bi bi-person-fill"></i>
-                <span>Giriş Yap</span>
+                <span>{t('Login')}</span>
               </Link>
             </div>
           </div>

@@ -7,6 +7,7 @@ import AuthContext from '../context/usercontext.tsx';
 import './scss/_sidebar.scss';
 import PatientReg from '../views/popup/PatientReg.js';
 import MainModal from '../components/MainModal.js';
+import { useLanguage } from '../context/LanguageContext.js';
 import {
   faCat,
   faHomeUser,
@@ -35,6 +36,7 @@ const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false); // Modal açılma durumu
   const [modalTitle, setModalTitle] = useState(''); // Modal baslığını saklamak için state
   const [showFooter, setShowFooter] = useState(true);
+  const { t } = useLanguage();
 
   const patientRef = useRef();
 
@@ -132,7 +134,7 @@ const Sidebar = () => {
     //   rol: 0,
     // },
     {
-      title: "Anasayfa",
+      title: t('Home'),
       href: "/",
       icon: "",
       icon2: faHomeUser,
@@ -140,7 +142,7 @@ const Sidebar = () => {
       modal: null,
     },
     {
-      title: "Hasta Arama / Kayıt",
+      title: t('PatientSearchRegister'),
       href: "/PatientReg",
       icon: "",
       icon2: faIdCard,
@@ -149,7 +151,7 @@ const Sidebar = () => {
       footer: false,
     },
     {
-      title: "Aşı Takibi",
+      title: t('VaccinationTracking'),
       href: "/vaccination-tracker",
       icon: "",
       icon2: faSyringe,
@@ -158,7 +160,7 @@ const Sidebar = () => {
       footer: false,
     },
     {
-      title: "Hayvan Listesi",
+      title: t('AnimalsList'),
       href: "/Animalslist",
       icon: "",
       icon2: faCat,
@@ -166,7 +168,7 @@ const Sidebar = () => {
       modal: null,
     },
     {
-      title: "Müşteri Listesi",
+      title: t('CustomerList'),
       href: "/customerlist",
       icon: "",
       icon2: faUsers,
@@ -174,7 +176,7 @@ const Sidebar = () => {
       modal: null,
     },
     {
-      title: "Personel Ekranı",
+      title: t('PersonnelManagement'),
       href: "/PersonelManagment",
       icon: "",
       icon2: faUserTie,
@@ -182,7 +184,7 @@ const Sidebar = () => {
       modal: null,
     },
     {
-      title: "Kurum Listesi",
+      title: t('ClinicListTitle'),
       href: "/clinicList",
       icon: "",
       icon2: faHomeUser,
@@ -190,7 +192,7 @@ const Sidebar = () => {
       modal: null,
     },
     {
-      title: "Şube Listesi",
+      title: t('OfficeListTitle'),
       href: "/officeList",
       icon: "",
       icon2: faHouseMedical,
@@ -198,7 +200,7 @@ const Sidebar = () => {
       modal: null,
     },
     {
-      title: "Randevu Listesi",
+      title: t('AppointmentList'),
       href: "/appointmentList",
       icon: "",
       icon2: faCalendarDays,
@@ -214,7 +216,7 @@ const Sidebar = () => {
     //   modal: null,
     // },
     {
-      title: "Tedarikçi Firmaları",
+      title: t('ProviderFirms'),
       href: "/providerfirms",
       icon: "",
       icon2: faTruck,
@@ -222,7 +224,7 @@ const Sidebar = () => {
       modal: null,
     },
     {
-      title: "Tedarikçi Fiyat Listesi",
+      title: t('ProviderPrices'),
       href: "/providerpriceslist",
       icon: "",
       icon2: faMoneyBillWave,
@@ -230,15 +232,15 @@ const Sidebar = () => {
       modal: null,
     },
     {
-      title: "Stok / Hizmet",
+      title: t('StocksServices'),
       href: "",
       icon: "bi bi-patch-check",
       icon2: faFolderOpen,
       rol: 2,
       subMenu: [
-        { title: "Stok Listesi", href: "/stoklist", icon: "", icon2: faBoxOpen },
-        { title: "Hizmet Listesi", href: "/servicelist", icon: "", icon2: faStethoscope },
-        { title: "Stok Faturası", href: "/purchase-invoices", icon: "", icon2: faFileInvoice },
+        { title: t('StockListTitle'), href: "/stoklist", icon: "", icon2: faBoxOpen },
+        { title: t('ServiceListTitle'), href: "/servicelist", icon: "", icon2: faStethoscope },
+        { title: t('StockInvoice'), href: "/purchase-invoices", icon: "", icon2: faFileInvoice },
 
       ],
     },

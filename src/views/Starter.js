@@ -17,6 +17,7 @@ import axiosInstance from '../api/axiosInstance.ts';
 import { useEffect, useMemo, useState } from "react";
 import ReactApexChart from 'react-apexcharts';
 import './ui/IdentityInfo.css';
+import { useLanguage } from '../context/LanguageContext.js';
 
 // const BlogData = [
 //   {
@@ -54,6 +55,7 @@ import './ui/IdentityInfo.css';
 // ];
 
 const Starter = () => {
+  const { t } = useLanguage();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -69,7 +71,7 @@ const Starter = () => {
         setLoading(false);
       })
       .catch(err => {
-        setError('Veriler yüklenemedi');
+        setError(t('DataLoadFailed'));
         setLoading(false);
       });
   }, []);
@@ -114,7 +116,7 @@ const Starter = () => {
     let idx = 0, max = -1; appointmentHours.forEach((v, i) => { if (v > max) { max = v; idx = i; } }); return hoursLabels[idx] || '';
   }, [appointmentHours, hoursLabels]);
 
-  if (loading) return <div>Yükleniyor...</div>;
+  if (loading) return <div>{t('Loading')}</div>;
   if (error) return <div>{error}</div>;
   return (
     <div>
@@ -123,8 +125,8 @@ const Starter = () => {
         <Col sm="6" lg="3">
           <TopCards
             bg="bg-light-info text-info"
-            title="Ziyaretler"
-            subtitle="Tamamlanan Randevular(Ay)"
+            title={t('Visits')}
+            subtitle={t('MonthlyCompletedAppointments')}
             earning={stats.appCompleted}
             icon="bi bi-calendar2-check"
           />
@@ -132,8 +134,8 @@ const Starter = () => {
         <Col sm="6" lg="3">
           <TopCards
             bg="bg-light-warning text-warning"
-            title="Randevular"
-            subtitle="Bugünkü Randevular"
+            title={t('Appointments')}
+            subtitle={t('TodayAppointments')}
             earning={stats.appointments}
             icon="bi bi-calendar-event"
           />
@@ -141,8 +143,8 @@ const Starter = () => {
         <Col sm="6" lg="3">
           <TopCards
             bg="bg-light-success text-success"
-            title="Aşı Uygulaması"
-            subtitle="Bu Ay Yapılan Aşı"
+            title={t('VaccinationApplication')}
+            subtitle={t('VaccinationsThisMonth')}
             earning={stats.vaccines}
             icon="bi bi-eyedropper"
           />
@@ -150,8 +152,8 @@ const Starter = () => {
         <Col sm="6" lg="3">
           <TopCards
             bg="bg-light-danger text-danger"
-            title="Tahsilat"
-            subtitle="Bu Ay Yapılan Tahsilatlar"
+            title={t('Payments')}
+            subtitle={t('PaymentsThisMonth')}
             earning={`₺${stats.payments.toLocaleString()}`}
             icon="bi bi-wallet2"
           />
@@ -159,10 +161,10 @@ const Starter = () => {
       </Row>
 
       <div className="identity-tabs" style={{ marginTop: 16 }}>
-        <button className={`identity-tab ${activeTab === 'genel' ? 'active' : ''}`} onClick={() => setActiveTab('genel')}>Aşı Kullanım</button>
-        <button className={`identity-tab ${activeTab === 'stok' ? 'active' : ''}`} onClick={() => setActiveTab('stok')}>Stok Kullanım</button>
-        <button className={`identity-tab ${activeTab === 'hizmet' ? 'active' : ''}`} onClick={() => setActiveTab('hizmet')}>Hizmet Kullanım</button>
-        <button className={`identity-tab ${activeTab === 'ozet' ? 'active' : ''}`} onClick={() => setActiveTab('ozet')}>Özet/Akışlar</button>
+        <button className={`identity-tab ${activeTab === 'genel' ? 'active' : ''}`} onClick={() => setActiveTab('genel')}>{t('VaccineUsageTab')}</button>
+        <button className={`identity-tab ${activeTab === 'stok' ? 'active' : ''}`} onClick={() => setActiveTab('stok')}>{t('StockUsageTab')}</button>
+        <button className={`identity-tab ${activeTab === 'hizmet' ? 'active' : ''}`} onClick={() => setActiveTab('hizmet')}>{t('ServiceUsageTab')}</button>
+        <button className={`identity-tab ${activeTab === 'ozet' ? 'active' : ''}`} onClick={() => setActiveTab('ozet')}>{t('SummaryFeedsTab')}</button>
       </div>
 
       {activeTab === 'genel' ? (
@@ -204,13 +206,13 @@ const Starter = () => {
               {feedsTab === 'payments' && (
                 <Card>
                   <CardBody>
-                    <CardTitle tag="h5">Tahsilat – Saatlik Dağılım</CardTitle>
+                    <CardTitle tag="h5">{t('PaymentsHourlyDistribution')}</CardTitle>
                     <div className="identity-owner-actions" style={{ gap: 8, flexWrap: 'wrap' }}>
-                      <span className="identity-chip info">Toplam: {paymentsFeeds.length}</span>
-                      {busiestPaymentHour && <span className="identity-chip success">En Yoğun: {busiestPaymentHour}</span>}
+                      <span className="identity-chip info">{t('Total')}: {paymentsFeeds.length}</span>
+                      {busiestPaymentHour && <span className="identity-chip success">{t('Busiest')}: {busiestPaymentHour}</span>}
                     </div>
                     <div style={{ marginTop: 8 }}>
-                      <ReactApexChart type="bar" height={220} series={[{ name: 'Adet', data: paymentsHours }]} options={barOptions} />
+                      <ReactApexChart type="bar" height={220} series={[{ name: t('CountLabel'), data: paymentsHours }]} options={barOptions} />
                     </div>
                   </CardBody>
                 </Card>
@@ -218,13 +220,13 @@ const Starter = () => {
               {feedsTab === 'appointment' && (
                 <Card>
                   <CardBody>
-                    <CardTitle tag="h5">Randevu – Saatlik Dağılım</CardTitle>
+                    <CardTitle tag="h5">{t('AppointmentsHourlyDistribution')}</CardTitle>
                     <div className="identity-owner-actions" style={{ gap: 8, flexWrap: 'wrap' }}>
-                      <span className="identity-chip info">Toplam: {appointmentFeeds.length}</span>
-                      {busiestAppointmentHour && <span className="identity-chip success">En Yoğun: {busiestAppointmentHour}</span>}
+                      <span className="identity-chip info">{t('Total')}: {appointmentFeeds.length}</span>
+                      {busiestAppointmentHour && <span className="identity-chip success">{t('Busiest')}: {busiestAppointmentHour}</span>}
                     </div>
                     <div style={{ marginTop: 8 }}>
-                      <ReactApexChart type="bar" height={220} series={[{ name: 'Adet', data: appointmentHours }]} options={barOptions} />
+                      <ReactApexChart type="bar" height={220} series={[{ name: t('CountLabel'), data: appointmentHours }]} options={barOptions} />
                     </div>
                   </CardBody>
                 </Card>

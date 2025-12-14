@@ -3,9 +3,11 @@ import React, { useContext, useState } from 'react'
 import { Button } from 'reactstrap'
 import AuthContext from '../../context/usercontext.tsx'
 import axiosInstance from '../../api/axiosInstance.ts'
+import { useLanguage } from '../../context/LanguageContext.js'
 
 function ChangePassword() {
   const { userid} = useContext(AuthContext);
+  const { t } = useLanguage();
   const [oldPassword, setOldPassword] = useState('');
   const [password, setPassword] = useState('');
   const [passwordAgain, setPasswordAgain] = useState('');
@@ -32,7 +34,7 @@ function ChangePassword() {
     <div>  
         <TextField
           type="password"
-          label="Mevcut şifre"
+          label={t('CurrentPassword')}
           variant="outlined"
           margin="normal"
           fullWidth
@@ -40,7 +42,7 @@ function ChangePassword() {
         />
         <TextField
           type="password"
-          label="Yeni şifre"
+          label={t('NewPassword')}
           variant="outlined"
           margin="normal"
           fullWidth
@@ -48,7 +50,7 @@ function ChangePassword() {
         />
         <TextField
           type="password"
-          label="Yeni şifre tekrar"
+          label={t('RepeatNewPassword')}
           variant="outlined"
           margin="normal"
           fullWidth
@@ -59,7 +61,7 @@ function ChangePassword() {
             variant="contained"
             color="primary"
             onClick={handlePasswordChange}
-            >Şifre Güncelle</Button>
+            >{t('UpdatePassword')}</Button>
         </div>
         {message && <Typography color={messageColor} style={{ marginTop: '16px' }}>{message}</Typography>}
      

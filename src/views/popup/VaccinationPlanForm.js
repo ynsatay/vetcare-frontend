@@ -11,8 +11,10 @@ import { useConfirm } from "../../components/ConfirmContext";
 import axiosInstance from "../../api/axiosInstance.ts";
 import dayjs from "dayjs";
 import { AuthContext } from "../../context/usercontext.tsx";
+import { useLanguage } from "../../context/LanguageContext.js";
 
 const VaccinationPlanForm = forwardRef(({ materialsList = [], initialDate }, ref) => {
+  const { t } = useLanguage();
   const [selectedAnimal, setSelectedAnimal] = useState(null);
   const [showPatientSearch, setShowPatientSearch] = useState(false);
   const [selectedVaccine, setSelectedVaccine] = useState(null);
@@ -43,23 +45,23 @@ const VaccinationPlanForm = forwardRef(({ materialsList = [], initialDate }, ref
 
   const handleSave = async () => {
     if (!selectedAnimal) {
-      confirm("Lütfen bir hayvan seçin.", "Tamam", "", "Uyarı");
+      confirm(t('PleaseSelectAnimal'), t('Ok'), "", t('Warning'));
       return false;
     }
     if (!selectedVaccine) {
-      confirm("Lütfen bir aşı seçin.", "Tamam", "", "Uyarı");
+      confirm(t('PleaseSelectVaccine'), t('Ok'), "", t('Warning'));
       return false;
     }
     if (!plannedDate) {
-      confirm("Lütfen planlanan tarihi seçin.", "Tamam", "", "Uyarı");
+      confirm(t('PleaseSelectPlannedDate'), t('Ok'), "", t('Warning'));
       return false;
     }
     if (repeatCount < 1) {
-      confirm("Tekrar sayısı 1 veya daha büyük olmalıdır.", "Tamam", "", "Uyarı");
+      confirm(t('RepeatCountMin'), t('Ok'), "", t('Warning'));
       return false;
     }
     if (repeatIntervalMonths < 1) {
-      confirm("Aralık (ay) 1 veya daha büyük olmalıdır.", "Tamam", "", "Uyarı");
+      confirm(t('IntervalMonthsMin'), t('Ok'), "", t('Warning'));
       return false;
     }
 
@@ -80,13 +82,13 @@ const VaccinationPlanForm = forwardRef(({ materialsList = [], initialDate }, ref
         //confirm("Kayıt başarılı.", "Tamam", "", "Bilgi");
         return { success: true }; // Burada 'success' olarak döndür
       } else {
-        confirm("Kayıt başarısız: " + (response.data.message || "Bilinmeyen hata"), "Tamam", "", "Hata");
+        confirm(`${t('RecordFailed')} ${response.data.message || t('UnknownError')}`, t('Ok'), "", t('Error'));
         return { success: false };
       }
     } catch (error) {
       if (error.__demo_blocked) return;
       console.error("Kayıt hatası:", error);
-      confirm("Sunucu hatası: Kayıt işlemi gerçekleştirilemedi.", "Tamam", "", "Hata");
+      confirm(t('ServerErrorRegistration'), t('Ok'), "", t('Error'));
       return { success: false };
     }
   };
@@ -100,7 +102,7 @@ const VaccinationPlanForm = forwardRef(({ materialsList = [], initialDate }, ref
             variant="outlined"
             size="small"
             value={selectedAnimal ? selectedAnimal.name : ""}
-            placeholder="Hayvan seçiniz"
+            placeholder={t('AnimalSelectPlaceholder')}
             onClick={() => setShowPatientSearch(true)}
             fullWidth
             InputProps={{ readOnly: true, sx: { cursor: "pointer" } }}
@@ -113,7 +115,7 @@ const VaccinationPlanForm = forwardRef(({ materialsList = [], initialDate }, ref
             onClick={() => setShowPatientSearch(true)}
             sx={{ height: "40px" }}
           >
-            Ara
+            {t('Search')}
           </Button>
         </Grid>
 
@@ -124,7 +126,7 @@ const VaccinationPlanForm = forwardRef(({ materialsList = [], initialDate }, ref
             getOptionLabel={(option) => option.name}
             value={selectedVaccine}
             onChange={(e, newVal) => setSelectedVaccine(newVal)}
-            renderInput={(params) => <TextField {...params} label="Aşı Seçimi" size="small" />}
+            renderInput={(params) => <TextField {...params} label={t('VaccinationSelection')} size="small" />}
             fullWidth
           />
         </Grid>
@@ -132,7 +134,7 @@ const VaccinationPlanForm = forwardRef(({ materialsList = [], initialDate }, ref
         {/* Planlanan Tarih */}
         <Grid item xs={12}>
           <DatePicker
-            label="Planlanan Tarih"
+            label={t('PlannedDate')}
             value={plannedDate}
             onChange={setPlannedDate}
             format="DD.MM.YYYY"
@@ -146,7 +148,7 @@ const VaccinationPlanForm = forwardRef(({ materialsList = [], initialDate }, ref
         {/* Tekrar Sayısı */}
         <Grid item xs={6}>
           <TextField
-            label="Tekrar Sayısı"
+            label={t('RepeatCount')}
             type="number"
             inputProps={{ min: 1 }}
             value={repeatCount}
@@ -159,7 +161,7 @@ const VaccinationPlanForm = forwardRef(({ materialsList = [], initialDate }, ref
         {/* Aralık Ay */}
         <Grid item xs={6}>
           <TextField
-            label="Aralık (Ay)"
+            label={t('IntervalMonths')}
             type="number"
             inputProps={{ min: 1 }}
             value={repeatIntervalMonths}
@@ -174,7 +176,7 @@ const VaccinationPlanForm = forwardRef(({ materialsList = [], initialDate }, ref
           <TextField
             multiline
             rows={3}
-            label="Notlar (Opsiyonel)"
+            label={t('NotesOptional')}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             fullWidth

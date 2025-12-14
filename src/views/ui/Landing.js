@@ -7,11 +7,13 @@ import { useLocation } from "react-router-dom";
 import { BASE_URL } from "../../config.js";
 import axios from 'axios';
 import { AuthContext } from '../../context/usercontext.tsx';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 const Landing = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { login } = useContext(AuthContext);
+    const { t, lang, setLanguage } = useLanguage();
 
     const [modalOpen, setModalOpen] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -39,6 +41,23 @@ const Landing = () => {
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
+    const setLangCookie = (code) => {
+        try {
+            document.cookie = `vetcare_lang=${code};path=/;max-age=31536000`;
+            localStorage.setItem('language', code);
+        } catch {}
+        setLanguage(code);
+    };
+    const getCookie = (name) => {
+        const m = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+        return m ? m[2] : null;
+    };
+    useEffect(() => {
+        const saved = getCookie('vetcare_lang');
+        if (saved && (saved === 'en' || saved === 'tr') && saved !== lang) {
+            setLanguage(saved);
+        }
+    }, []);
 
     const autoLoginDemo = async () => {
         try {
@@ -65,7 +84,7 @@ const Landing = () => {
             navigate('/');
         } catch (error) {
             console.error('Demo auto login failed:', error);
-            alert('Otomatik giriş yapılamadı. Lütfen Giriş sayfasından deneyin.');
+            alert(t('AutoLoginFailedMessage'));
         }
     };
 
@@ -82,11 +101,11 @@ const Landing = () => {
                 setFormModalOpen(false);
                 setDemoConfirmOpen(true);
             } else {
-                alert(data.message || "Bir hata oluştu.");
+                alert(data.message || t('UnknownError'));
             }
         } catch (err) {
-            console.error('Demo talebi hatası:', err);
-            alert("Sunucuya bağlanılamadı.");
+            console.error('Demo request error:', err);
+            alert(t('ServerConnectionFailed'));
         }
     };
 
@@ -171,50 +190,50 @@ const Landing = () => {
     }, [location.state, location.pathname, navigate]);
 
     const features = [
-        { icon: "🏥", title: "Hasta Yönetimi", desc: "Kolay kayıt, detaylı dosya takibi, hızlı erişim" },
-        { icon: "📦", title: "Stok Takibi", desc: "İlaç, malzeme ve temizlik ürünlerinizi yönetin" },
-        { icon: "📅", title: "Randevu Takvimi", desc: "Takvim tabanlı randevu yönetimi ile vakit kazanın" }
+        { icon: "🏥", title: t('FeaturePatientManagementTitle'), desc: t('FeaturePatientManagementDesc') },
+        { icon: "📦", title: t('FeatureStockTrackingTitle'), desc: t('FeatureStockTrackingDesc') },
+        { icon: "📅", title: t('FeatureAppointmentCalendarTitle'), desc: t('FeatureAppointmentCalendarDesc') }
     ];
 
     const stats = [
-        { number: animatedNumbers.clinics, suffix: '+', label: 'Aktif Klinik', color: '#59018b' },
-        { number: animatedNumbers.patients, suffix: '+', label: 'Kayıtlı Hasta', color: '#7a1fa8' },
-        { number: animatedNumbers.satisfaction, suffix: '%', label: 'Memnuniyet', color: '#59018b' },
-        { number: '24', suffix: '/7', label: 'Destek', color: '#7a1fa8' }
+        { number: animatedNumbers.clinics, suffix: '+', label: t('ActiveClinics'), color: '#59018b' },
+        { number: animatedNumbers.patients, suffix: '+', label: t('RegisteredPatients'), color: '#7a1fa8' },
+        { number: animatedNumbers.satisfaction, suffix: '%', label: t('Satisfaction'), color: '#59018b' },
+        { number: '24', suffix: '/7', label: t('Support'), color: '#7a1fa8' }
     ];
 
     const plans = [
         {
-            title: "Başlangıç", price: "₺399", period: "/ay",
-            features: ["Temel Hasta Takibi", "Stok Görüntüleme", "Aşı Takvimi", "1 Şube", "Randevu Takvimi"],
+            title: t('PlanStarterTitle'), price: "₺399", period: t('PerMonth'),
+            features: [t('PlanStarterFeature1'), t('PlanStarterFeature2'), t('PlanStarterFeature3'), t('PlanStarterFeature4'), t('PlanStarterFeature5')],
             gradient: "#28a745"
         },
         {
-            title: "Standart", price: "₺599", period: "/ay", popular: true,
-            features: ["Hasta + Stok Yönetimi", "Randevu Takvimi", "Aşı Takvimi", "Hatırlatma Maili", "Erişim Yetkileri", "2 Şube"],
+            title: t('PlanStandardTitle'), price: "₺599", period: t('PerMonth'), popular: true,
+            features: [t('PlanStandardFeature1'), t('PlanStandardFeature2'), t('PlanStandardFeature3'), t('PlanStandardFeature4'), t('PlanStandardFeature5'), t('PlanStandardFeature6')],
             gradient: "#59018b"
         },
         {
-            title: "Profesyonel", price: "₺799", period: "/ay",
-            features: ["Gelişmiş Raporlama", "Tüm Modüller", "Aşı Takvimi", "Hatırlatma Maili + SMS", "Öncelikli Destek", "Sınırsız Şube"],
+            title: t('PlanProfessionalTitle'), price: "₺799", period: t('PerMonth'),
+            features: [t('PlanProfessionalFeature1'), t('PlanProfessionalFeature2'), t('PlanProfessionalFeature3'), t('PlanProfessionalFeature4'), t('PlanProfessionalFeature5'), t('PlanProfessionalFeature6')],
             gradient: "#17a2b8"
         }
     ];
 
     const testimonials = [
         {
-            name: 'Dr. Ayşe Yılmaz', clinic: 'Paws & Claws Veteriner Kliniği', city: 'İstanbul',
-            rating: 5, comment: 'VetCare sayesinde işlerimiz çok daha düzenli hale geldi. Hasta kayıtları, randevu takibi ve stok yönetimi artık çok kolay.',
+            name: 'Dr. Alice Smith', clinic: 'Paws & Claws Veterinary Clinic', city: 'Istanbul, Turkey',
+            rating: 5, comment: t('Testimonial1'),
             avatar: '👩‍⚕️'
         },
         {
-            name: 'Dr. Mehmet Demir', clinic: 'Hayvan Dostu Veteriner', city: 'Ankara',
-            rating: 5, comment: 'Özellikle stok takibi özelliği hayat kurtarıcı. Artık hangi ilacın bittiğini önceden biliyoruz.',
+            name: 'Dr. John Miller', clinic: 'Animal Care Veterinary', city: 'Ankara, Turkey',
+            rating: 5, comment: t('Testimonial2'),
             avatar: '👨‍⚕️'
         },
         {
-            name: 'Dr. Zeynep Kaya', clinic: 'Sevimli Patiler Kliniği', city: 'İzmir',
-            rating: 5, comment: 'Kullanıcı arayüzü çok kullanıcı dostu. Personelimiz çok hızlı adapte oldu.',
+            name: 'Dr. Grace Lee', clinic: 'Lovely Paws Clinic', city: 'Izmir, Turkey',
+            rating: 5, comment: t('Testimonial3'),
             avatar: '👩‍⚕️'
         }
     ];
@@ -245,6 +264,26 @@ const Landing = () => {
                     paddingTop: isMobile ? '100px' : '120px'
                 }}
             >
+                <div style={{ position: 'absolute', top: isMobile ? 12 : 24, right: isMobile ? 12 : 24, zIndex: 10, display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <Button
+                        size="sm"
+                        outline={lang !== 'tr'}
+                        color="primary"
+                        onClick={() => setLangCookie('tr')}
+                        style={{ borderRadius: 20, padding: '6px 12px' }}
+                    >
+                        TR
+                    </Button>
+                    <Button
+                        size="sm"
+                        outline={lang !== 'en'}
+                        color="primary"
+                        onClick={() => setLangCookie('en')}
+                        style={{ borderRadius: 20, padding: '6px 12px' }}
+                    >
+                        EN
+                    </Button>
+                </div>
                 {/* Animated Background Elements with Parallax */}
                 <div style={{
                     position: 'absolute',
@@ -323,7 +362,7 @@ const Landing = () => {
                                 opacity: 0.9,
                                 animation: 'fadeInDown 0.8s ease-out'
                             }}>
-                                ✨ Veteriner Klinikleri İçin
+                                ✨ {t('ForVeterinaryClinics')}
                             </div>
                             <h1 style={{
                                 fontSize: isMobile ? 'clamp(2.5rem, 8vw, 3rem)' : 'clamp(3.5rem, 7vw, 5.5rem)',
@@ -337,7 +376,7 @@ const Landing = () => {
                                 letterSpacing: '-0.03em',
                                 animation: 'fadeInUp 0.8s ease-out 0.2s both'
                             }}>
-                            Veteriner Otomasyon Sistemi
+                            {t('VetAutomationSystem')}
                         </h1>
                             <p style={{
                                 fontSize: isMobile ? '1.125rem' : '1.375rem',
@@ -348,7 +387,7 @@ const Landing = () => {
                                 fontWeight: 400,
                                 animation: 'fadeInUp 0.8s ease-out 0.4s both'
                             }}>
-                            Kliniklerinizi kolayca yönetin. Hasta kayıtları, stok takibi, randevu yönetimi ve daha fazlası tek bir platformda!
+                            {t('HeroPitch')}
                         </p>
                             
                             {/* Stats Row */}
@@ -361,20 +400,20 @@ const Landing = () => {
                             }}>
                                 <div>
                                     <div style={{ fontSize: isMobile ? '1.75rem' : '2.25rem', fontWeight: 800, color: '#59018b', lineHeight: 1 }}>500+</div>
-                                    <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '4px' }}>Aktif Klinik</div>
+                                    <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '4px' }}>{t('ActiveClinics')}</div>
                                 </div>
                                 <div>
                                     <div style={{ fontSize: isMobile ? '1.75rem' : '2.25rem', fontWeight: 800, color: '#7a1fa8', lineHeight: 1 }}>50K+</div>
-                                    <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '4px' }}>Kayıtlı Hasta</div>
+                                    <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '4px' }}>{t('RegisteredPatients')}</div>
                                 </div>
                                 <div>
                                     <div style={{ fontSize: isMobile ? '1.75rem' : '2.25rem', fontWeight: 800, color: '#9d4edd', lineHeight: 1 }}>98%</div>
-                                    <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '4px' }}>Memnuniyet</div>
+                                    <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '4px' }}>{t('Satisfaction')}</div>
                                 </div>
                             </div>
                             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
                             <Button
-                                    onClick={() => { setSelectedPlan("Demo Talebi"); setFormModalOpen(true); }}
+                                    onClick={() => { setSelectedPlan(t('DemoRequest')); setFormModalOpen(true); }}
                                     style={{
                                         padding: isMobile ? '14px 28px' : '16px 32px',
                                         fontSize: '1rem',
@@ -397,7 +436,7 @@ const Landing = () => {
                                         e.currentTarget.style.boxShadow = '0 4px 14px rgba(89, 1, 139, 0.25)';
                                     }}
                                 >
-                                    Ücretsiz Demo İste
+                                    {t('RequestFreeDemo')}
                                 </Button>
                             <Button
                                     outline
@@ -428,7 +467,7 @@ const Landing = () => {
                                         e.currentTarget.style.transform = 'translateY(0)';
                                     }}
                                 >
-                                    Daha Fazla Bilgi
+                                    {t('ReadMore')}
                             </Button>
                         </div>
                     </Col>
@@ -520,7 +559,7 @@ const Landing = () => {
                             backgroundClip: 'text',
                             letterSpacing: '-0.02em'
                         }}>
-                            Neden VetCare?
+                            {t('WhyVetCare')}
                         </h2>
                         <p style={{
                             fontSize: '1.125rem',
@@ -528,7 +567,7 @@ const Landing = () => {
                             maxWidth: '600px',
                             margin: '0 auto'
                         }}>
-                            Veteriner klinikleriniz için özel olarak tasarlanmış özellikler
+                            {t('FeaturesSubtitle')}
                         </p>
                     </div>
 
@@ -643,7 +682,7 @@ const Landing = () => {
                             color: '#ffffff',
                             letterSpacing: '-0.02em'
                         }}>
-                            Rakamlarla VetCare
+                            {t('VetCareInNumbers')}
                         </h2>
                         <p style={{
                             fontSize: '1.125rem',
@@ -651,7 +690,7 @@ const Landing = () => {
                             maxWidth: '600px',
                             margin: '0 auto'
                         }}>
-                            Binlerce mutlu müşteri ve başarı hikayesi
+                            {t('NumbersSubtitle')}
                         </p>
                     </div>
 
@@ -732,7 +771,7 @@ const Landing = () => {
                             backgroundClip: 'text',
                             letterSpacing: '-0.02em'
                         }}>
-                            Fiyatlandırma Planları
+                            {t('PricingPlans')}
                         </h2>
                         <p style={{
                             fontSize: '1.125rem',
@@ -740,7 +779,7 @@ const Landing = () => {
                             maxWidth: '600px',
                             margin: '0 auto'
                         }}>
-                            İhtiyacınıza en uygun planı seçin
+                            {t('ChooseBestPlan')}
                         </p>
                     </div>
 
@@ -809,7 +848,7 @@ const Landing = () => {
                                             border: '1px solid rgba(255, 255, 255, 0.4)',
                                             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
                                         }}>
-                                            ⭐ Popüler
+                                            ⭐ {t('Popular')}
                                         </div>
                                     )}
                                     <div style={{ position: 'relative', zIndex: 1 }}>
@@ -884,7 +923,7 @@ const Landing = () => {
                                             }
                                         }}
                                     >
-                                        Planı Seç
+                                        {t('SelectItem')}
                                         </Button>
                                     </div>
                                 </div>
@@ -915,7 +954,7 @@ const Landing = () => {
                             backgroundClip: 'text',
                             letterSpacing: '-0.02em'
                         }}>
-                            Müşterilerimiz Ne Diyor?
+                            {t('TestimonialsTitle')}
                         </h2>
                         <p style={{
                             fontSize: '1.125rem',
@@ -923,7 +962,7 @@ const Landing = () => {
                             maxWidth: '600px',
                             margin: '0 auto'
                         }}>
-                            Binlerce mutlu müşterimizin deneyimlerini keşfedin
+                            {t('TestimonialsSubtitle')}
                         </p>
                     </div>
 
@@ -1045,7 +1084,7 @@ const Landing = () => {
                             backgroundClip: 'text',
                             letterSpacing: '-0.02em'
                         }}>
-                            Uygulamadan Görseller
+                            {t('ScreenshotsTitle')}
                         </h2>
                         <p style={{
                             fontSize: '1.125rem',
@@ -1053,7 +1092,7 @@ const Landing = () => {
                             maxWidth: '600px',
                             margin: '0 auto'
                         }}>
-                            Sistemimizin kullanıcı dostu arayüzünü keşfedin
+                            {t('ScreenshotsSubtitle')}
                         </p>
                     </div>
 
@@ -1133,7 +1172,7 @@ const Landing = () => {
                             backgroundClip: 'text',
                             letterSpacing: '-0.02em'
                         }}>
-                            Video Tanıtım
+                            {t('VideoIntroTitle')}
                         </h2>
                         <p style={{
                             fontSize: '1.125rem',
@@ -1141,7 +1180,7 @@ const Landing = () => {
                             maxWidth: '600px',
                             margin: '0 auto'
                         }}>
-                            Sistemimizi daha yakından tanıyın
+                            {t('VideoIntroSubtitle')}
                         </p>
                     </div>
 
@@ -1174,7 +1213,7 @@ const Landing = () => {
                                     width="100%"
                                     height="100%"
                                     src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-                                    title="VetCare Sistem Tanıtımı"
+                                    title={t('VideoTitle')}
                                     frameBorder="0"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                     allowFullScreen
@@ -1241,7 +1280,7 @@ const Landing = () => {
                                     backgroundClip: 'text',
                                     letterSpacing: '-0.02em'
                                 }}>
-                                    Hakkımızda
+                                    {t('AboutTitle')}
                                 </h2>
                                 <p style={{
                                     fontSize: '1.125rem',
@@ -1249,8 +1288,8 @@ const Landing = () => {
                                     color: '#374151',
                                     marginBottom: '32px'
                                 }}>
-                                            Biz veteriner kliniklerin işlerini kolaylaştırmak için modern, kullanıcı dostu ve güçlü bir otomasyon sistemi sunuyoruz.
-                                            Hasta kayıtlarından randevu yönetimine, stok takibinden raporlamaya kadar her şeyi tek platformda topluyoruz.
+                                            {t('AboutParagraph1')}
+                                            {t('AboutParagraph2')}
                                 </p>
                                 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -1290,10 +1329,10 @@ const Landing = () => {
                                             }}>
                                                 🎯
                                             </div>
-                                            <h4 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: '#1a1a1a' }}>Vizyonumuz</h4>
+                                            <h4 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: '#1a1a1a' }}>{t('VisionTitle')}</h4>
                                         </div>
                                         <p style={{ fontSize: '0.9375rem', color: '#6b7280', margin: 0, lineHeight: 1.6, paddingLeft: '64px' }}>
-                                            Türkiye'nin en güvenilir veteriner otomasyon sistemi olmak ve sektörde öncü olmak
+                                            {t('VisionParagraph')}
                                         </p>
                                     </div>
                                     
@@ -1333,10 +1372,10 @@ const Landing = () => {
                                             }}>
                                                 💡
                                             </div>
-                                            <h4 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: '#1a1a1a' }}>Misyonumuz</h4>
+                                            <h4 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: '#1a1a1a' }}>{t('MissionTitle')}</h4>
                                         </div>
                                         <p style={{ fontSize: '0.9375rem', color: '#6b7280', margin: 0, lineHeight: 1.6, paddingLeft: '64px' }}>
-                                            Kullanıcı dostu araçlarla iş süreçlerini kolaylaştırmak ve veteriner kliniklerin verimliliğini artırmak
+                                            {t('ImproveProcessesParagraph')}
                                         </p>
                                     </div>
                                 </div>
@@ -1364,7 +1403,7 @@ const Landing = () => {
                                     backgroundClip: 'text',
                                     letterSpacing: '-0.02em'
                                 }}>
-                                    İletişim
+                                    {t('ContactTitle')}
                                 </h2>
                                 <p style={{
                                     fontSize: '1.125rem',
@@ -1372,7 +1411,7 @@ const Landing = () => {
                                     color: '#374151',
                                     marginBottom: '32px'
                                 }}>
-                                    Herhangi bir sorunuz veya talebiniz için bize ulaşabilirsiniz. Size en kısa sürede dönüş yapacağız.
+                                    {t('ContactParagraph')}
                                 </p>
                                 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -1478,7 +1517,7 @@ const Landing = () => {
                                             📱
                                         </div>
                                         <div style={{ flex: 1 }}>
-                                            <div style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '6px', color: '#1a1a1a' }}>Telefon</div>
+                                            <div style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '6px', color: '#1a1a1a' }}>{t('Phone')}</div>
                                             <a href="tel:++905419484385" style={{
                                                 color: '#6b7280',
                                                 textDecoration: 'none',
@@ -1537,9 +1576,9 @@ const Landing = () => {
                                             📍
                                         </div>
                                         <div style={{ flex: 1 }}>
-                                            <div style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '6px', color: '#1a1a1a' }}>Adres</div>
+                                            <div style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '6px', color: '#1a1a1a' }}>{t('Address')}</div>
                                             <div style={{ color: '#6b7280', fontSize: '0.9375rem' }}>
-                                                İstanbul, Türkiye
+                                                {t('CityIstanbulTurkey')}
                                             </div>
                                         </div>
                                     </div>
@@ -1553,7 +1592,7 @@ const Landing = () => {
             {/* Modals */}
             <Modal isOpen={modalOpen} toggle={() => setModalOpen(false)} centered size="xl">
                 <ModalBody className="position-relative text-center p-0" style={{ background: "#000" }}>
-                    <img src={screenshots[currentIndex]} alt="Büyük Görsel" style={{ width: '100%', height: 'auto', borderRadius: '5px' }} />
+                    <img src={screenshots[currentIndex]} alt={t('LargeImageAlt')} style={{ width: '100%', height: 'auto', borderRadius: '5px' }} />
                     <Button onClick={goPrev} style={{
                         position: 'absolute', top: '50%', left: '20px', transform: 'translateY(-50%)',
                         width: '50px', height: '50px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.9)',
@@ -1571,10 +1610,10 @@ const Landing = () => {
             <Modal isOpen={demoConfirmOpen} toggle={() => setDemoConfirmOpen(false)} centered size="sm">
                 <ModalBody style={{ padding: '24px', textAlign: 'center' }}>
                     <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#111827', marginBottom: '12px' }}>
-                        Demo talebiniz onaylandı
+                        {t('Info')}
                     </div>
                     <div style={{ color: '#4b5563', fontSize: '0.95rem', marginBottom: '20px' }}>
-                        Otomatik giriş yapmak ister misiniz?
+                        {t('AutoLoginQuestion')}
                     </div>
                     <div className="d-flex justify-content-center gap-2">
                         <Button
@@ -1590,7 +1629,7 @@ const Landing = () => {
                                 await autoLoginDemo();
                             }}
                         >
-                            Evet
+                            {t('Yes')}
                         </Button>
                         <Button
                             outline
@@ -1603,7 +1642,7 @@ const Landing = () => {
                             }}
                             onClick={() => setDemoConfirmOpen(false)}
                         >
-                            Hayır
+                            {t('No')}
                         </Button>
                     </div>
                 </ModalBody>
@@ -1614,7 +1653,7 @@ const Landing = () => {
                     background: 'linear-gradient(135deg, #59018b 0%, #7a1fa8 100%)',
                     color: 'white', border: 'none', borderRadius: '14px 14px 0 0', padding: '18px 24px'
                 }}>
-                    Demo Talebi
+                    {t('DemoRequest')}
                 </ModalHeader>
                 <ModalBody style={{
                     padding: '0',
@@ -1629,30 +1668,30 @@ const Landing = () => {
                             color: '#4b5563',
                             fontSize: '0.95rem'
                         }}>
-                            VetCare demo talebi formunu doldurun. Onay sonrası otomatik giriş yapabilirsiniz.
+                            {t('DemoRequestDescription')}
                         </div>
                         <Form onSubmit={handleSubmit}>
                             <div style={{ display: 'grid', gap: '16px' }}>
                                 <FormGroup style={{ margin: 0 }}>
-                                    <Label for="name" style={{ color: '#111827', fontWeight: 600, marginBottom: '6px' }}>Ad Soyad</Label>
+                                    <Label for="name" style={{ color: '#111827', fontWeight: 600, marginBottom: '6px' }}>{t('FullName')}</Label>
                                     <Input name="name" value={formData.name} onChange={handleChange} required
                                         style={{ borderRadius: '10px', border: '1.5px solid #e5e7eb', padding: '12px', color: '#212529' }}
                                     />
                                 </FormGroup>
                                 <FormGroup style={{ margin: 0 }}>
-                                    <Label for="email" style={{ color: '#111827', fontWeight: 600, marginBottom: '6px' }}>E-Posta</Label>
+                                    <Label for="email" style={{ color: '#111827', fontWeight: 600, marginBottom: '6px' }}>{t('Email')}</Label>
                                     <Input type="email" name="email" value={formData.email} onChange={handleChange} required
                                         style={{ borderRadius: '10px', border: '1.5px solid #e5e7eb', padding: '12px', color: '#212529' }}
                                     />
                                 </FormGroup>
                                 <FormGroup style={{ margin: 0 }}>
-                                    <Label for="phone" style={{ color: '#111827', fontWeight: 600, marginBottom: '6px' }}>Telefon</Label>
+                                    <Label for="phone" style={{ color: '#111827', fontWeight: 600, marginBottom: '6px' }}>{t('Phone')}</Label>
                                     <Input name="phone" value={formData.phone} onChange={handleChange} required
                                         style={{ borderRadius: '10px', border: '1.5px solid #e5e7eb', padding: '12px', color: '#212529' }}
                                     />
                                 </FormGroup>
                                 <FormGroup style={{ margin: 0 }}>
-                                    <Label for="message" style={{ color: '#111827', fontWeight: 600, marginBottom: '6px' }}>Ek Mesaj</Label>
+                                    <Label for="message" style={{ color: '#111827', fontWeight: 600, marginBottom: '6px' }}>{t('AdditionalMessage')}</Label>
                                     <Input type="textarea" name="message" value={formData.message} onChange={handleChange} rows={4}
                                         style={{ borderRadius: '12px', border: '1.5px solid #e5e7eb', padding: '12px', color: '#212529', resize: 'vertical' }}
                                     />
@@ -1661,14 +1700,14 @@ const Landing = () => {
                             <div className="d-flex justify-content-end gap-2 mt-4">
                                 <Button type="button" outline onClick={toggleModal}
                                     style={{ borderRadius: '10px', padding: '10px 20px', borderColor: '#6b7280', color: '#6b7280', background: '#fff' }}>
-                                    İptal
+                                    {t('Cancel')}
                                 </Button>
                                 <Button type="submit" style={{
                                     borderRadius: '10px', padding: '10px 24px',
                                     background: 'linear-gradient(135deg, #59018b 0%, #7a1fa8 100%)',
                                     border: 'none', fontWeight: 700, color: '#ffffff', boxShadow: '0 10px 30px rgba(89,1,139,0.25)'
                                 }}>
-                                    Demo Talebi Gönder
+                                    {t('SendDemoRequest')}
                                 </Button>
                             </div>
                         </Form>

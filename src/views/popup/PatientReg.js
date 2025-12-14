@@ -5,6 +5,7 @@ import { Input } from 'reactstrap';
 import { useConfirm } from '../../components/ConfirmContext';
 import Animals from '../popup/Animals.js';
 import '../ui/IdentityInfo.css';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 const PatientReg = forwardRef((props, ref) => {
   const {
@@ -36,6 +37,7 @@ const PatientReg = forwardRef((props, ref) => {
   const { confirm } = useConfirm();
   const animalsRef = useRef(null);
   const userIdForAnimals = personelData?.user_id || personelData?.id || selectedOwner?.user_id || selectedOwner?.id || null;
+  const { t } = useLanguage();
 
   useEffect(() => {
     const isValid =
@@ -92,7 +94,7 @@ const PatientReg = forwardRef((props, ref) => {
     const animalIdentNumber = newAnimal.animalidentity || null;
 
     if (!userId) {
-      confirm("Lütfen önce hasta ya da sahip seçiniz.", "Tamam", "", "Uyarı");
+      confirm(t('PleaseSelectPatientOwner'), t('Ok'), "", t('Warning'));
       return;
     }
 
@@ -110,12 +112,7 @@ const PatientReg = forwardRef((props, ref) => {
 
       if (alreadyWithSameOwner) {
         // Inform user that the animal is already registered to this user and cancel
-        await confirm(
-          "İşlem iptal edildi. Bu hayvan zaten seçili kullanıcıya kayıtlı.",
-          "Tamam",
-          "",
-          "Bilgi"
-        );
+        await confirm(t('OperationCancelledAnimalAlreadyRegistered'), t('Ok'), "", t('Info'));
 
         // Clear fields and close form
         setNewAnimal({
@@ -133,12 +130,7 @@ const PatientReg = forwardRef((props, ref) => {
       }
 
       // Otherwise confirm attaching an existing animal to another user
-      const shouldContinue = await confirm(
-        "Sistemde kayıtlı hayvanı başka kullanıcıyada kaydediceksiniz. Kayda devam edilsinmi?",
-        "Evet",
-        "Hayır",
-        "Uyarı"
-      );
+      const shouldContinue = await confirm(t('ConfirmAttachExistingAnimalToAnotherUser'), t('Yes'), t('No'), t('Warning'));
 
       if (!shouldContinue) {
         // Clear fields on cancel
@@ -183,11 +175,11 @@ const PatientReg = forwardRef((props, ref) => {
       });
       setExistingAnimalSelected(null);
       setShowAnimalForm(false);
-      confirm("Kayıt İşlemi Başarılı", "Tamam", "", "Uyarı");
+      confirm(t('RecordSavedSuccess'), t('Ok'), "", t('Info'));
 
     } catch (error) {
       console.error('Error:', error);
-      confirm("Hayvan kaydı sırasında hata oluştu.", "Tamam", "", "Uyarı");
+      confirm(t('AnimalRegistrationError'), t('Ok'), "", t('Warning'));
     }
   };
 
@@ -195,7 +187,7 @@ const PatientReg = forwardRef((props, ref) => {
     const { tc, name, surname, phone, email } = newPatient;
 
     if (!tc || !name || !surname || !phone || !email) {
-      confirm("Tüm alanları doldurunuz.", "Tamam", "", "Uyarı");
+      confirm(t('FillRequiredFields'), t('Ok'), "", t('Warning'));
       return false;
     }
 
@@ -229,7 +221,7 @@ const PatientReg = forwardRef((props, ref) => {
           username: finalUsername
         });
 
-        confirm("Kayıt başarıyla tamamlandı.", "Tamam", "", "Uyarı");
+        confirm(t('RegistrationCompleted'), t('Ok'), "", t('Info'));
         handleSearch();
         return true;
       } else {
@@ -298,7 +290,7 @@ const PatientReg = forwardRef((props, ref) => {
 
   const searchByTC = async () => {
     if (!inputValue) {
-      setError('Lütfen bir TC giriniz.');
+      setError(t('PleaseEnterID'));
       return;
     }
 
@@ -317,7 +309,7 @@ const PatientReg = forwardRef((props, ref) => {
       setPersonelData(data);
       setShowAnimalForm(false);
     } else {
-      const confirmCreate = await confirm("Kayıt bulunamadı. Yeni kayıt oluşturulsun mu?", "Evet", "Hayır", "Kayıt Bulunamadı");
+      const confirmCreate = await confirm(t('RecordNotFoundCreateNew'), t('Yes'), t('No'), t('Warning'));
       if (confirmCreate) {
         setNewPatient({ tc: inputValue, name: '', surname: '', phone: '' });
         setShowPatientForm(true);
@@ -328,7 +320,7 @@ const PatientReg = forwardRef((props, ref) => {
 
   const searchByAnimalIdFunc = async () => {
     if (!inputValue) {
-      setError('Lütfen bir Hayvan ID giriniz.');
+      setError(t('PleaseEnterAnimalId'));
       return;
     }
 
@@ -346,8 +338,8 @@ const PatientReg = forwardRef((props, ref) => {
       const animal = response.data.animal || null;
 
       if (owners.length === 0 && !animal) {
-        const confirm = await confirm("Hayvan bulunamadı. Yeni kayıt oluşturulsun mu?", "Evet", "Hayır", "Kayıt Bulunamadı")
-        if (confirm) {
+        const shouldCreate = await confirm(t('AnimalNotFoundCreateNew'), t('Yes'), t('No'), t('Warning'))
+        if (shouldCreate) {
           setShowPatientForm(true);
           setShowAnimalForm(false);
         }
@@ -361,7 +353,7 @@ const PatientReg = forwardRef((props, ref) => {
       }
     } catch (error) {
       console.error('Hayvan sorgu hatası:', error);
-      setError('Hayvan bulunamadı veya sunucu hatası');
+      setError(t('AnimalNotFoundOrServerError'));
     }
   };
 
@@ -430,7 +422,7 @@ const PatientReg = forwardRef((props, ref) => {
       setAnimalFormResults(results);
     } catch (e) {
       console.error(e);
-      setError('Hayvan sorgulama sırasında hata oluştu.');
+      setError(t('AnimalSearchError'));
     }
   };
 
@@ -477,9 +469,9 @@ const PatientReg = forwardRef((props, ref) => {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
           <div>
             <div style={{ fontSize: 28, fontWeight: 800, color: '#fff', lineHeight: 1.2, marginBottom: 4 }}>
-              🐾 Hasta<br />Yönetimi
+              🐾 {t('PatientManagement')}
             </div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)' }}>Hızlı arama ve kayıt sistemi</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)' }}>{t('QuickSearchRegister')}</div>
           </div>
           
           {/* Toggle Switch - Combined */}
@@ -498,10 +490,10 @@ const PatientReg = forwardRef((props, ref) => {
             }}
             style={{ display: 'flex', alignItems: 'center', gap: 0, background: 'rgba(255,255,255,0.25)', padding: '8px', borderRadius: 50, cursor: 'pointer', transition: 'all 200ms ease', backdropFilter: 'blur(10px)' }}>
             <div style={{ padding: '6px 16px', borderRadius: 50, background: !searchByAnimalId ? '#fff' : 'transparent', color: !searchByAnimalId ? '#667eea' : 'rgba(255,255,255,0.7)', fontWeight: 600, fontSize: 12, transition: 'all 200ms ease', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span>🆔</span> TC
+              <span>🆔</span> {t('TC')}
             </div>
             <div style={{ padding: '6px 16px', borderRadius: 50, background: searchByAnimalId ? '#fff' : 'transparent', color: searchByAnimalId ? '#667eea' : 'rgba(255,255,255,0.7)', fontWeight: 600, fontSize: 12, transition: 'all 200ms ease', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span>🐾</span> Hayvan ID
+              <span>🐾</span> {t('AnimalID')}
             </div>
           </div>
         </div>
@@ -512,13 +504,13 @@ const PatientReg = forwardRef((props, ref) => {
         <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end' }}>
           <div style={{ flex: 1 }}>
             <label style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 8 }}>
-              {searchByAnimalId ? '🐾 Hayvan ID Numarası' : '🆔 TC Kimlik No'}
+              {searchByAnimalId ? `🐾 ${t('AnimalIdNumber')}` : `🆔 ${t('IdentityNumber')}`}
             </label>
             <input
               type="text"
               value={inputValue}
               onChange={e => setInputValue(e.target.value)}
-              placeholder={searchByAnimalId ? 'Hayvan ID giriniz...' : 'TC kimlik numarasını girin...'}
+              placeholder={searchByAnimalId ? t('EnterAnimalId') : t('EnterIdentityNumber')}
               maxLength={searchByAnimalId ? undefined : 11}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -537,7 +529,7 @@ const PatientReg = forwardRef((props, ref) => {
             onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
             onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
           >
-            🔍 Ara
+            🔍 {t('Search')}
           </button>
         </div>
       </div>
@@ -552,10 +544,10 @@ const PatientReg = forwardRef((props, ref) => {
             <div style={{ textAlign: 'center', padding: '60px 20px', color: '#9ca3af' }}>
               <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
               <div style={{ fontSize: 14, fontWeight: 500 }}>
-                {searchByAnimalId ? 'Hayvan ID ile arama yapın' : 'TC Kimlik No ile arama yapın'}
+                {searchByAnimalId ? t('SearchByAnimalIdGuide') : t('SearchByIDGuide')}
               </div>
               <div style={{ fontSize: 12, marginTop: 8, color: '#9ca3af' }}>
-                Yukarıdaki arama alanını kullanarak başlayın
+                {t('UseSearchFieldToStart')}
               </div>
             </div>
           )}
@@ -564,7 +556,7 @@ const PatientReg = forwardRef((props, ref) => {
           {personelData && !searchByAnimalId && (
             <div>
               <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 18 }}>👤</span> Hasta Bilgileri
+                <span style={{ fontSize: 18 }}>👤</span> {t('PatientInfo')}
               </div>
               
               <div style={{ borderRadius: 12, border: '1px solid #e6e9f2', padding: 16, background: '#fff', marginBottom: 16, wordBreak: 'break-word', whiteSpace: 'normal' }}>
@@ -582,10 +574,10 @@ const PatientReg = forwardRef((props, ref) => {
                 </div>
 
                 {personelData.sex && <div style={{ padding: '8px 12px', background: '#f3f4f6', borderRadius: 8, fontSize: 12, marginBottom: 8 }}>
-                  <span style={{ fontWeight: 600, color: '#4b5563' }}>Cinsiyet:</span> {personelData.sex}
+                  <span style={{ fontWeight: 600, color: '#4b5563' }}>{t('Gender')}:</span> {personelData.sex}
                 </div>}
                 {personelData.birthdate && <div style={{ padding: '8px 12px', background: '#f3f4f6', borderRadius: 8, fontSize: 12 }}>
-                  <span style={{ fontWeight: 600, color: '#4b5563' }}>Doğum Tarihi:</span> {personelData.birthdate}
+                  <span style={{ fontWeight: 600, color: '#4b5563' }}>{t('BirthDate')}:</span> {personelData.birthdate}
                 </div>}
               </div>
             </div>
@@ -595,14 +587,14 @@ const PatientReg = forwardRef((props, ref) => {
           {ownersList.length > 0 && (
             <div>
               <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 18 }}>🐾</span> Bulunan Hayvanlar
+                <span style={{ fontSize: 18 }}>🐾</span> {t('FoundAnimals')}
               </div>
               
               <select 
                 onChange={handleSelectOwner} 
                 value={selectedOwner?.data_id || ''} 
                 style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: '1px solid #e6e9f2', fontSize: 13, marginBottom: 14, outline: 'none', cursor: 'pointer', background: '#f8f9fc', maxWidth: '100%', boxSizing: 'border-box' }}>
-                <option value="">-- Hayvan Seçin --</option>
+                <option value="">{`-- ${t('SelectAnimal')} --`}</option>
                 {ownersList.map(o => (
                   <option key={o.data_id} value={o.data_id}>👤 {o.user_name} - 🐾 {o.animal_name}</option>
                 ))}
@@ -625,10 +617,10 @@ const PatientReg = forwardRef((props, ref) => {
               </div>
 
               {selectedOwner.birthdate && <div style={{ padding: '8px 12px', background: '#f3f4f6', borderRadius: 8, fontSize: 12, marginBottom: 8 }}>
-                <span style={{ fontWeight: 600, color: '#4b5563' }}>Doğum:</span> {selectedOwner.birthdate}
+                <span style={{ fontWeight: 600, color: '#4b5563' }}>{t('BirthDate')}:</span> {selectedOwner.birthdate}
               </div>}
               {selectedOwner.animalidentnumber && <div style={{ padding: '8px 12px', background: '#f3f4f6', borderRadius: 8, fontSize: 12 }}>
-                <span style={{ fontWeight: 600, color: '#4b5563' }}>Kimlik No:</span> {selectedOwner.animalidentnumber}
+                <span style={{ fontWeight: 600, color: '#4b5563' }}>{t('IdentityNo')}:</span> {selectedOwner.animalidentnumber}
               </div>}
             </div>
           )}
@@ -637,36 +629,36 @@ const PatientReg = forwardRef((props, ref) => {
           {showPatientForm && (
             <div>
               <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 18 }}>➕</span> Yeni Hasta Kaydı
+                <span style={{ fontSize: 18 }}>➕</span> {t('NewPatientRecord')}
               </div>
               <div style={{ display: 'grid', gap: 12 }}>
                 <input 
-                  placeholder="TC Kimlik No" 
+                  placeholder={t('IdentityNo')} 
                   value={newPatient.tc} 
                   onChange={handleTcChange} 
                   readOnly={!searchByAnimalId}
                   style={{ padding: '12px 14px', borderRadius: 10, border: '1px solid #e6e9f2', fontSize: 13, outline: 'none', background: '#f8f9fc' }} 
                 />
                 <input 
-                  placeholder="Ad" 
+                  placeholder={t('Name')} 
                   value={newPatient.name} 
                   onChange={e => setNewPatient({ ...newPatient, name: e.target.value })} 
                   style={{ padding: '12px 14px', borderRadius: 10, border: '1px solid #e6e9f2', fontSize: 13, outline: 'none', background: '#f8f9fc' }} 
                 />
                 <input 
-                  placeholder="Soyad" 
+                  placeholder={t('Surname')} 
                   value={newPatient.surname} 
                   onChange={e => setNewPatient({ ...newPatient, surname: e.target.value })} 
                   style={{ padding: '12px 14px', borderRadius: 10, border: '1px solid #e6e9f2', fontSize: 13, outline: 'none', background: '#f8f9fc' }} 
                 />
                 <input 
-                  placeholder="Telefon" 
+                  placeholder={t('Phone')} 
                   value={newPatient.phone} 
                   onChange={e => setNewPatient({ ...newPatient, phone: e.target.value })} 
                   style={{ padding: '12px 14px', borderRadius: 10, border: '1px solid #e6e9f2', fontSize: 13, outline: 'none', background: '#f8f9fc' }} 
                 />
                 <input 
-                  placeholder="Email" 
+                  placeholder={t('Email')} 
                   value={newPatient.email} 
                   onChange={e => setNewPatient({ ...newPatient, email: e.target.value })} 
                   style={{ padding: '12px 14px', borderRadius: 10, border: '1px solid #e6e9f2', fontSize: 13, outline: 'none', background: '#f8f9fc' }} 
@@ -683,7 +675,7 @@ const PatientReg = forwardRef((props, ref) => {
                 ident_user_id={userIdForAnimals}
                 onSave={() => {
                   setShowAnimalForm(false);
-                  confirm("Kayıt İşlemi Başarılı", "Tamam", "", "Uyarı");
+                  confirm(t('RecordSavedSuccess'), t('Ok'), "", t('Info'));
                 }}
                 onClose={() => setShowAnimalForm(false)}
               />
@@ -699,13 +691,13 @@ const PatientReg = forwardRef((props, ref) => {
                 onClick={handleAddAnimalClick} 
                 style={{ width: '100%', padding: '12px 16px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: '#fff', border: 'none', borderRadius: 10, fontWeight: 600, cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all 200ms ease' }}
               >
-                ➕ Hayvan Ekle
+                ➕ {t('AddAnimal')}
               </button>
               <button 
                 onClick={goToIdentity} 
                 style={{ width: '100%', padding: '12px 16px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 10, fontWeight: 600, cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
               >
-                🆔 Kimliğe Git
+                🆔 {t('GoToIdentity')}
               </button>
             </>
           )}
@@ -732,14 +724,14 @@ const PatientReg = forwardRef((props, ref) => {
                   gap: 6
                 }}
               >
-                ✓ Kaydet
+                ✓ {t('Save')}
               </button>
               {!searchByAnimalId && (
                 <button
                   onClick={handleAddAnimalClick}
                   style={{ width: '100%', padding: '12px 16px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 10, fontWeight: 600, cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
                 >
-                  🐾 Hayvan Ekle
+                  🐾 {t('AddAnimal')}
                 </button>
               )}
             </>
@@ -764,7 +756,7 @@ const PatientReg = forwardRef((props, ref) => {
                 gap: 6
               }}
             >
-              ✓ Hayvan Kaydet
+              ✓ {t('SaveAnimal')}
             </button>
           )}
 
@@ -774,7 +766,7 @@ const PatientReg = forwardRef((props, ref) => {
                 onClick={goToIdentity} 
                 style={{ width: '100%', padding: '12px 16px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 10, fontWeight: 600, cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
               >
-                🆔 Kimliğe Git
+                🆔 {t('GoToIdentity')}
               </button>
             </>
           )}
@@ -796,7 +788,7 @@ const PatientReg = forwardRef((props, ref) => {
               }}
               style={{ width: '100%', padding: '12px 16px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: 10, fontWeight: 600, cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
             >
-              🔄 Temizle
+              🔄 {t('Clear')}
             </button>
           )}
         </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axiosInstance from '../../api/axiosInstance.ts';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 const AppPatientSearch = ({ onSelect, onClose }) => {
   const [searchByAnimalId, setSearchByAnimalId] = useState(false);
@@ -8,6 +9,7 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
   const [error, setError] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { t } = useLanguage();
 
   const search = async () => {
     setError('');
@@ -15,28 +17,28 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
     setLoading(true);
     try {
       let response;
-      if (searchByAnimalId) {
-        if (!animalId) {
-          setError('Lütfen bir Hayvan ID giriniz.');
+        if (searchByAnimalId) {
+          if (!animalId) {
+          setError(t('NoResults'));
           setLoading(false);
           return;
-        }
-        response = await axiosInstance.get('/getanimalsearch', { params: { tc: animalId, IsAnimalId : 1 } });
-        setResults(response.data?.data || []);
-      } else {
-        if (!tc) {
-          setError('Lütfen bir TC giriniz.');
+          }
+          response = await axiosInstance.get('/getanimalsearch', { params: { tc: animalId, IsAnimalId : 1 } });
+          setResults(response.data?.data || []);
+        } else {
+          if (!tc) {
+          setError(t('NoResults'));
           setLoading(false);
           return;
+          }
+          response = await axiosInstance.get('/getanimalsearch', { params: { tc : tc, IsAnimalId : 0 } });
+          setResults(response.data?.data || []);
         }
-        response = await axiosInstance.get('/getanimalsearch', { params: { tc : tc, IsAnimalId : 0 } });
-        setResults(response.data?.data || []);
-      }
-    } catch (err) {
-      setError('Hasta bulunamadı.');
+      } catch (err) {
+      setError(t('NoResults'));
       console.error(err);
-    }
-    setLoading(false);
+      }
+      setLoading(false);
   };
 
   return (
@@ -68,10 +70,10 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
                 marginBottom: 4,
               }}
             >
-              🐾 Hasta Arama
+              🐾 {t('PatientSearchTitle')}
             </div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)' }}>
-              TC veya Hayvan ID ile hızlı arama
+              {t('QuickSearchById')}
             </div>
           </div>
 
@@ -110,7 +112,7 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
                 transition: 'all 200ms ease',
               }}
             >
-              <span>🆔</span> TC
+              <span>🆔</span> {t('TC')}
             </div>
             <div
               style={{
@@ -126,7 +128,7 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
                 transition: 'all 200ms ease',
               }}
             >
-              <span>🐾</span> Hayvan ID
+              <span>🐾</span> {t('AnimalID')}
             </div>
           </div>
         </div>
@@ -145,7 +147,7 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
               textAlign: 'left',
             }}
           >
-            {searchByAnimalId ? '🐾 Hayvan ID Numarası' : '🆔 TC Kimlik No'}
+            {searchByAnimalId ? `🐾 ${t('AnimalIdNumber')}` : `🆔 ${t('IdentityNumber')}`}
           </label>
           <input
             type="text"
@@ -154,9 +156,7 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
               searchByAnimalId ? setAnimalId(e.target.value) : setTc(e.target.value)
             }
             maxLength={searchByAnimalId ? undefined : 11}
-            placeholder={
-              searchByAnimalId ? 'Hayvan ID giriniz...' : 'TC kimlik numarasını girin...'
-            }
+            placeholder={searchByAnimalId ? t('EnterAnimalId') : t('EnterIdentityNumber')}
             onKeyDown={(e) => {
               if (e.key === 'Enter') search();
             }}
@@ -198,7 +198,7 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
             transition: 'all 200ms ease',
           }}
         >
-          {loading ? 'Aranıyor…' : '🔍 Ara'}
+          {loading ? '...' : `🔍 ${t('Search')}`}
         </button>
       </div>
 
@@ -233,7 +233,7 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
               color: '#9ca3af',
             }}
           >
-            🔍 Arama yaparak sonuçları burada görebilirsiniz.
+            🔍 {t('SearchPlaceholder')}
           </div>
         )}
 
@@ -280,7 +280,7 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
                 <span style={{ fontWeight: 600, color: '#111827' }}>
                   🐾 {item.animalname}
                 </span>
-                <span style={{ color: '#4b5563' }}>👤 Sahip: {item.user_name}</span>
+                <span style={{ color: '#4b5563' }}>👤 {t('OwnerInfo')}: {item.user_name}</span>
               </li>
             ))}
           </ul>
@@ -309,7 +309,7 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
             cursor: 'pointer',
           }}
         >
-          Kapat
+          {t('Cancel')}
         </button>
       </div>
     </div>

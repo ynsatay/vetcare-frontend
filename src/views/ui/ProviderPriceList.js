@@ -7,26 +7,9 @@ import { useConfirm } from '../../components/ConfirmContext';
 import EditProviderPrice from '../popup/EditProviderPrice.js';
 import { trTR } from '@mui/x-data-grid/locales';
 import { toast } from 'react-toastify';
+import { useLanguage } from '../../context/LanguageContext.js';
 
-const columns = [
-  { field: 'id', headerName: '#', width: 70 },
-  { field: 'material_name', headerName: 'Malzeme', flex: 1, minWidth: 150 },
-  { field: 'provider_firm_name', headerName: 'Tedarikçi Firma', flex: 1, minWidth: 150 },
-  { field: 'purchase_price', headerName: 'Alım Fiyatı (₺)', width: 130, type: 'number' },
-  // { field: 'vat_rate', headerName: 'KDV (%)', width: 100, type: 'number' },
-  { 
-    field: 'is_default', 
-    headerName: 'Varsayılan', 
-    width: 110,
-    valueFormatter: ({ value }) => value ? 'Evet' : 'Hayır',
-  },
-  { 
-    field: 'active', 
-    headerName: 'Aktif', 
-    width: 90,
-    valueFormatter: ({ value }) => value ? 'Evet' : 'Hayır',
-  },
-];
+// columns defined inside component to access i18n
 
 const ProviderPriceList = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -35,6 +18,25 @@ const ProviderPriceList = () => {
   const [loading, setLoading] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const { confirm } = useConfirm();
+  const { t, lang } = useLanguage();
+  const columns = [
+    { field: 'id', headerName: '#', width: 70 },
+    { field: 'material_name', headerName: t('Material'), flex: 1, minWidth: 150 },
+    { field: 'provider_firm_name', headerName: t('ProviderFirms'), flex: 1, minWidth: 150 },
+    { field: 'purchase_price', headerName: t('PricePurchase'), width: 130, type: 'number' },
+    { 
+      field: 'is_default', 
+      headerName: t('Default'), 
+      width: 110,
+      valueFormatter: ({ value }) => value ? t('Yes') : t('No'),
+    },
+    { 
+      field: 'active', 
+      headerName: t('Active'), 
+      width: 90,
+      valueFormatter: ({ value }) => value ? t('Yes') : t('No'),
+    },
+  ];
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editData, setEditData] = useState(null);
@@ -78,10 +80,12 @@ const ProviderPriceList = () => {
   const handleDelete = async () => {
     if (!selectedRow) return;
     const confirmed = await confirm(
-      `"${selectedRow.material_name}" için "${selectedRow.provider_firm_name}" kaydını silmek istediğinize emin misiniz?`,
-      "Evet",
-      "Hayır",
-      "Silme Onayı"
+      lang === 'en'
+        ? `Are you sure you want to delete the price for "${selectedRow.material_name}" from "${selectedRow.provider_firm_name}"?`
+        : `"${selectedRow.material_name}" için "${selectedRow.provider_firm_name}" kaydını silmek istediğinize emin misiniz?`,
+      t('Yes'),
+      t('No'),
+      t('Warning')
     );
     if (!confirmed) return;
 
@@ -89,10 +93,10 @@ const ProviderPriceList = () => {
       await axiosInstance.delete(`/provider-price-delete/${selectedRow.id}`);
       await fetchPriceList();
       setSelectedRow(null);
-      toast.success('Kayıt başarıyla silindi.');
+      toast.success(lang === 'en' ? 'Record deleted successfully.' : 'Kayıt başarıyla silindi.');
     } catch (err) {
       if (err.__demo_blocked) return; 
-      await confirm(err.response?.data?.message || err.message || "Bir hata oluştu", "Tamam", "", "Uyarı");
+      await confirm(err.response?.data?.message || err.message || (lang === 'en' ? 'An error occurred' : 'Bir hata oluştu'), t('Ok'), "", t('Warning'));
     }
   };
 
@@ -114,12 +118,12 @@ const ProviderPriceList = () => {
 
   return (
     <div style={{ backgroundColor: 'white', padding: 15, borderRadius: 10 }}>
-      <h4 className="mb-3">💰 Tedarikçi Fiyat Listesi</h4>
+      <h4 className="mb-3">💰 {t('ProviderPrices')}</h4>
 
       <Row className="mb-3 g-2">
         <Col xs={12} md={4}>
           <Input 
-            placeholder="Malzeme veya Tedarikçi Ara" 
+            placeholder={t('Search')} 
             value={searchTerm} 
             onChange={e => setSearchTerm(e.target.value)} 
             onKeyDown={e => e.key === 'Enter' && handleSearch()} 
@@ -127,19 +131,19 @@ const ProviderPriceList = () => {
         </Col>
 
         <Col xs="auto">
-          <Button color="primary" onClick={handleSearch}>Ara</Button>
+          <Button color="primary" onClick={handleSearch}>{t('Search')}</Button>
         </Col>
 
         <Col xs="auto">
-          <Button color="success" onClick={handleAddNew}>Yeni Kayıt</Button>
+          <Button color="success" onClick={handleAddNew}>{t('Add')}</Button>
         </Col>
 
         <Col xs="auto">
-          <Button color="danger" disabled={!selectedRow} onClick={handleDelete}>Sil</Button>
+          <Button color="danger" disabled={!selectedRow} onClick={handleDelete}>{t('Delete')}</Button>
         </Col>
 
         <Col xs="auto">
-          <Button color="warning" disabled={!selectedRow} onClick={() => selectedRow && handleEdit(selectedRow)}>Düzenle</Button>
+          <Button color="warning" disabled={!selectedRow} onClick={() => selectedRow && handleEdit(selectedRow)}>{t('EditAction')}</Button>
         </Col>
       </Row>
 
@@ -163,19 +167,19 @@ const ProviderPriceList = () => {
           selectionModel={selectedRow ? [selectedRow.id] : []}
           disableSelectionOnClick={false}
           localeText={{
-                        ...trTR.components.MuiDataGrid.defaultProps.localeText,
-                        footerRowSelected: (count) =>
-                            count > 1
-                                ? `${count.toLocaleString()} satır seçildi`
-                                : `${count.toLocaleString()} satır seçildi`,
-                    }}
+            ...trTR.components.MuiDataGrid.defaultProps.localeText,
+            footerRowSelected: (count) =>
+              lang === 'en'
+                ? `${count.toLocaleString()} row selected`
+                : `${count.toLocaleString()} satır seçildi`,
+          }}
         />
       </div>
 
       <MainModal
         isOpen={isModalOpen}
         toggle={closeModal}
-        title={editData ? 'Fiyat Bilgisi Düzenle' : 'Yeni Fiyat Bilgisi Ekle'}
+        title={editData ? t('EditAction') : t('Add')}
         content={
           <EditProviderPrice initialData={editData} onClose={closeModal} />
         }

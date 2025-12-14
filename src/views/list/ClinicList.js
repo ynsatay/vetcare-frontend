@@ -6,17 +6,15 @@ import { DataGrid } from '@mui/x-data-grid';
 import axiosInstance from '../../api/axiosInstance.ts';
 import { Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
 import { trTR } from '@mui/x-data-grid/locales';
+import { useLanguage } from '../../context/LanguageContext.js';
 
-const packageTypeLabels = {
-  1: 'Başlangıç',
-  2: 'Standart',
-  3: 'Profesyonel',
-};
+const packageTypeValues = [1,2,3];
 
 const ClinicList = () => {
   const [clinicList, setClinicList] = useState([]);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedClinic, setSelectedClinic] = useState(null);
+  const { t, lang } = useLanguage();
 
   useEffect(() => {
     fetchClinicList();
@@ -64,7 +62,7 @@ const ClinicList = () => {
   const columns = [
     {
       field: 'name',
-      headerName: 'Klinik Adı',
+      headerName: t('ClinicName'),
       flex: 1,
       minWidth: 150,
     },
@@ -76,26 +74,32 @@ const ClinicList = () => {
     },
     {
       field: 'phone',
-      headerName: 'Telefon',
+      headerName: t('Phone'),
       flex: 1,
       minWidth: 130,
     },
     {
       field: 'admin_name',
-      headerName: 'Yönetici',
+      headerName: t('Administrator'),
       flex: 1,
       minWidth: 140,
     },
     {
       field: 'package_type',
-      headerName: 'Paket',
+      headerName: t('Package'),
       flex: 1,
       minWidth: 120,
-      valueGetter: (params) => packageTypeLabels[params.row.package_type] || '-',
+      valueGetter: (params) => {
+        const v = params.row.package_type;
+        if (v === 1) return lang === 'en' ? 'Starter' : 'Başlangıç';
+        if (v === 2) return lang === 'en' ? 'Standard' : 'Standart';
+        if (v === 3) return lang === 'en' ? 'Professional' : 'Profesyonel';
+        return '-';
+      },
     },
     {
       field: 'actions',
-      headerName: 'İşlem',
+      headerName: t('Actions'),
       flex: 0.7,
       minWidth: 100,
       renderCell: (params) => (
@@ -105,7 +109,7 @@ const ClinicList = () => {
           size="small"
           onClick={() => handleEditClick(params.row)}
         >
-          Değiştir
+          {t('EditAction')}
         </Button>
       ),
       sortable: false,
@@ -117,7 +121,7 @@ const ClinicList = () => {
     <div style={{ height: 500, width: '100%' }}>
       <Card>
         <CardBody>
-          <CardTitle tag="h5">🏨 Klinik Listesi</CardTitle>
+          <CardTitle tag="h5">🏨 {t('ClinicListTitle')}</CardTitle>
           <div style={{ height: 500, width: '100%', overflowX: 'auto' }}>
             <DataGrid
               rows={clinicList}
@@ -128,8 +132,8 @@ const ClinicList = () => {
               localeText={{
                 ...trTR.components.MuiDataGrid.defaultProps.localeText,
                 footerRowSelected: (count) =>
-                  count > 1
-                    ? `${count.toLocaleString()} satır seçildi`
+                  lang === 'en'
+                    ? `${count.toLocaleString()} row selected`
                     : `${count.toLocaleString()} satır seçildi`,
               }}
 
@@ -139,11 +143,11 @@ const ClinicList = () => {
       </Card>
 
       <Dialog open={editModalOpen} onClose={() => setEditModalOpen(false)}>
-        <DialogTitle>Klinik Bilgilerini Güncelle</DialogTitle>
+        <DialogTitle>{t('UpdateClinicInfo')}</DialogTitle>
         <DialogContent>
           <TextField
             margin="dense"
-            label="Klinik Adı"
+            label={t('ClinicName')}
             name="name"
             fullWidth
             value={selectedClinic?.name || ''}
@@ -159,7 +163,7 @@ const ClinicList = () => {
           />
           <TextField
             margin="dense"
-            label="Telefon"
+            label={t('Phone')}
             name="phone"
             fullWidth
             value={selectedClinic?.phone || ''}
@@ -168,10 +172,10 @@ const ClinicList = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setEditModalOpen(false)} color="secondary">
-            İptal
+            {t('Cancel')}
           </Button>
           <Button onClick={handleUpdate} color="primary">
-            Kaydet
+            {t('Save')}
           </Button>
         </DialogActions>
       </Dialog>

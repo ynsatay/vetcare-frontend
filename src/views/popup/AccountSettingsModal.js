@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Stack, TextField, Box, Typography, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { useLanguage } from '../../context/LanguageContext.js';
 const AccountSettingsModal = ({ open, onClose, onSave, initial }) => {
   const [form, setForm] = useState({ name: '', surname: '', username: '', email: '', phone: '', language: 'tr' });
+  const { t } = useLanguage();
   useEffect(() => {
     setForm({
       name: initial?.name || '',
@@ -20,22 +22,22 @@ const AccountSettingsModal = ({ open, onClose, onSave, initial }) => {
           <Box sx={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg,#667eea,#a5b4fc)', boxShadow: '0 8px 20px rgba(102,126,234,0.35)' }}>
             <Typography sx={{ fontSize: 22 }}>⚙️</Typography>
           </Box>
-          <Typography variant="h6" fontWeight={700}>Hesap Ayarları</Typography>
+          <Typography variant="h6" fontWeight={700}>{t('AccountSettings')}</Typography>
         </Box>
       </DialogTitle>
       <DialogContent dividers sx={{ p: 2.5 }}>
         <Stack spacing={2}>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-            <TextField fullWidth label="Ad" value={form.name} onChange={set('name')} InputProps={{ startAdornment: <Box sx={{ mr: 1.5, fontSize: 18 }}>👤</Box> }} />
-            <TextField fullWidth label="Soyad" value={form.surname} onChange={set('surname')} InputProps={{ startAdornment: <Box sx={{ mr: 1.5, fontSize: 18 }}>👥</Box> }} />
+            <TextField fullWidth label={t('Name')} value={form.name} onChange={set('name')} InputProps={{ startAdornment: <Box sx={{ mr: 1.5, fontSize: 18 }}>👤</Box> }} />
+            <TextField fullWidth label={t('Surname')} value={form.surname} onChange={set('surname')} InputProps={{ startAdornment: <Box sx={{ mr: 1.5, fontSize: 18 }}>👥</Box> }} />
           </Stack>
-          <TextField fullWidth label="Kullanıcı Adı" value={form.username} onChange={set('username')} InputProps={{ startAdornment: <Box sx={{ mr: 1.5, fontSize: 16 }}>@</Box> }} />
-          <TextField fullWidth label="E-posta" value={form.email} onChange={set('email')} InputProps={{ startAdornment: <Box sx={{ mr: 1.5, fontSize: 18 }}>✉️</Box> }} />
-          <TextField fullWidth label="Telefon" value={form.phone} onChange={set('phone')} InputProps={{ startAdornment: <Box sx={{ mr: 1.5, fontSize: 18 }}>📞</Box> }} />
+          <TextField fullWidth label={t('Username')} value={form.username} onChange={set('username')} InputProps={{ startAdornment: <Box sx={{ mr: 1.5, fontSize: 16 }}>@</Box> }} />
+          <TextField fullWidth label={t('Email')} value={form.email} onChange={set('email')} InputProps={{ startAdornment: <Box sx={{ mr: 1.5, fontSize: 18 }}>✉️</Box> }} />
+          <TextField fullWidth label={t('Phone')} value={form.phone} onChange={set('phone')} InputProps={{ startAdornment: <Box sx={{ mr: 1.5, fontSize: 18 }}>📞</Box> }} />
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'auto 1fr' }, alignItems: 'center', gap: 2, p: 2, border: '1px solid #e2e8f0', borderRadius: 2, background: 'linear-gradient(180deg,#fff,#f8fafc)' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
               <Box sx={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(102,126,234,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🌐</Box>
-              <Typography fontWeight={600}>Dil</Typography>
+              <Typography fontWeight={600}>{t('Language')}</Typography>
             </Box>
             <ToggleButtonGroup
               exclusive
@@ -51,8 +53,8 @@ const AccountSettingsModal = ({ open, onClose, onSave, initial }) => {
         </Stack>
       </DialogContent>
       <DialogActions sx={{ p: 2, justifyContent: 'space-between' }}>
-        <Button onClick={onClose} color="secondary" sx={{ borderRadius: 2 }}>İptal</Button>
-        <Button onClick={() => onSave?.(form)} variant="contained" sx={{ borderRadius: 2, background: 'linear-gradient(135deg,#667eea,#a5b4fc)' }}>Kaydet</Button>
+        <Button onClick={onClose} color="secondary" sx={{ borderRadius: 2 }}>{t('Cancel')}</Button>
+        <Button onClick={() => onSave?.(form)} variant="contained" sx={{ borderRadius: 2, background: 'linear-gradient(135deg,#667eea,#a5b4fc)' }}>{t('Save')}</Button>
       </DialogActions>
     </Dialog>
   );

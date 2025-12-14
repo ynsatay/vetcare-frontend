@@ -3,8 +3,10 @@ import { Input, Label } from 'reactstrap';
 import '../scss/_animals.scss';
 //import { AuthContext } from '../../context/usercontext.tsx';
 import axiosInstance from '../../api/axiosInstance.ts';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 const Clinic = React.forwardRef((props, ref) => {
+    const { t } = useLanguage();
     const [name, setName] = useState('');
     const [dbname, setdbName] = useState('');
     const [dbpassword, setdbPassword] = useState('');
@@ -38,7 +40,7 @@ const Clinic = React.forwardRef((props, ref) => {
     return (
         <form >
             <div className="ani-form-group">
-                <Label className="ani-form-label" htmlFor="name">Klinik Adı</Label>
+                <Label className="ani-form-label" htmlFor="name">{t('ClinicName')}</Label>
                 <Input
                     type="text"
                     name="name"
@@ -48,7 +50,7 @@ const Clinic = React.forwardRef((props, ref) => {
                 />
             </div>
             <div className="ani-form-group">
-                <Label className="ani-form-label" htmlFor="name">Db Adı</Label>
+                <Label className="ani-form-label" htmlFor="name">{t('DbName')}</Label>
                 <Input
                     type="text"
                     name="dbname"
@@ -58,7 +60,7 @@ const Clinic = React.forwardRef((props, ref) => {
                 />
             </div>
             <div className="ani-form-group">
-                <Label className="ani-form-label" htmlFor="name">Db Şifresi</Label>
+                <Label className="ani-form-label" htmlFor="name">{t('DbPassword')}</Label>
                 <Input
                     type="text"
                     name="dbpassword"
@@ -68,7 +70,7 @@ const Clinic = React.forwardRef((props, ref) => {
                 />
             </div>
             <div className="ani-form-group">
-                <Label className="ani-form-label" htmlFor="email">E-Mail</Label>
+                <Label className="ani-form-label" htmlFor="email">{t('Email')}</Label>
                 <Input
                     type="text"
                     name="email"
@@ -78,7 +80,7 @@ const Clinic = React.forwardRef((props, ref) => {
                 />
             </div>
             <div className="ani-form-group">
-                <Label className="ani-form-label" htmlFor="phone">Telefon</Label>
+                <Label className="ani-form-label" htmlFor="phone">{t('Phone')}</Label>
                 <Input
                     type="text"
                     name="phone"

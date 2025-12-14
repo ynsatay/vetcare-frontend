@@ -8,45 +8,48 @@ import EditStock from '../popup/EditStock.js';
 import { useConfirm } from '../../components/ConfirmContext';
 import { trTR } from '@mui/x-data-grid/locales';
 import { toast } from 'react-toastify';
+import { useLanguage } from '../../context/LanguageContext.js';
 
-const categories = [
-    { label: "İlaç", value: 0 },
-    { label: "Sarf", value: 1 },
-    { label: "Temizlik", value: 2 },
-    { label: "Besin", value: 3 },
-    { label: "Aşı", value: 5 },
-    { label: "Diğer", value: 4 }
-];
+const StockList = () => {
+    const { t, lang } = useLanguage();
+    const categories = [
+        { label: t('Medicine'), value: 0 },
+        { label: t('Consumable'), value: 1 },
+        { label: t('Cleaning'), value: 2 },
+        { label: t('Food'), value: 3 },
+        { label: t('Vaccine'), value: 5 },
+        { label: t('Other'), value: 4 }
+    ];
 
-const units = [
-    { label: "Adet", value: 0 },
-    { label: "Kutu", value: 1 },
-    { label: "ML", value: 2 },
-    { label: "Gram", value: 3 },
-    { label: "Litre", value: 4 }
-];
+    const units = [
+        { label: t('UnitPiece'), value: 0 },
+        { label: t('Box'), value: 1 },
+        { label: t('ML'), value: 2 },
+        { label: t('Gram'), value: 3 },
+        { label: t('Liter'), value: 4 }
+    ];
 
-const columns = [
+    const columns = [
     { field: 'id', headerName: '#', width: 70 },
-    { field: 'name', headerName: 'Stok Adı', flex: 1, minWidth: 150 },
+    { field: 'name', headerName: t('StockName'), flex: 1, minWidth: 150 },
     {
         field: 'category',
-        headerName: 'Kategori',
+        headerName: t('Category'),
         width: 120,
         valueFormatter: (params) => {
             const cat = categories.find(c => c.value === Number(params.value));
-            return cat ? cat.label : 'Bilinmiyor';
+            return cat ? cat.label : t('Unknown');
         }
     },
     {
         field: 'price',
-        headerName: 'Fiyat',
+        headerName: t('Price'),
         width: 100,
         valueFormatter: (params) => params.value ? `${params.value} ₺` : '',
     },
     {
         field: 'total_quantity',
-        headerName: 'Adet',
+        headerName: t('UnitPiece'),
         width: 90,
         renderCell: (params) => {
             const quantity = params.value;
@@ -62,18 +65,18 @@ const columns = [
     },
     {
         field: 'unit',
-        headerName: 'Birim',
+        headerName: t('Type'),
         width: 100,
         valueFormatter: (params) => {
             const unit = units.find(u => u.value === params.value);
             return unit ? unit.label : params.value || '';
         }
     },
-    { field: 'min_stock_level', headerName: 'Min. Stok', width: 110 },
-    { field: 'barcode', headerName: 'Barkod', width: 140 },
+    { field: 'min_stock_level', headerName: 'Min. Stock', width: 110 },
+    { field: 'barcode', headerName: 'Barcode', width: 140 },
     {
         field: 'description',
-        headerName: 'Açıklama',
+        headerName: t('Notes'),
         flex: 1,
         minWidth: 200,
         sortable: false,
@@ -84,9 +87,7 @@ const columns = [
             </div>
         ),
     },
-];
-
-const StockList = () => {
+    ];
     const [searchTerm, setSearchTerm] = useState('');
     const [materialsList, setMaterialsList] = useState([]);
     const [filteredList, setFilteredList] = useState([]);
@@ -110,7 +111,7 @@ const StockList = () => {
                 setFilteredList([]);
             }
         } catch (err) {
-            console.error('Malzeme çekme hatası:', err);
+            console.error('Material fetch error:', err);
             setMaterialsList([]);
             setFilteredList([]);
         } finally {
@@ -144,10 +145,10 @@ const StockList = () => {
         if (!selectedRow) return;
 
         const confirmed = await confirm(
-            `"${selectedRow.name}" adlı stoğu silmek istediğinize emin misiniz?`,
-            "Evet",
-            "Hayır",
-            "Silme Onayı"
+            lang === 'en' ? `Are you sure you want to delete "${selectedRow.name}"?` : `"${selectedRow.name}" adlı stoğu silmek istediğinize emin misiniz?`,
+            t('Yes'),
+            t('No'),
+            t('Warning')
         );
         if (!confirmed) return;
 
@@ -155,15 +156,15 @@ const StockList = () => {
             await axiosInstance.delete(`/deleteMaterial/${selectedRow.id}`);
             await fetchMaterials();
             setSelectedRow(null);
-            toast.success('Stok başarıyla silindi.');
+            toast.success(lang === 'en' ? 'Stock deleted successfully.' : 'Stok başarıyla silindi.');
         } catch (error) {
             if (error.__demo_blocked) return; 
             await new Promise(resolve => setTimeout(resolve, 300));
             await confirm(
-                error.response?.data?.message || error.message || "Bir hata oluştu",
-                "Tamam",
+                error.response?.data?.message || error.message || (lang === 'en' ? 'An error occurred' : 'Bir hata oluştu'),
+                t('Ok'),
                 "",
-                "Uyarı"
+                t('Warning')
             );
         }
     };
@@ -176,11 +177,11 @@ const StockList = () => {
 
     return (
         <div style={{ backgroundColor: 'white', padding: '10px', borderRadius: '10px' }}>
-            <h4 className="mb-3">📦 Stok Listesi</h4>
+            <h4 className="mb-3">📦 {t('StockListTitle')}</h4>
             <Row className="mb-3 g-2">
                 <Col xs={12} md={4}>
                     <Input
-                        placeholder="Stok Ara"
+                        placeholder={t('StockSearch')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -189,14 +190,14 @@ const StockList = () => {
 
                 <Col xs={12} md="auto">
                     <div className="d-flex flex-wrap gap-2">
-                        <Button color='primary' onClick={handleSearch}>Ara</Button>
+                        <Button color='primary' onClick={handleSearch}>{t('Search')}</Button>
 
                         <Button
                             color="danger"
                             disabled={!selectedRow}
                             onClick={handleDelete}
                         >
-                            Sil
+                            {t('Delete')}
                         </Button>
 
                         <Button
@@ -204,14 +205,14 @@ const StockList = () => {
                             disabled={!selectedRow}
                             onClick={() => selectedRow && handleEdit(selectedRow)}
                         >
-                            Değiştir
+                            {t('EditAction')}
                         </Button>
                     </div>
                 </Col>
 
                 <Col xs={12} md className="text-md-end text-start">
                     <Button color="success" onClick={() => setIsAddModalOpen(true)}>
-                        Stok Ekle
+                        {t('AddStock')}
                     </Button>
                 </Col>
             </Row>
@@ -234,8 +235,8 @@ const StockList = () => {
                     localeText={{
                         ...trTR.components.MuiDataGrid.defaultProps.localeText,
                         footerRowSelected: (count) =>
-                            count > 1
-                                ? `${count.toLocaleString()} satır seçildi`
+                            lang === 'en'
+                                ? `${count.toLocaleString()} row selected`
                                 : `${count.toLocaleString()} satır seçildi`,
                     }}
                 />
@@ -244,15 +245,15 @@ const StockList = () => {
             <MainModal
                 isOpen={isAddModalOpen}
                 toggle={toggleStockModal}
-                title="Stok Ekle"
+                title={t('AddStock')}
                 content={<AddStock onClose={toggleStockModal} />}
-                saveButtonLabel="Ekle"
+                saveButtonLabel={t('Add')}
             />
 
             <MainModal
                 isOpen={isEditModalOpen}
                 toggle={() => setIsEditModalOpen(false)}
-                title="Stok Güncelle"
+                title={lang === 'en' ? 'Update Stock' : 'Stok Güncelle'}
                 content={<EditStock
                     initialData={editData}
                     onClose={() => {
@@ -260,7 +261,7 @@ const StockList = () => {
                         fetchMaterials();
                     }}
                 />}
-                saveButtonLabel="Güncelle"
+                saveButtonLabel={t('Update')}
             />
         </div>
     );

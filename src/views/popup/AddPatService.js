@@ -4,8 +4,10 @@ import { DataGrid } from "@mui/x-data-grid";
 import axiosInstance from "../../api/axiosInstance.ts";
 import { trTR } from '@mui/x-data-grid/locales';
 import "./AddPatService.css";
+import { useLanguage } from '../../context/LanguageContext.js';
 
 const AddPatService = ({ onClose, onSelect }) => {
+  const { t, lang } = useLanguage();
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -32,10 +34,10 @@ const AddPatService = ({ onClose, onSelect }) => {
 
   const columns = [
     { field: "id", headerName: "#", width: 70 },
-    { field: "name", headerName: "Hizmet Adı", flex: 1 },
+    { field: "name", headerName: t('ServiceName'), flex: 1 },
     {
       field: "price",
-      headerName: "Fiyat",
+      headerName: t('Price'),
       width: 130,
       valueFormatter: (params) => `${params.value} ₺`,
     },
@@ -45,12 +47,12 @@ const AddPatService = ({ onClose, onSelect }) => {
     <div className="select-modal">
       <div className="select-card">
         <div className="select-header">
-          <h3>Hizmet Seç</h3>
+          <h3>{t('SelectService')}</h3>
         </div>
 
         <TextField
           className="select-search"
-          label="Ara..."
+          label={t('Search')}
           variant="outlined"
           size="small"
           fullWidth
@@ -83,8 +85,8 @@ const AddPatService = ({ onClose, onSelect }) => {
             localeText={{
               ...trTR.components.MuiDataGrid.defaultProps.localeText,
               footerRowSelected: (count) =>
-                count > 1
-                  ? `${count.toLocaleString()} satır seçildi`
+                lang === 'en'
+                  ? `${count.toLocaleString()} row selected`
                   : `${count.toLocaleString()} satır seçildi`,
             }}
           />
@@ -99,10 +101,10 @@ const AddPatService = ({ onClose, onSelect }) => {
               onClose();
             }}
           >
-            Ekle
+            {t('Add')}
           </Button>
           <Button variant="outlined" onClick={onClose}>
-            Vazgeç
+            {t('Cancel')}
           </Button>
         </div>
       </div>

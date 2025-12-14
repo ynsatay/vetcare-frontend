@@ -3,9 +3,11 @@ import { Input, Label } from 'reactstrap';
 import '../scss/_animals.scss';
 import { AuthContext } from '../../context/usercontext.tsx';
 import axiosInstance from '../../api/axiosInstance.ts';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 
 const Office = React.forwardRef((props, ref) => {
+    const { t } = useLanguage();
     const [clinicId, setClinicId] = useState(''); // Başlangıç değeri '' olarak ayarlandı
     const [packageType, setPackageType] = useState('');
     const [email, setEmail] = useState('');
@@ -37,7 +39,7 @@ const Office = React.forwardRef((props, ref) => {
     return (
         <form >
             <div className="ani-form-group">
-                <Label className="ani-form-label" for="exampleSelect">Klinik Seçin</Label>
+                <Label className="ani-form-label" for="exampleSelect">{t('SelectClinic')}</Label>
                 <Input
                     id="exampleSelect"
                     name="select"
@@ -46,12 +48,12 @@ const Office = React.forwardRef((props, ref) => {
                     onChange={(e) => setClinicId(e.target.value)}
                     className="ani-form-select"
                 >
-                    <option value="0">Seçiniz</option> {0}
-                    <option value="1">klinik</option> {1}
+                    <option value="0">{t('Select')}</option> {0}
+                    <option value="1">{t('Clinic')}</option> {1}
                 </Input>
             </div>
             <div className="ani-form-group">
-                <Label className="ani-form-label" htmlFor="packageType">Paket Tipi</Label>
+                <Label className="ani-form-label" htmlFor="packageType">{t('PackageType')}</Label>
                 <Input
                     type="text"
                     name="packageType"
@@ -61,7 +63,7 @@ const Office = React.forwardRef((props, ref) => {
                 />
             </div>
             <div className="ani-form-group">
-                <Label className="ani-form-label" htmlFor="email">Email</Label>
+                <Label className="ani-form-label" htmlFor="email">{t('Email')}</Label>
                 <Input
                     type="text"
                     name="email"
@@ -71,7 +73,7 @@ const Office = React.forwardRef((props, ref) => {
                 />
             </div>
             <div className="ani-form-group">
-                <Label className="ani-form-label" htmlFor="phone">Telefon</Label>
+                <Label className="ani-form-label" htmlFor="phone">{t('Phone')}</Label>
                 <Input
                     type="text"
                     name="phone"

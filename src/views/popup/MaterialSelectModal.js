@@ -10,8 +10,10 @@ import {
 import { DataGrid } from "@mui/x-data-grid";
 import axiosInstance from "../../api/axiosInstance.ts";
 import { trTR } from '@mui/x-data-grid/locales';
+import { useLanguage } from "../../context/LanguageContext.js";
 
 const MaterialSelectModal = ({ open, onClose, onSelect }) => {
+    const { t, lang } = useLanguage();
     const [materials, setMaterials] = useState([]);
     const [selected, setSelected] = useState([]);
 
@@ -29,19 +31,19 @@ const MaterialSelectModal = ({ open, onClose, onSelect }) => {
     }, [open]);
 
     const units = [
-        { label: "Adet", value: 0 },
-        { label: "Kutu", value: 1 },
-        { label: "ML", value: 2 },
-        { label: "Gram", value: 3 },
-        { label: "Litre", value: 4 }
+        { label: t('UnitPiece'), value: 0 },
+        { label: t('Box'), value: 1 },
+        { label: t('ML'), value: 2 },
+        { label: t('Gram'), value: 3 },
+        { label: t('Liter'), value: 4 }
     ];
 
     const columns = [
         { field: "id", headerName: "#", width: 70 },
-        { field: "name", headerName: "Stok Adı", flex: 1 },
+        { field: "name", headerName: t('StockName'), flex: 1 },
         {
             field: "unit",
-            headerName: "Birim",
+            headerName: t('Type'),
             width: 100,
             valueGetter: (params) => {
                 const unitObj = units.find((u) => u.value === params.value);
@@ -50,7 +52,7 @@ const MaterialSelectModal = ({ open, onClose, onSelect }) => {
         },
         {
             field: "price",
-            headerName: "Fiyat (₺)",
+            headerName: `${t('UnitPrice')}`,
             width: 110,
             type: "number",
             valueFormatter: (params) => `${params.value?.toFixed(2) || "0.00"} ₺`
@@ -67,10 +69,10 @@ const MaterialSelectModal = ({ open, onClose, onSelect }) => {
 
     return (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-            <DialogTitle>Stok Seç</DialogTitle>
+            <DialogTitle>{t('StockSelect')}</DialogTitle>
             <DialogContent>
                 {materials.length === 0 ? (
-                    <Typography sx={{ p: 2 }}>Stok bulunamadı.</Typography>
+                    <Typography sx={{ p: 2 }}>{t('NoResults')}</Typography>
                 ) : (
                     <DataGrid
                         rows={materials}
@@ -85,17 +87,17 @@ const MaterialSelectModal = ({ open, onClose, onSelect }) => {
                         localeText={{
                             ...trTR.components.MuiDataGrid.defaultProps.localeText,
                             footerRowSelected: (count) =>
-                                count > 1
-                                    ? `${count.toLocaleString()} satır seçildi`
+                                lang === 'en'
+                                    ? `${count.toLocaleString()} row selected`
                                     : `${count.toLocaleString()} satır seçildi`,
                         }}
                     />
                 )}
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose}>İptal</Button>
+                <Button onClick={onClose}>{t('Cancel')}</Button>
                 <Button variant="contained" onClick={handleAdd} disabled={!selected.length}>
-                    Ekle
+                    {t('Add')}
                 </Button>
             </DialogActions>
         </Dialog>

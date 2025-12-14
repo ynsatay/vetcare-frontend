@@ -15,11 +15,14 @@ import "../../views/ui/IdentityInfo.css";
 import timezone from "dayjs/plugin/timezone";
 import tr from "dayjs/locale/tr";
 import utc from "dayjs/plugin/utc";
+import { useLanguage } from "../../context/LanguageContext.js";
 
 dayjs.locale(tr);
 
 
 const Feeds = ({ activeTab: controlledTab, onTabChange, onData }) => {
+  const { t, lang } = useLanguage();
+  if (lang === 'en') dayjs.locale('en');
   const [feeds, setFeeds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [localTab, setLocalTab] = useState("payments");
@@ -71,9 +74,9 @@ const fmt = (s) => {
     return (
       <Card>
         <CardBody>
-          <CardTitle tag="h5">Akışlar</CardTitle>
+          <CardTitle tag="h5">{t('FeedsTitle')}</CardTitle>
           <CardSubtitle className="mb-2 text-muted" tag="h6">
-            Yükleniyor...
+            {t('Loading')}
           </CardSubtitle>
         </CardBody>
       </Card>
@@ -83,24 +86,24 @@ const fmt = (s) => {
   return (
     <Card>
       <CardBody>
-        <CardTitle tag="h5">Akışlar</CardTitle>
+        <CardTitle tag="h5">{t('FeedsTitle')}</CardTitle>
         <div className="identity-tabs" style={{ marginTop: 8, marginBottom: 8 }}>
-          <button className={`identity-tab ${activeTab === 'payments' ? 'active' : ''}`} onClick={() => (onTabChange ? onTabChange('payments') : setLocalTab('payments'))}>Tahsilat</button>
-          <button className={`identity-tab ${activeTab === 'vaccine' ? 'active' : ''}`} onClick={() => (onTabChange ? onTabChange('vaccine') : setLocalTab('vaccine'))}>Aşı</button>
-          <button className={`identity-tab ${activeTab === 'stock' ? 'active' : ''}`} onClick={() => (onTabChange ? onTabChange('stock') : setLocalTab('stock'))}>Stok</button>
-          <button className={`identity-tab ${activeTab === 'service' ? 'active' : ''}`} onClick={() => (onTabChange ? onTabChange('service') : setLocalTab('service'))}>Hizmet</button>
-          <button className={`identity-tab ${activeTab === 'appointment' ? 'active' : ''}`} onClick={() => (onTabChange ? onTabChange('appointment') : setLocalTab('appointment'))}>Randevu</button>
+          <button className={`identity-tab ${activeTab === 'payments' ? 'active' : ''}`} onClick={() => (onTabChange ? onTabChange('payments') : setLocalTab('payments'))}>{t('Payments')}</button>
+          <button className={`identity-tab ${activeTab === 'vaccine' ? 'active' : ''}`} onClick={() => (onTabChange ? onTabChange('vaccine') : setLocalTab('vaccine'))}>{t('Vaccine')}</button>
+          <button className={`identity-tab ${activeTab === 'stock' ? 'active' : ''}`} onClick={() => (onTabChange ? onTabChange('stock') : setLocalTab('stock'))}>{t('Stock')}</button>
+          <button className={`identity-tab ${activeTab === 'service' ? 'active' : ''}`} onClick={() => (onTabChange ? onTabChange('service') : setLocalTab('service'))}>{t('Service')}</button>
+          <button className={`identity-tab ${activeTab === 'appointment' ? 'active' : ''}`} onClick={() => (onTabChange ? onTabChange('appointment') : setLocalTab('appointment'))}>{t('Appointment')}</button>
         </div>
         <div className="identity-owner-actions" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
-          <span className="identity-chip info">Toplam: {kpi.total}</span>
-          <span className="identity-chip success">Kullanıcı: {kpi.users}</span>
-          {kpi.lastTitle && <span className="identity-chip">Son: {kpi.lastTitle}</span>}
-          {kpi.lastTime && <span className="identity-chip warning">Zaman: {kpi.lastTime}</span>}
+          <span className="identity-chip info">{t('Total')}: {kpi.total}</span>
+          <span className="identity-chip success">{t('Users')}: {kpi.users}</span>
+          {kpi.lastTitle && <span className="identity-chip">{t('Last')}: {kpi.lastTitle}</span>}
+          {kpi.lastTime && <span className="identity-chip warning">{t('Time')}: {kpi.lastTime}</span>}
         </div>
         <div className="identity-input-group" style={{ marginBottom: 10 }}>
           <input
             className="identity-owner-input"
-            placeholder="Akışlarda ara..."
+            placeholder={t('SearchInFeeds')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{ fontSize: "0.9rem" }}
@@ -108,7 +111,7 @@ const fmt = (s) => {
           <button
             className="identity-btn identity-btn-xs"
             onClick={() => {
-              const header = ["Kullanıcı", "Başlık", "İkon", "Renk", "Tarih"];
+              const header = [t('User'), t('Title'), t('Icon'), t('Color'), t('Date')];
               const rows = feeds.map((f) => [
                 f.user_name,
                 f.title,
@@ -129,7 +132,7 @@ const fmt = (s) => {
             }}
             style={{ marginLeft: 8 }}
           >
-            Dışa Aktar
+            {t('Export')}
           </button>
         </div>
         <ListGroup
@@ -138,7 +141,7 @@ const fmt = (s) => {
           style={{ height: isMobile ? "300px" : "380px", maxHeight: isMobile ? "300px" : "380px", overflowY: "auto" }}
         >
           {feeds.length === 0 ? (
-            <ListGroupItem className="text-center">Akış yok</ListGroupItem>
+            <ListGroupItem className="text-center">{t('NoFeeds')}</ListGroupItem>
           ) : (
             feeds
               .filter((f) => {

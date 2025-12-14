@@ -3,6 +3,7 @@ import Chart from "react-apexcharts";
 import axiosInstance from "../../api/axiosInstance.ts";
 import { Layers, Percent, Download, ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import "../../views/ui/IdentityInfo.css";
+import { useLanguage } from "../../context/LanguageContext.js";
 
 const monthNames = [
   "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
@@ -10,6 +11,7 @@ const monthNames = [
 ];
 
 const ServiceUsageChartYear = () => {
+  const { t, lang } = useLanguage();
   const [series, setSeries] = useState([]);
   const [serviceNames, setServiceNames] = useState([]);
   const [selectedServices, setSelectedServices] = useState([]);
@@ -49,7 +51,7 @@ const ServiceUsageChartYear = () => {
       const map = {};
       for (const item of raw) {
         const m = (item.month || 1) - 1;
-        const name = item.service_name || "Bilinmiyor";
+        const name = item.service_name || t('Unknown');
         if (!map[name]) map[name] = new Array(12).fill(0);
         map[name][m] = Number(item.usage || 0);
       }
@@ -73,7 +75,7 @@ const ServiceUsageChartYear = () => {
     grid: { strokeDashArray: 3 },
     theme: { mode: "light" },
     colors: baseColors,
-    xaxis: { categories: monthNames.slice(windowRange.min, windowRange.max + 1) },
+    xaxis: { categories: (lang === 'en' ? ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"] : monthNames).slice(windowRange.min, windowRange.max + 1) },
     yaxis: { labels: { formatter: (v) => normalized ? `${Math.round(v)}%` : Math.round(v).toString() } },
     tooltip: { shared: true, intersect: false },
     markers: { size: 0 },
@@ -91,7 +93,7 @@ const ServiceUsageChartYear = () => {
     grid: { strokeDashArray: 3 },
     theme: { mode: "light" },
     colors: ["#0ea5e9"],
-    xaxis: { categories: monthNames.slice(windowRange.min, windowRange.max + 1) },
+    xaxis: { categories: (lang === 'en' ? ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"] : monthNames).slice(windowRange.min, windowRange.max + 1) },
     yaxis: { labels: { formatter: (v) => Math.round(v).toString() } },
     tooltip: { shared: true, intersect: false },
     responsive: [
@@ -130,7 +132,7 @@ const ServiceUsageChartYear = () => {
     const len = max - min + 1;
     const totals = new Array(len).fill(0);
     filteredSeries.forEach(s => s.data.slice(min, max + 1).forEach((v, i) => { totals[i] += v; }));
-    return [{ name: "Toplam", data: totals }];
+    return [{ name: t('Total'), data: totals }];
   }, [filteredSeries, windowRange]);
 
   const currentMonthIndex = new Date().getMonth();
@@ -189,45 +191,45 @@ const ServiceUsageChartYear = () => {
       }}>
         <div>
           <div className="identity-panel-title" style={{ fontSize: "1.75rem", fontWeight: 700, marginBottom: 4 }}>
-            🛠️ Yıllık Hizmet Kullanımı
+            🛠️ {t('YearlyServiceUsage')}
           </div>
           <div className="identity-panel-sub" style={{ fontSize: "1rem", opacity: 0.9 }}>
-            Detaylı analiz ve performans eğilimleri
+            {t('DetailedAnalysis')}
           </div>
         </div>
         <div className="identity-header-stats" style={{ gap: 12 }}>
           <div className="identity-stat-pill" style={{ background: "rgba(255, 255, 255, 0.2)", border: "none" }}>
-            🛠️ Toplam: <strong style={{ color: "#fff", fontSize: "1.1em" }}>{grandTotal}</strong>
+            🛠️ {t('Total')}: <strong style={{ color: "#fff", fontSize: "1.1em" }}>{grandTotal}</strong>
           </div>
           <div className="identity-stat-pill" style={{ background: "rgba(255, 255, 255, 0.2)", border: "none" }}>
-            📅 Bu Ay: <strong style={{ color: "#fff", fontSize: "1.1em" }}>{Math.round(currentMonthTotal)}</strong>
+            📅 {t('ThisMonth')}: <strong style={{ color: "#fff", fontSize: "1.1em" }}>{Math.round(currentMonthTotal)}</strong>
           </div>
           <div className="identity-stat-pill" style={{ 
             background: growth >= 0 ? "rgba(16, 185, 129, 0.3)" : "rgba(239, 68, 68, 0.3)",
             border: "none",
             color: growth >= 0 ? "#10b981" : "#ef4444"
           }}>
-            📈 Değişim: <strong>{growth >= 0 ? "+" : ""}{Math.round(growth)}%</strong>
+            📈 {t('Change')}: <strong>{growth >= 0 ? "+" : ""}{Math.round(growth)}%</strong>
           </div>
           <div className="identity-stat-pill" style={{ background: "rgba(255, 255, 255, 0.2)", border: "none" }}>
-            🏆 En Çok: <strong style={{ color: "#fff", fontSize: "1.1em" }}>{topService}</strong>
+            🏆 {t('Most')}: <strong style={{ color: "#fff", fontSize: "1.1em" }}>{topService}</strong>
           </div>
         </div>
       </div>
 
       <div className="identity-action-bar" style={{ flexWrap: "wrap", rowGap: 10, columnGap: 10 }}>
         <div className="identity-action-group" style={{ gap: 8 }}>
-          <button className="identity-btn identity-btn-xs" onClick={() => setWindowStart(s => Math.max(0, s - 1))}><ChevronLeft size={14} /> Önceki</button>
-          <button className="identity-btn identity-btn-xs" onClick={() => setWindowStart(s => Math.min(12 - windowSize, s + 1))}>Sonraki <ChevronRight size={14} /></button>
-          <button className={`identity-btn identity-btn-xs ${windowSize === 3 ? "identity-btn-primary" : ""}`} onClick={() => setWindowSize(3)}>3 Ay</button>
-          <button className={`identity-btn identity-btn-xs ${windowSize === 6 ? "identity-btn-primary" : ""}`} onClick={() => setWindowSize(6)}>6 Ay</button>
-          <button className={`identity-btn identity-btn-xs ${windowSize === 12 ? "identity-btn-primary" : ""}`} onClick={() => setWindowSize(12)}>12 Ay</button>
-          <button className={`identity-btn identity-btn-xs ${stacked ? "identity-btn-warning" : ""}`} onClick={() => setStacked(s => !s)}><Layers size={14} /> Yığılmış</button>
-          <button className={`identity-btn identity-btn-xs ${normalized ? "identity-btn-accent" : ""}`} onClick={() => setNormalized(n => !n)}><Percent size={14} /> %100</button>
+          <button className="identity-btn identity-btn-xs" onClick={() => setWindowStart(s => Math.max(0, s - 1))}><ChevronLeft size={14} /> {t('Previous')}</button>
+          <button className="identity-btn identity-btn-xs" onClick={() => setWindowStart(s => Math.min(12 - windowSize, s + 1))}>{t('Next')} <ChevronRight size={14} /></button>
+          <button className={`identity-btn identity-btn-xs ${windowSize === 3 ? "identity-btn-primary" : ""}`} onClick={() => setWindowSize(3)}>{t('Months3')}</button>
+          <button className={`identity-btn identity-btn-xs ${windowSize === 6 ? "identity-btn-primary" : ""}`} onClick={() => setWindowSize(6)}>{t('Months6')}</button>
+          <button className={`identity-btn identity-btn-xs ${windowSize === 12 ? "identity-btn-primary" : ""}`} onClick={() => setWindowSize(12)}>{t('Months12')}</button>
+          <button className={`identity-btn identity-btn-xs ${stacked ? "identity-btn-warning" : ""}`} onClick={() => setStacked(s => !s)}><Layers size={14} /> {t('Stacked')}</button>
+          <button className={`identity-btn identity-btn-xs ${normalized ? "identity-btn-accent" : ""}`} onClick={() => setNormalized(n => !n)}><Percent size={14} /> {t('Normalized100')}</button>
         </div>
         <div className="identity-action-group" style={{ marginLeft: "auto", gap: 8 }}>
-          <button className="identity-btn identity-btn-primary identity-btn-xs" onClick={exportCsv}><Download size={14} /> Dışa Aktar</button>
-          <button className="identity-btn identity-btn-xs" onClick={() => selectTopN(5)}>Top 5</button>
+          <button className="identity-btn identity-btn-primary identity-btn-xs" onClick={exportCsv}><Download size={14} /> {t('Export')}</button>
+          <button className="identity-btn identity-btn-xs" onClick={() => selectTopN(5)}>{t('Top5')}</button>
         </div>
       </div>
 
@@ -255,7 +257,7 @@ const ServiceUsageChartYear = () => {
               }}>
                 <div className="identity-section-header">
                   <h3 className="identity-card-title" style={{ color: "#6b21a8", fontSize: "1.1rem" }}>
-                    🛠️ Hizmet İsimleri
+                    🛠️ {t('ServiceNames')}
                   </h3>
                 </div>
                 <div className="identity-input-group" style={{ 
@@ -267,7 +269,7 @@ const ServiceUsageChartYear = () => {
                   <Search className="identity-input-icon" size={16} color="#64748b" />
                   <input 
                     className="identity-owner-input" 
-                    placeholder="Hizmet ara..." 
+                    placeholder={t('SearchServicePlaceholder')} 
                     value={serviceFilter} 
                     onChange={(e) => setServiceFilter(e.target.value)}
                     style={{ fontSize: "0.9rem" }}
@@ -303,13 +305,13 @@ const ServiceUsageChartYear = () => {
                   marginTop: 8
                 }}>
                   <button className="identity-btn identity-btn-primary identity-btn-xs" onClick={selectAll}>
-                    ✅ Hepsini Seç
+                    ✅ {t('SelectAll')}
                   </button>
                   <button className="identity-btn identity-btn-ghost identity-btn-xs" onClick={clearSelection}>
-                    🗑️ Temizle
+                    🗑️ {t('Clear')}
                   </button>
                   <button className="identity-btn identity-btn-accent identity-btn-xs" onClick={() => selectTopN(5)}>
-                    🏆 Top 5
+                    🏆 {t('Top5')}
                   </button>
                 </div>
                 <div style={{ 
@@ -326,7 +328,7 @@ const ServiceUsageChartYear = () => {
                   alignContent: "flex-start"
                 }}>
                   <div style={{ fontSize: "0.8rem", color: "#64748b", marginBottom: 4 }}>
-                    Seçilen Hizmetler ({selectedServices.length}):
+                    {t('SelectedServices')} ({selectedServices.length}):
                   </div>
                   {selectedServices.map((n) => (
                     <span key={n} className="identity-stat-pill" style={{ 
@@ -366,7 +368,7 @@ const ServiceUsageChartYear = () => {
                   }}>
                     <div className="identity-section-header">
                       <h3 className="identity-card-title" style={{ color: "#334155", fontSize: "1.1rem" }}>
-                        📊 Aylık Toplamlar
+                        📊 {t('MonthlyTotals')}
                       </h3>
                     </div>
                     <div style={{ flex: 1, display: "flex", alignItems: "center" }}>
@@ -382,7 +384,7 @@ const ServiceUsageChartYear = () => {
                   }}>
                     <div className="identity-section-header">
                       <h3 className="identity-card-title" style={{ color: "#0c4a6e", fontSize: "1.1rem" }}>
-                        🎯 Hizmet Dağılımı
+                        🎯 {t('ServiceDistribution')}
                       </h3>
                     </div>
                     <div style={{ flex: 1, display: "flex", alignItems: "center" }}>
@@ -413,7 +415,7 @@ const ServiceUsageChartYear = () => {
                     }}>
                       <div className="identity-section-header">
                         <h3 className="identity-card-title" style={{ color: "#166534", fontSize: "1rem" }}>
-                          🥇 En Çok Kullanılan Hizmet
+                          🥇 {t('MostUsedService')}
                         </h3>
                       </div>
                       <Chart type="line" width="100%" height={120} options={{ 

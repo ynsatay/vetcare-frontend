@@ -3,8 +3,10 @@ import "./AddPaymentProcess.css";
 import { DataGrid } from "@mui/x-data-grid";
 import axiosInstance from "../../api/axiosInstance.ts";
 import { trTR } from '@mui/x-data-grid/locales';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 const AddPaymentProcess = ({ pa_id, vet_u_id }) => {
+  const { t, lang } = useLanguage();
   const [unpaidRows, setUnpaidRows] = useState([]);
   const [paidRows, setPaidRows] = useState([]);
   const [selectedUnpaid, setSelectedUnpaid] = useState([]);
@@ -108,12 +110,12 @@ const AddPaymentProcess = ({ pa_id, vet_u_id }) => {
   const columns = [
     {
       field: "process_name",
-      headerName: "İşlem",
+      headerName: t('Process'),
       width: 300,
       flex: 2,
       renderCell: (params) => {
         if (params.row.isMaster) {
-          return <strong>{`Tahsilat ID: ${params.row.id.replace("master-", "")}`} </strong>;
+          return <strong>{`${t('Payments') } ID: ${params.row.id.replace("master-", "")}`} </strong>;
         } else if (params.row.isDetail) {
           return <span style={{ paddingLeft: 30 }}>{params.value} </span>;
         }
@@ -122,21 +124,21 @@ const AddPaymentProcess = ({ pa_id, vet_u_id }) => {
     },
     {
       field: "total_prices",
-      headerName: "Tutar",
+      headerName: t('Amount'),
       width: 100,
       flex: 1,
       valueFormatter: (params) => params.value ? `${params.value} ₺` : ''
     },
     {
       field: "ptime",
-      headerName: "Ödeme Tarihi",
+      headerName: t('PaymentDate'),
       width: 160,
       flex: 1,
       valueGetter: (params) => (params.row.isMaster ? params.row.ptime : ""),
       valueFormatter: (params) => {
         if (!params.value) return "";
         const date = new Date(params.value);
-        return date.toLocaleDateString("tr-TR", {
+        return date.toLocaleDateString(lang === 'en' ? 'en-GB' : 'tr-TR', {
           day: "2-digit",
           month: "2-digit",
           year: "numeric",
@@ -147,7 +149,7 @@ const AddPaymentProcess = ({ pa_id, vet_u_id }) => {
     },
     {
       field: "type",
-      headerName: "Ödeme Türü",
+      headerName: t('PaymentType'),
       width: 130,
       flex: 1,
       valueGetter: (params) => (params.row.isMaster ? params.row.type : ""),
@@ -233,9 +235,9 @@ const AddPaymentProcess = ({ pa_id, vet_u_id }) => {
     <div className="payment-modal">
       <div className="payment-card">
         <div className="payment-header">
-          <h3>Ödenmemiş İşlemler</h3>
+          <h3>{t('UnpaidProcesses')}</h3>
           <div className="payment-actions">
-            <button className="payment-btn payment-primary" onClick={handlePayment} disabled={selectedUnpaid.length === 0}>Seçilenleri Tahsil Et</button>
+            <button className="payment-btn payment-primary" onClick={handlePayment} disabled={selectedUnpaid.length === 0}>{t('CollectSelected')}</button>
           </div>
         </div>
         <div className="payment-data-grid">
@@ -243,14 +245,14 @@ const AddPaymentProcess = ({ pa_id, vet_u_id }) => {
             rows={unpaidRows}
             columns={[
               { field: "id", headerName: "ID", width: 70, flex: 1 },
-              { field: "process_name", headerName: "İşlem", width: 200, flex: 2 },
-              { field: "total_price", headerName: "Tutar", width: 100, flex: 1 },
+              { field: "process_name", headerName: t('Process'), width: 200, flex: 2 },
+              { field: "total_price", headerName: t('Amount'), width: 100, flex: 1 },
               {
-                field: "ctime", headerName: "Tarih", width: 150, flex: 1,
+                field: "ctime", headerName: t('Date'), width: 150, flex: 1,
                 valueFormatter: (params) => {
                   if (!params.value) return "";
                   const date = new Date(params.value);
-                  return date.toLocaleDateString("tr-TR", {
+                  return date.toLocaleDateString(lang === 'en' ? 'en-GB' : 'tr-TR', {
                     day: "2-digit",
                     month: "2-digit",
                     year: "numeric",
@@ -269,8 +271,8 @@ const AddPaymentProcess = ({ pa_id, vet_u_id }) => {
             localeText={{
               ...trTR.components.MuiDataGrid.defaultProps.localeText,
               footerRowSelected: (count) =>
-                count > 1
-                  ? `${count.toLocaleString()} satır seçildi`
+                lang === 'en'
+                  ? `${count.toLocaleString()} row selected`
                   : `${count.toLocaleString()} satır seçildi`,
             }}
           />
@@ -279,10 +281,10 @@ const AddPaymentProcess = ({ pa_id, vet_u_id }) => {
 
       <div className="payment-card">
         <div className="payment-header">
-          <h3>Yapılmış Tahsilatlar</h3>
+          <h3>{t('PaymentsDone')}</h3>
           <div className="payment-actions">
-            <button className="payment-btn payment-danger" onClick={handleDeletePayment} disabled={selectedPaid.length === 0}>Seçilen Tahsilatı Sil</button>
-            <button className="payment-btn payment-ghost" onClick={() => handlePrint(selectedPaid)} disabled={selectedPaid.length === 0}>Fatura Yazdır</button>
+            <button className="payment-btn payment-danger" onClick={handleDeletePayment} disabled={selectedPaid.length === 0}>{t('DeleteSelectedPayment')}</button>
+            <button className="payment-btn payment-ghost" onClick={() => handlePrint(selectedPaid)} disabled={selectedPaid.length === 0}>{t('PrintInvoice')}</button>
           </div>
         </div>
         <div className="payment-data-grid">
@@ -306,8 +308,8 @@ const AddPaymentProcess = ({ pa_id, vet_u_id }) => {
             localeText={{
               ...trTR.components.MuiDataGrid.defaultProps.localeText,
               footerRowSelected: (count) =>
-                count > 1
-                  ? `${count.toLocaleString()} satır seçildi`
+                lang === 'en'
+                  ? `${count.toLocaleString()} row selected`
                   : `${count.toLocaleString()} satır seçildi`,
             }}
           />

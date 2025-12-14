@@ -44,9 +44,11 @@ import "../scss/_login.scss";
 import axios from 'axios';
 import { AuthContext } from '../../context/usercontext.tsx';
 import { BASE_URL } from "../../config.js";
+import { useLanguage } from '../../context/LanguageContext.js';
 
 
 const Login = () => {
+  const { t, setLanguage, lang } = useLanguage();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -60,8 +62,19 @@ const Login = () => {
   const [fpPhone, setFpPhone] = useState('');
   const [fpNote, setFpNote] = useState('');
   const [fpStatus, setFpStatus] = useState('');
+  const [fpStatusType, setFpStatusType] = useState('error');
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    try {
+      const m = document.cookie.match(new RegExp('(^| )vetcare_lang=([^;]+)'));
+      const saved = m ? m[2] : null;
+      if (saved && (saved === 'en' || saved === 'tr') && saved !== lang) {
+        setLanguage(saved);
+      }
+    } catch {}
+  }, []);
 
   useEffect(() => {
     const fetchOffices = async () => {
@@ -73,7 +86,7 @@ const Login = () => {
           setSelectedOffice(res.data[0].id);
         }
       } catch (error) {
-        console.error('Ofisler çekilirken hata:', error);
+        console.error('Error fetching offices:', error);
       }
     };
 
@@ -86,7 +99,7 @@ const Login = () => {
     setLoading(true);
 
     if (username === '' || password === '') {
-      setMessage('Kullanıcı adı ve şifre gereklidir');
+      setMessage(t('UsernameAndPasswordRequired'));
       setMessageType('error');
       setLoading(false);
       return;
@@ -99,7 +112,7 @@ const Login = () => {
         office_id: selectedOffice,
       });
 
-      setMessage(`Giriş başarılı: ${response.data.message}`);
+      setMessage(t('LoginSuccessful'));
       setMessageType('success');
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('userid', response.data.userid);
@@ -123,9 +136,9 @@ const Login = () => {
       localStorage.setItem('token', '');
       setLoading(false);
       if (error.response) {
-        setMessage(`Hata: ${error.response.data.error}`);
+        setMessage(`${t('ErrorLabel')}: ${error.response.data.error}`);
       } else {
-        setMessage('Bir hata oluştu. Lütfen tekrar deneyin.');
+        setMessage(t('ErrorTryAgain'));
       }
       setMessageType('error');
       console.error('Error:', error);
@@ -144,12 +157,14 @@ const Login = () => {
         }
       });
       if (!mailCheckRes.data.exists) {
-        setFpStatus('Bu e-posta adresi kayıtlı değil.');
+        setFpStatus(t('EmailNotRegistered'));
+        setFpStatusType('error');
         return;
       }
     } catch (error) {
-      console.error('Mail kontrol hatası:', error);
-      setFpStatus('E-posta doğrulama sırasında bir hata oluştu.');
+      console.error('Mail control error:', error);
+      setFpStatus(t('EmailVerificationError'));
+      setFpStatusType('error');
       return;
     }
     try {
@@ -158,31 +173,33 @@ const Login = () => {
         phone: fpPhone,
         note: fpNote,
       });
-      setFpStatus('Talebiniz alındı. Kısa sürede dönüş yapılacaktır.');
+      setFpStatus(t('RequestReceived'));
+      setFpStatusType('success');
       setFpEmail('');
       setFpPhone('');
       setFpNote('');
       setTimeout(() => setForgotOpen(false), 2000);
     } catch (error) {
       console.error('Forgot password request error:', error);
-      setFpStatus('Gönderilemedi, lütfen daha sonra tekrar deneyin.');
+      setFpStatus(t('RequestFailedTryLater'));
+      setFpStatusType('error');
     }
   };
 
   const features = [
-    { icon: faHeartbeat, text: 'Hasta Takibi', color: '#ff6b6b' },
-    { icon: faCalendarCheck, text: 'Randevu Yönetimi', color: '#4ecdc4' },
-    { icon: faFileMedical, text: 'Dijital Dosya', color: '#45b7d1' },
-    { icon: faChartLine, text: 'Raporlama', color: '#f9ca24' },
-    { icon: faShieldAlt, text: 'Güvenli Sistem', color: '#6c5ce7' },
-    { icon: faUsers, text: 'Ekip Yönetimi', color: '#a29bfe' }
+    { icon: faHeartbeat, text: t('LoginFeaturePatientTracking'), color: '#ff6b6b' },
+    { icon: faCalendarCheck, text: t('LoginFeatureAppointmentManagement'), color: '#4ecdc4' },
+    { icon: faFileMedical, text: t('LoginFeatureDigitalFile'), color: '#45b7d1' },
+    { icon: faChartLine, text: t('LoginFeatureReporting'), color: '#f9ca24' },
+    { icon: faShieldAlt, text: t('LoginFeatureSecureSystem'), color: '#6c5ce7' },
+    { icon: faUsers, text: t('LoginFeatureTeamManagement'), color: '#a29bfe' }
   ];
 
   const stats = [
-    { number: '10K+', label: 'Aktif Hasta' },
-    { number: '500+', label: 'Veteriner Hekim' },
-    { number: '50+', label: 'Klinik' },
-    { number: '99%', label: 'Memnuniyet' }
+    { number: '10K+', label: t('ActivePatients') },
+    { number: '500+', label: t('Veterinarians') },
+    { number: '50+', label: t('Clinics') },
+    { number: '99%', label: t('Satisfaction') }
   ];
 
   return (
@@ -208,10 +225,10 @@ const Login = () => {
               <div className='login-features-header'>
                 <img src={MenuLogo2} alt="Vetcare Logo" className='features-logo' />
                 <Typography variant="h2" className='features-title'>
-                  Veteriner Hekimlik Yönetim Sistemi
+                  {t('VeterinaryManagementSystem')}
                 </Typography>
                 <Typography variant="body1" className='features-subtitle'>
-                  Modern teknoloji ile hayvan sağlığını yönetin
+                  {t('FeaturesHeroSubtitle')}
                 </Typography>
               </div>
 
@@ -256,11 +273,11 @@ const Login = () => {
               <div className='features-footer'>
                 <div className='trust-badge'>
                   <FontAwesomeIcon icon={faShieldAlt} className='trust-icon' />
-                  <span>Güvenli ve Şifrelenmiş</span>
+                  <span>{t('SecuredAndEncrypted')}</span>
                 </div>
                 <div className='trust-badge'>
                   <FontAwesomeIcon icon={faClock} className='trust-icon' />
-                  <span>7/24 Destek</span>
+                  <span>{t('Support247')}</span>
                 </div>
               </div>
             </div>
@@ -276,10 +293,10 @@ const Login = () => {
                   <img src={MenuLogo2} alt="Vetcare Logo" className='login-logo' />
                 </div>
                 <Typography variant="h3" className='login-title'>
-                  Hoş Geldiniz
+                  {t('Welcome')}
                 </Typography>
                 <Typography variant="body2" className='login-subtitle'>
-                  Hesabınıza giriş yaparak devam edin
+                  {t('LoginSubtitle')}
                 </Typography>
               </div>
 
@@ -300,17 +317,17 @@ const Login = () => {
                     }}
                   />
                   <FormControl fullWidth className='login-form-field' required>
-                    <InputLabel id="office-select-label">Ofis Seçin</InputLabel>
+                    <InputLabel id="office-select-label">{t('SelectOffice')}</InputLabel>
                     <Select
                       labelId="office-select-label"
                       value={selectedOffice}
-                      label="Ofis Seçin"
+                      label={t('SelectOffice')}
                       onChange={e => setSelectedOffice(e.target.value)}
                     >
                       {offices.map(office => (
                         <MenuItem key={office.id} value={office.id}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            {office.name || `Ofis #${office.id}`}
+                            {office.name || `${t('Office')} #${office.id}`}
                           </Box>
                         </MenuItem>
                       ))}
@@ -320,7 +337,7 @@ const Login = () => {
 
                 <TextField
                   className='login-form-field'
-                  label="Kullanıcı Adı"
+                  label={t('Username')}
                   variant="outlined"
                   fullWidth
                   required
@@ -337,7 +354,7 @@ const Login = () => {
 
                 <TextField
                   className='login-form-field'
-                  label="Şifre"
+                  label={t('Password')}
                   type={showPassword ? 'text' : 'password'}
                   variant="outlined"
                   fullWidth
@@ -393,10 +410,10 @@ const Login = () => {
                   {loading ? (
                     <>
                       <CircularProgress size={20} sx={{ mr: 1, color: 'white' }} />
-                      Giriş yapılıyor...
+                      {t('LoggingIn')}
                     </>
                   ) : (
-                    'Giriş Yap'
+                    t('Login')
                   )}
                 </Button>
 
@@ -404,12 +421,12 @@ const Login = () => {
                   <Button
                     variant="text"
                     size="small"
-                    onClick={() => setForgotOpen(true)}
-                    className='forgot-password-button'
-                  >
-                    Şifremi Unuttum
-                  </Button>
-                </div>
+                  onClick={() => setForgotOpen(true)}
+                  className='forgot-password-button'
+                >
+                  {t('ForgotPassword')}
+                </Button>
+              </div>
               </form>
             </Box>
           </Fade>
@@ -433,17 +450,17 @@ const Login = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <FontAwesomeIcon icon={faLock} style={{ fontSize: 24 }} />
             <Typography variant="h6" sx={{ fontWeight: 600 }}>
-              Şifre Sıfırlama Talebi
+              {t('PasswordResetRequest')}
             </Typography>
           </Box>
         </DialogTitle>
         <DialogContent className='forgot-dialog-content'>
           <Typography variant="body2" className='forgot-dialog-description'>
-            Lütfen kayıtlı e-posta adresinizi ve iletişim numaranızı girin. Talebiniz ekibimize iletilecek ve kısa sürede size dönüş yapılacaktır.
+            {t('ForgotDialogDescription')}
           </Typography>
           <form id="forgot-form" onSubmit={handleForgotSubmit} className='forgot-form'>
             <TextField
-              label="E-Posta"
+              label={t('Email')}
               type="email"
               fullWidth
               required
@@ -459,7 +476,7 @@ const Login = () => {
               sx={{ mb: 2 }}
             />
             <TextField
-              label="Telefon (opsiyonel)"
+              label={t('PhoneOptional')}
               fullWidth
               value={fpPhone}
               onChange={(e) => setFpPhone(e.target.value)}
@@ -473,7 +490,7 @@ const Login = () => {
               sx={{ mb: 2 }}
             />
             <TextField
-              label="Not (opsiyonel)"
+              label={t('NoteOptional')}
               multiline
               minRows={3}
               fullWidth
@@ -489,7 +506,7 @@ const Login = () => {
             />
             {fpStatus && (
               <Alert
-                severity={fpStatus.includes('alındı') ? 'success' : 'error'}
+                severity={fpStatusType}
                 sx={{ mt: 2, borderRadius: 2 }}
               >
                 {fpStatus}
@@ -510,7 +527,7 @@ const Login = () => {
               }
             }}
           >
-            İptal
+            {t('Cancel')}
           </Button>
           <Button
             type="submit"
@@ -518,7 +535,7 @@ const Login = () => {
             variant="contained"
             className='forgot-submit-button'
           >
-            Talep Gönder
+            {t('SubmitRequest')}
           </Button>
         </DialogActions>
       </Dialog>

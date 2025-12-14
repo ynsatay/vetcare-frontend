@@ -8,6 +8,7 @@ import Office from '../popup/Offices';
 import MainModal from '../../components/MainModal';
 import axiosInstance from '../../api/axiosInstance.ts';
 import { trTR } from '@mui/x-data-grid/locales';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 const OfficeList = () => {
   const [officelist, setOfficelist] = useState([]);
@@ -21,6 +22,7 @@ const OfficeList = () => {
     email: '',
     phone: '',
   });
+  const { t, lang } = useLanguage();
 
   useEffect(() => {
     fetchOfficeList();
@@ -82,20 +84,20 @@ const OfficeList = () => {
   };
 
   const columns = [
-    { field: 'name', headerName: 'Şube Adı', flex: 1, minWidth: 150 },
-    { field: 'clinic_name', headerName: 'Klinik Adı', flex: 1, minWidth: 150 },
-    { field: 'admin_name', headerName: 'Yönetici Adı', flex: 1, minWidth: 130 },
+    { field: 'name', headerName: t('BranchName'), flex: 1, minWidth: 150 },
+    { field: 'clinic_name', headerName: t('ClinicName'), flex: 1, minWidth: 150 },
+    { field: 'admin_name', headerName: t('AdministratorName'), flex: 1, minWidth: 130 },
     { field: 'email', headerName: 'Email', flex: 1, minWidth: 180 },
-    { field: 'phone', headerName: 'Telefon', flex: 0.7, minWidth: 120 },
+    { field: 'phone', headerName: t('Phone'), flex: 0.7, minWidth: 120 },
     {
       field: 'actions',
-      headerName: 'Değiştir',
+      headerName: t('EditAction'),
       sortable: false,
       flex: 0.5,
       minWidth: 100,
       renderCell: (params) => (
         <Button color="primary" size="sm" onClick={() => toggleModal(params.api.getRowIndex(params.id))}>
-          Değiştir
+          {t('EditAction')}
         </Button>
       ),
     },
@@ -105,8 +107,8 @@ const OfficeList = () => {
     <div>
       <Card>
         <CardBody>
-          <CardTitle tag="h5">🏛️ Ofis Listesi</CardTitle>
-          <CardSubtitle className="mb-2 text-muted" tag="h6">Kliniğe Bağlı Ofisler</CardSubtitle>
+          <CardTitle tag="h5">🏛️ {t('OfficeListTitle')}</CardTitle>
+          <CardSubtitle className="mb-2 text-muted" tag="h6">{t('ClinicOffices')}</CardSubtitle>
 
           <div style={{ height: 500, width: '100%', overflowX: 'auto' }}>
             <DataGrid
@@ -118,8 +120,8 @@ const OfficeList = () => {
               localeText={{
                 ...trTR.components.MuiDataGrid.defaultProps.localeText,
                 footerRowSelected: (count) =>
-                  count > 1
-                    ? `${count.toLocaleString()} satır seçildi`
+                  lang === 'en'
+                    ? `${count.toLocaleString()} row selected`
                     : `${count.toLocaleString()} satır seçildi`,
               }}
             />
@@ -129,12 +131,12 @@ const OfficeList = () => {
 
       {/* Edit Modal */}
       <Modal isOpen={modalOpen} toggle={() => toggleModal(null)}>
-        <ModalHeader toggle={() => toggleModal(selectedOfficeIndex)}>Ofis Güncelle</ModalHeader>
+        <ModalHeader toggle={() => toggleModal(selectedOfficeIndex)}>{t('UpdateOffice')}</ModalHeader>
         <ModalBody>
           {selectedOfficeIndex !== null && (
             <>
               <FormGroup>
-                <Label for="name">Ofis Adı</Label>
+                <Label for="name">{t('OfficeListTitle')}</Label>
                 <Input
                   type="text"
                   id="name"
@@ -152,7 +154,7 @@ const OfficeList = () => {
                 />
               </FormGroup>
               <FormGroup>
-                <Label for="phone">Telefon</Label>
+                <Label for="phone">{t('Phone')}</Label>
                 <Input
                   type="text"
                   id="phone"
@@ -164,18 +166,18 @@ const OfficeList = () => {
           )}
         </ModalBody>
         <ModalFooter>
-          <Button color="primary" onClick={handleSaveChanges}>Kaydet</Button>{' '}
-          <Button color="secondary" onClick={() => toggleModal(selectedOfficeIndex)}>İptal</Button>
+          <Button color="primary" onClick={handleSaveChanges}>{t('Save')}</Button>{' '}
+          <Button color="secondary" onClick={() => toggleModal(selectedOfficeIndex)}>{t('Cancel')}</Button>
         </ModalFooter>
       </Modal>
 
       <MainModal
         isOpen={isAddModalOpen}
         toggle={handleOfficeClose}
-        title="Şube Ekle"
+        title={t('AddBranch')}
         content={<Office onClose={handleOfficeClose} />}
         onSave={handleSave}
-        saveButtonLabel="Ekle"
+        saveButtonLabel={t('Add')}
       />
     </div>
   );

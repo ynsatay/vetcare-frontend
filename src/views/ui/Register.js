@@ -5,8 +5,10 @@ import axios from 'axios';
 import { AuthContext } from '../../context/usercontext.tsx';
 import MenuLogo from '../../assets/images/logos/vc2.png';
 import { BASE_URL } from "../../config.js";
+import { useLanguage } from '../../context/LanguageContext.js';
 
 const Register = () => {
+    const { t } = useLanguage();
     const [name, setName] = useState('');
     const [surname, setSurname] = useState('');
     const [username, setUsername] = useState('');
@@ -33,7 +35,7 @@ const Register = () => {
         e.preventDefault();
         if (!name || !surname || !username || !password || !passwordAgain || !email ||
             !cardName || !cardNumber || !expiryDate || !cvc) {
-            setMessage('Tüm alanları doldurunuz!');
+            setMessage(t('PleaseFillRequiredFields'));
             return;
         }
         try {
@@ -88,10 +90,10 @@ const Register = () => {
             <Paper elevation={6} sx={{ maxWidth: 500, width: '100%', p: 4 }}>
                 <Box textAlign="center" mb={3}>
                     <img src={MenuLogo} alt="Logo" style={{ height: 80 }} />
-                    <Typography variant="h5" mt={2}>Kayıt Ol</Typography>
+                    <Typography variant="h5" mt={2}>{t('Register')}</Typography>
                     {selectedPlan && (
                         <Typography variant="subtitle1" color="primary">
-                            Seçilen Plan: {selectedPlan}
+                            {t('SelectedPlan')}: {selectedPlan}
                         </Typography>
                     )}
                 </Box>
@@ -101,56 +103,56 @@ const Register = () => {
 
                         {/* Klinik Bilgileri */}
                         <Grid item xs={12}>
-                            <Typography variant="subtitle1" fontWeight="bold">Klinik Bilgileri</Typography>
+                            <Typography variant="subtitle1" fontWeight="bold">{t('ClinicInformation')}</Typography>
                         </Grid>
                         <Grid item xs={12}>
-                            <TextField fullWidth size="small" label="Klinik Adı" value={clinicName} onChange={(e) => setClinicName(e.target.value)} />
+                            <TextField fullWidth size="small" label={t('ClinicName')} value={clinicName} onChange={(e) => setClinicName(e.target.value)} />
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                            <TextField fullWidth size="small" label="Klinik Telefon" value={clinicPhone} onChange={(e) => setClinicPhone(e.target.value)} />
+                            <TextField fullWidth size="small" label={t('Phone')} value={clinicPhone} onChange={(e) => setClinicPhone(e.target.value)} />
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                            <TextField fullWidth size="small" label="Klinik Adres" value={clinicAddress} onChange={(e) => setClinicAddress(e.target.value)} />
+                            <TextField fullWidth size="small" label={t('Address')} value={clinicAddress} onChange={(e) => setClinicAddress(e.target.value)} />
                         </Grid>
 
                         {/* Kullanıcı Bilgileri */}
                         <Grid item xs={12}>
-                            <Typography variant="subtitle1" fontWeight="bold">Kullanıcı Bilgileri</Typography>
+                            <Typography variant="subtitle1" fontWeight="bold">{t('UserInformation')}</Typography>
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                            <TextField fullWidth size="small" label="Ad" value={name} onChange={(e) => setName(e.target.value)} />
+                            <TextField fullWidth size="small" label={t('Name')} value={name} onChange={(e) => setName(e.target.value)} />
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                            <TextField fullWidth size="small" label="Soyad" value={surname} onChange={(e) => setSurname(e.target.value)} />
+                            <TextField fullWidth size="small" label={t('Surname')} value={surname} onChange={(e) => setSurname(e.target.value)} />
                         </Grid>
                         <Grid item xs={12}>
-                            <TextField fullWidth size="small" label="Kullanıcı Adı" value={username} onChange={(e) => setUsername(e.target.value)} />
+                            <TextField fullWidth size="small" label={t('Username')} value={username} onChange={(e) => setUsername(e.target.value)} />
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                            <TextField fullWidth size="small" label="Şifre" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                            <TextField fullWidth size="small" label={t('Password')} type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                            <TextField fullWidth size="small" label="Şifre Tekrar" type="password" value={passwordAgain} onChange={(e) => setPasswordAgain(e.target.value)} />
+                            <TextField fullWidth size="small" label={t('RepeatNewPassword')} type="password" value={passwordAgain} onChange={(e) => setPasswordAgain(e.target.value)} />
                         </Grid>
                         <Grid item xs={12}>
-                            <TextField fullWidth size="small" label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                            <TextField fullWidth size="small" label={t('Email')} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
                         </Grid>
 
                         {/* Ödeme Bilgileri */}
                         <Grid item xs={12}>
-                            <Typography variant="subtitle1" fontWeight="bold">Ödeme Bilgileri</Typography>
+                            <Typography variant="subtitle1" fontWeight="bold">{t('PaymentInformation')}</Typography>
                         </Grid>
                         <Grid item xs={12}>
-                            <TextField fullWidth size="small" label="Kart Üzerindeki İsim" value={cardName} onChange={(e) => setCardName(e.target.value)} />
+                            <TextField fullWidth size="small" label={t('CardName')} value={cardName} onChange={(e) => setCardName(e.target.value)} />
                         </Grid>
                         <Grid item xs={12}>
-                            <TextField fullWidth size="small" label="Kart Numarası" placeholder="**** **** **** ****" inputProps={{ maxLength: 19 }} value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} />
+                            <TextField fullWidth size="small" label={t('CardNumber')} placeholder="**** **** **** ****" inputProps={{ maxLength: 19 }} value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} />
                         </Grid>
                         <Grid item xs={6}>
-                            <TextField fullWidth size="small" label="Son Kullanma Tarihi (MM/YY)" placeholder="MM/YY" value={expiryDate} onChange={(e) => setExpiryDate(e.target.value)} />
+                            <TextField fullWidth size="small" label={t('ExpiryDate')} placeholder="MM/YY" value={expiryDate} onChange={(e) => setExpiryDate(e.target.value)} />
                         </Grid>
                         <Grid item xs={6}>
-                            <TextField fullWidth size="small" label="CVC" placeholder="123" inputProps={{ maxLength: 4 }} value={cvc} onChange={(e) => setCvc(e.target.value)} />
+                            <TextField fullWidth size="small" label={t('CVC')} placeholder="123" inputProps={{ maxLength: 4 }} value={cvc} onChange={(e) => setCvc(e.target.value)} />
                         </Grid>
 
                         {/* Hata mesajı ve buton */}
@@ -161,7 +163,7 @@ const Register = () => {
                         )}
                         <Grid item xs={12}>
                             <Button type="submit" variant="contained" color="primary" fullWidth>
-                                Kaydol
+                                {t('Register')}
                             </Button>
                         </Grid>
 

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Stack, FormControlLabel, Switch, Select, MenuItem, Box, Typography } from '@mui/material';
+import { useLanguage } from '../../context/LanguageContext.js';
 const NotificationsModal = ({ open, onClose, onSave, initial }) => {
   const [prefs, setPrefs] = useState({ email: true, sms: false, push: true, frequency: 'daily' });
+  const { t } = useLanguage();
   useEffect(() => {
     setPrefs({
       email: initial?.email ?? true,
@@ -17,7 +19,7 @@ const NotificationsModal = ({ open, onClose, onSave, initial }) => {
           <Box sx={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg,#f093fb,#667eea)', boxShadow: '0 8px 20px rgba(240,147,251,0.35)' }}>
             <Typography sx={{ fontSize: 22 }}>🔔</Typography>
           </Box>
-          <Typography variant="h6" fontWeight={700}>Bildirim Ayarları</Typography>
+          <Typography variant="h6" fontWeight={700}>{t('Notifications')}</Typography>
         </Box>
       </DialogTitle>
       <DialogContent dividers sx={{ p: 2.5 }}>
@@ -28,37 +30,37 @@ const NotificationsModal = ({ open, onClose, onSave, initial }) => {
                 <Box sx={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(102,126,234,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✉️</Box>
                 <Typography fontWeight={600}>E-posta</Typography>
               </Box>
-              <FormControlLabel control={<Switch checked={prefs.email} onChange={(e) => setPrefs(p => ({ ...p, email: e.target.checked }))} />} label="Aktif" />
+              <FormControlLabel control={<Switch checked={prefs.email} onChange={(e) => setPrefs(p => ({ ...p, email: e.target.checked }))} />} label="Active" />
             </Box>
             <Box sx={{ p: 2, border: '1px solid #e2e8f0', borderRadius: 2, background: 'linear-gradient(180deg,#fff,#f8fafc)' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
                 <Box sx={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(245,87,108,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>📱</Box>
                 <Typography fontWeight={600}>SMS</Typography>
               </Box>
-              <FormControlLabel control={<Switch checked={prefs.sms} onChange={(e) => setPrefs(p => ({ ...p, sms: e.target.checked }))} />} label="Aktif" />
+              <FormControlLabel control={<Switch checked={prefs.sms} onChange={(e) => setPrefs(p => ({ ...p, sms: e.target.checked }))} />} label="Active" />
             </Box>
             <Box sx={{ p: 2, border: '1px solid #e2e8f0', borderRadius: 2, background: 'linear-gradient(180deg,#fff,#f8fafc)' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
                 <Box sx={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>📲</Box>
                 <Typography fontWeight={600}>Push</Typography>
               </Box>
-              <FormControlLabel control={<Switch checked={prefs.push} onChange={(e) => setPrefs(p => ({ ...p, push: e.target.checked }))} />} label="Aktif" />
+              <FormControlLabel control={<Switch checked={prefs.push} onChange={(e) => setPrefs(p => ({ ...p, push: e.target.checked }))} />} label="Active" />
             </Box>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Typography sx={{ minWidth: 110 }} color="text.secondary">Sıklık</Typography>
+            <Typography sx={{ minWidth: 110 }} color="text.secondary">{t('Frequency')}</Typography>
             <Select value={prefs.frequency} onChange={(e) => setPrefs(p => ({ ...p, frequency: e.target.value }))} fullWidth>
-              <MenuItem value="instant">Anlık</MenuItem>
-              <MenuItem value="hourly">Saatlik</MenuItem>
-              <MenuItem value="daily">Günlük</MenuItem>
-              <MenuItem value="weekly">Haftalık</MenuItem>
+              <MenuItem value="instant">{t('Instant')}</MenuItem>
+              <MenuItem value="hourly">{t('Hourly')}</MenuItem>
+              <MenuItem value="daily">{t('Daily')}</MenuItem>
+              <MenuItem value="weekly">{t('Weekly')}</MenuItem>
             </Select>
           </Box>
         </Stack>
       </DialogContent>
       <DialogActions sx={{ p: 2, justifyContent: 'space-between' }}>
-        <Button onClick={onClose} color="secondary" sx={{ borderRadius: 2 }}>İptal</Button>
-        <Button onClick={() => onSave?.(prefs)} variant="contained" sx={{ borderRadius: 2, background: 'linear-gradient(135deg,#f093fb,#667eea)' }}>Kaydet</Button>
+        <Button onClick={onClose} color="secondary" sx={{ borderRadius: 2 }}>{t('Cancel')}</Button>
+        <Button onClick={() => onSave?.(prefs)} variant="contained" sx={{ borderRadius: 2, background: 'linear-gradient(135deg,#f093fb,#667eea)' }}>{t('Save')}</Button>
       </DialogActions>
     </Dialog>
   );

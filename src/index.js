@@ -7,6 +7,7 @@ import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter  } from "react-router-dom";
 import Loader from "./layouts/loader/Loader";
 import { AuthContextProvider } from "./context/usercontext.tsx";
+import { LanguageProvider } from "./context/LanguageContext.js";
 
 const rootElement = document.getElementById('root');
 const root = createRoot(rootElement);
@@ -15,9 +16,11 @@ root.render(
 
   <Suspense fallback={<Loader />}>
     <AuthContextProvider>
-      <BrowserRouter  >
-        <App />
-      </BrowserRouter >
+      <LanguageProvider>
+        <BrowserRouter  >
+          <App />
+        </BrowserRouter >
+      </LanguageProvider>
     </AuthContextProvider>
   </Suspense>
 

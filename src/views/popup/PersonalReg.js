@@ -8,9 +8,12 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/tr';
 import axiosInstance from '../../api/axiosInstance.ts';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 dayjs.locale('tr');
 const PersonalReg = React.forwardRef((props, ref) => {
+  const { t, lang } = useLanguage();
+  React.useEffect(() => { dayjs.locale(lang === 'en' ? 'en' : 'tr'); }, [lang]);
   const [name, setName] = useState('')
   const [surname, setSurname] = useState('')
   const [username, setUsername] = useState('')
@@ -58,7 +61,7 @@ const PersonalReg = React.forwardRef((props, ref) => {
         <div display="flex" flexDirection="row">
           <TextField
             style={{ width: '50%', marginRight: '1%' }}
-            label="Personel Adı"
+            label={t('Name')}
             variant="outlined"
             margin='dense'
             size='small'
@@ -67,7 +70,7 @@ const PersonalReg = React.forwardRef((props, ref) => {
           />
           <TextField
             style={{ width: '49%', marginleft: '1%' }}
-            label="Personel Soyadı"
+            label={t('Surname')}
             variant="outlined"
             margin='dense'
             size='small'
@@ -79,7 +82,7 @@ const PersonalReg = React.forwardRef((props, ref) => {
           <TextField
             margin='dense'
             type="text"
-            label="Kullanıcı Adı"
+            label={t('Username')}
             variant="outlined"
             style={{ width: '50%', marginRight: '1%' }}
             size='small'
@@ -89,7 +92,7 @@ const PersonalReg = React.forwardRef((props, ref) => {
           <TextField
             margin='dense'
             type="password"
-            label="Şifre"
+            label={t('Password')}
             variant="outlined"
             style={{ width: '49%', marginleft: '1%' }}
             size='small'
@@ -100,7 +103,7 @@ const PersonalReg = React.forwardRef((props, ref) => {
         <TextField
           margin='dense'
           type="text"
-          label="Email"
+          label={t('Email')}
           variant="outlined"
           fullWidth
           size='small'
@@ -111,7 +114,7 @@ const PersonalReg = React.forwardRef((props, ref) => {
         <TextField
           margin='dense'
           type="number"
-          label="Telefon Numarası"
+          label={t('Phone')}
           variant="outlined"
           fullWidth
           size='small'
@@ -122,7 +125,7 @@ const PersonalReg = React.forwardRef((props, ref) => {
         <div className='perreg-date'>
           <LocalizationProvider dateAdapter={AdapterDayjs}  >
             <DatePicker
-              label="Doğum Tarihi"
+              label={t('BirthDate')}
               sx={{ width: '100%' }}
               slotProps={{ textField: { size: 'small' } }}
               value={birthDate}
@@ -136,7 +139,7 @@ const PersonalReg = React.forwardRef((props, ref) => {
         <div className='perreg-relative-container'>
           <Label
             for="exampleSelect"
-            className='perreg-custom-label'>Personel Rolü </Label>
+            className='perreg-custom-label'>{t('Role')} </Label>
           <div className='perreg-form-role-div'>
             <Input
               type="select"
@@ -146,9 +149,9 @@ const PersonalReg = React.forwardRef((props, ref) => {
               value={role}
               onChange={(e) => setRole(e.target.value)}>
               <option value="0">-</option>
-              <option value="2">Veteriner Hekim</option>
+              <option value="2">{t('Veterinarian')}</option>
               {/* <option value="3">Ofis Yönetici</option> */}
-              <option value="3" style={{ color: 'red' }}>Klinik Yönetici</option>
+              <option value="3" style={{ color: 'red' }}>{t('ClinicManager')}</option>
             </Input>
           </div>
         </div>
@@ -156,7 +159,7 @@ const PersonalReg = React.forwardRef((props, ref) => {
         <div style={{ position: 'relative', marginBottom: '20px' }}>
           <Label
             for="exampleSelect"
-            className='perreg-custom-label-2'>Cinsiyet </Label>
+            className='perreg-custom-label-2'>{t('Gender')} </Label>
           <div className='perreg-form-sex-div'>
             <div className='perreg-radio-div'>
               <Input
@@ -166,7 +169,7 @@ const PersonalReg = React.forwardRef((props, ref) => {
                 checked={sex === 'Erkek'}
                 onChange={(e) => setSex('Erkek')}
               />
-              <Label className='perreg-label2' style={{ fontSize: '18px' }}>Erkek</Label>
+              <Label className='perreg-label2' style={{ fontSize: '18px' }}>{t('Male')}</Label>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -177,14 +180,14 @@ const PersonalReg = React.forwardRef((props, ref) => {
                 checked={sex === 'Kadın'}
                 onChange={(e) => setSex('Kadın')}
               />
-              <Label className='perreg-label2' style={{ fontSize: '18px' }}>Kadın</Label>
+              <Label className='perreg-label2' style={{ fontSize: '18px' }}>{t('Female')}</Label>
             </div>
           </div>
         </div>
 
         <TextField
           type="text"
-          label="Adress"
+          label={t('Address')}
           variant="outlined"
           fullWidth
           size='small'

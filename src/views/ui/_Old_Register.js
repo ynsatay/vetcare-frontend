@@ -6,10 +6,12 @@ import "../scss/_register.scss";
 import axios from 'axios';
 import { AuthContext } from '../../context/usercontext.tsx';
 import { BASE_URL } from "../../config.js";
+import { useLanguage } from '../../context/LanguageContext.js';
 
 // import { AuthContext } from '../../context/usercontext.tsx';
 
 const Register = () => {
+    const { t } = useLanguage();
     const [name, setName] = useState('');
     const [surname, setSurmame] = useState('');
     const [username, setUsername] = useState('');
@@ -23,7 +25,7 @@ const Register = () => {
     const handleRegister = async (e) => {
         e.preventDefault();
         if (name === '' || surname === '' || username === '' || password === '' || passwordAgain === '' || email === '') {
-            setMessage('Tüm alanları doldurunuz!');
+            setMessage(t('PleaseFillRequiredFields'));
             return;
         }
 
@@ -59,9 +61,9 @@ const Register = () => {
         } catch (error) {
             localStorage.setItem('token', '');
             if (error.response) {
-                setMessage(`Hata: ${error.response.data.error}`);
+                setMessage(`${t('Error')}: ${error.response.data.error}`);
             } else {
-                setMessage('Bir hata oluştu');
+                setMessage(t('Error'));
             }
             console.error('Error:', error);
         }
@@ -78,14 +80,14 @@ const Register = () => {
                             </div>
 
                             <Typography variant="h4" component="h1" gutterBottom>
-                                Kayıt Ol!
+                                {t('Register')}
                             </Typography>
 
                             <form className='reg-form' onSubmit={handleRegister}>
                                 <div display="flex" flexDirection="row">
                                     <TextField
                                         style={{ width: '50%', marginRight: '1%' }}
-                                        label="Adın"
+                                        label={t('Name')}
                                         variant="outlined"
                                         margin="normal"
                                         value={name}
@@ -93,7 +95,7 @@ const Register = () => {
                                     />
                                     <TextField
                                         style={{ width: '49%', marginleft: '1%' }}
-                                        label="Soyadın"
+                                        label={t('Surname')}
                                         variant="outlined"
                                         margin="normal"
                                         value={surname}
@@ -102,7 +104,7 @@ const Register = () => {
                                 </div>
 
                                 <TextField
-                                    label="Kullanıcı Adı"
+                                    label={t('Username')}
                                     variant="outlined"
                                     margin="normal"
                                     fullWidth
@@ -114,7 +116,7 @@ const Register = () => {
                                     <TextField
                                         style={{ width: '50%', marginRight: '1%', }}
                                         type="password"
-                                        label="Şifre"
+                                        label={t('Password')}
                                         variant="outlined"
                                         margin="normal"
                                         value={password}
@@ -123,7 +125,7 @@ const Register = () => {
                                     <TextField
                                         style={{ width: '49%', marginleft: '1%', marginRight: '0%' }}
                                         type="password"
-                                        label="Şifre tekrarı"
+                                        label={t('RepeatNewPassword')}
                                         variant="outlined"
                                         margin="normal"
                                         value={passwordAgain}
@@ -146,7 +148,7 @@ const Register = () => {
                                 </Input> */}
 
                                 <TextField
-                                    label="E-mail"
+                                    label={t('Email')}
                                     variant="outlined"
                                     margin="normal"
                                     fullWidth
@@ -161,9 +163,8 @@ const Register = () => {
                                     style={{ marginTop: '16px' }}
                                     className='login'
                                     type="submit"
-                                // onClick={() => login(username, password)}
                                 >
-                                    KAYDOL
+                                    {t('Register')}
                                 </Button>
 
                             </form>

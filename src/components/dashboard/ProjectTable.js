@@ -1,4 +1,5 @@
 import { Card, CardBody, CardTitle, CardSubtitle, Table } from "reactstrap";
+import { useLanguage } from "../../context/LanguageContext.js";
 import user1 from "../../assets/images/users/user1.jpg";
 import user2 from "../../assets/images/users/user2.jpg";
 import user3 from "../../assets/images/users/user3.jpg";
@@ -54,24 +55,24 @@ const tableData = [
 ];
 
 const ProjectTables = () => {
+  const { t } = useLanguage();
   return (
     <div>
       <Card>
         <CardBody>
-          <CardTitle tag="h5">Project Listing</CardTitle>
+          <CardTitle tag="h5">{t('ProjectListingTitle')}</CardTitle>
           <CardSubtitle className="mb-2 text-muted" tag="h6">
-            Overview of the projects
+            {t('ProjectListingSub')}
           </CardSubtitle>
 
           <Table className="no-wrap mt-3 align-middle" responsive borderless>
             <thead>
               <tr>
-                <th>Team Lead</th>
-                <th>Project</th>
-
-                <th>Status</th>
-                <th>Weeks</th>
-                <th>Budget</th>
+                <th>{t('TeamLead')}</th>
+                <th>{t('Service')}</th>
+                <th>{t('Status')}</th>
+                <th>{t('Weeks')}</th>
+                <th>{t('Budget')}</th>
               </tr>
             </thead>
             <tbody>
