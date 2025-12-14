@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useMemo, useState, useEffect } from 'react';
 import translations from '../i18n/translations.js';
 import axiosInstance from '../api/axiosInstance.ts';
+import { AuthContext } from './usercontext.tsx';
 
 const LanguageContext = createContext({ lang: 'tr', setLanguage: () => {}, t: (k) => k });
 
@@ -13,6 +14,7 @@ export const LanguageProvider = ({ children }) => {
       return 'tr';
     }
   });
+  const { userid } = useContext(AuthContext);
 
   useEffect(() => {
     try {
@@ -21,16 +23,24 @@ export const LanguageProvider = ({ children }) => {
   }, [lang]);
   
   useEffect(() => {
-    const uid = Number(localStorage.getItem('userid') || 0);
+    const uid = Number(userid || localStorage.getItem('userid') || 0);
     if (!uid) return;
     axiosInstance.get('/getUser', { params: { id: uid } })
       .then((res) => {
         const user = res.data?.user || res.data;
-        const code = (user?.language === 1) ? 'en' : 'tr';
+        const raw = user?.language;
+        const code =
+          typeof raw === 'number'
+            ? (raw === 1 ? 'en' : 'tr')
+            : (String(raw).toLowerCase() === 'en' ? 'en' : 'tr');
         setLang(code);
+        try {
+          document.cookie = `vetcare_lang=${code};path=/;max-age=31536000`;
+          localStorage.setItem('language', code);
+        } catch {}
       })
       .catch(() => {});
-  }, []);
+  }, [userid]);
 
   const t = useMemo(() => {
     const dict = translations[lang] || {};

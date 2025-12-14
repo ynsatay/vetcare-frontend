@@ -68,6 +68,29 @@ const Landing = () => {
                 password: '123',
                 office_id: defaultOffice,
             });
+            try {
+                document.cookie = `vetcare_lang=;path=/;max-age=0`;
+                document.cookie = `vetcare_lang=;path=/;expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+                localStorage.removeItem('language');
+                const rawLang =
+                    loginRes?.data?.language ??
+                    loginRes?.data?.lang ??
+                    loginRes?.data?.userLanguage ??
+                    loginRes?.data?.i18nLanguage ??
+                    loginRes?.data?.settings?.language ??
+                    loginRes?.data?.user?.language;
+                let accLang = null;
+                if (typeof rawLang === 'string') {
+                    accLang = rawLang.toLowerCase();
+                } else if (typeof rawLang === 'number') {
+                    accLang = rawLang === 1 ? 'en' : 'tr';
+                }
+                if (accLang === 'en' || accLang === 'tr') {
+                    document.cookie = `vetcare_lang=${accLang};path=/;max-age=31536000`;
+                    localStorage.setItem('language', accLang);
+                    setLanguage(accLang);
+                }
+            } catch {}
 
             const data = loginRes.data;
             localStorage.setItem('token', data.token);
