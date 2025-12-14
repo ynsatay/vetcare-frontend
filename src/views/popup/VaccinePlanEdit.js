@@ -26,7 +26,7 @@ const VaccinePlanEdit = ({ plan, onClose, onUpdateSuccess }) => {
 
   useEffect(() => {
     if (plan) {
-      setApplied(!!plan.is_applied);  // Veritabanından gelen alan is_applied olduğunu varsayıyorum
+      setApplied(plan.is_applied == 1);  
       setPlanDate(plan.planned_date ? new Date(plan.planned_date) : null);  // planned_date doğru isim olmalı
       setNote(plan.notes || ""); // notes doğru isim olmalı
     }

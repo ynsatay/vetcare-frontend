@@ -34,9 +34,10 @@ const VaccinationTracker = () => {
   const { confirm } = useConfirm();
 
   const stats = useMemo(() => {
-    const applied = events.filter(e => e.backgroundColor === "#4caf50").length;
-    const pending = events.filter(e => e.backgroundColor === "#26a69a").length;
-    return { applied, pending };
+    const applied = events.filter(e => e.status === 'applied').length;
+    const pending = events.filter(e => e.status === 'pending').length;
+    const overdue = events.filter(e => e.status === 'overdue').length;
+    return { applied, pending, overdue };
   }, [events]);
 
   const miniCalendarDays = useMemo(() => {
@@ -53,7 +54,7 @@ const VaccinationTracker = () => {
     
     for (let i = 1; i <= endOfMonth.date(); i++) {
       const date = miniCalendarDate.date(i);
-      const hasEvent = events.some(e => dayjs(e.date).isSame(date, 'day'));
+      const hasEvent = events.some(e => dayjs(e.start).isSame(date, 'day'));
       days.push({ 
         day: i, 
         isOtherMonth: false, 
@@ -86,16 +87,22 @@ const VaccinationTracker = () => {
 
       const formatted = response.data.map((event) => {
         const isApplied = event.is_applied === 1;
-        const backgroundColor = isApplied ? "#4caf50" : "#26a69a";
+        const isOverdue = event.is_applied === 2;
+        const backgroundColor = isApplied ? "#4caf50" : isOverdue ? "#f44336" : "#26a69a";
+        const status = isApplied ? 'applied' : (isOverdue ? 'overdue' : 'pending');
+
+        // prefer planned_date/applied_on, fall back to generic date
+        const start = event.planned_date || event.applied_on || event.date;
 
         return {
           id: `${event.id}`,
           title: `💉 ${event.vaccine_name}-${event.animal_name}`,
-          date: event.date,
+          start,
           allDay: true,
           backgroundColor,
           borderColor: backgroundColor,
           textColor: "#fff",
+          status,
         };
       });
 
@@ -247,6 +254,14 @@ const VaccinationTracker = () => {
               <span className="vaccination-stat-name">{t('Planned')}</span>
             </div>
             <span className="vaccination-stat-count">{stats.pending}</span>
+          </div>
+
+          <div className="vaccination-stat-item">
+            <div className="vaccination-stat-left">
+              <div className="vaccination-stat-indicator overdue" style={{ background: '#f44336' }} />
+              <span className="vaccination-stat-name">Günü Geçti</span>
+            </div>
+            <span className="vaccination-stat-count">{stats.overdue}</span>
           </div>
         </div>
 
