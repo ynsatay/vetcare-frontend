@@ -641,7 +641,10 @@ const PatientReg = forwardRef((props, ref) => {
                 <span style={{ fontSize: 18 }}>👤</span> {t('PatientInfo')}
               </div>
               
-              <div style={{ borderRadius: 12, border: '1px solid var(--id-border, #e6e9f2)', padding: 16, background: 'var(--id-bg-card, #fff)', marginBottom: 16, wordBreak: 'break-word', whiteSpace: 'normal' }}>
+              <div
+                onClick={goToIdentity}
+                style={{ borderRadius: 12, border: '1px solid var(--id-border, #e6e9f2)', padding: 16, background: 'var(--id-bg-card, #fff)', marginBottom: 16, wordBreak: 'break-word', whiteSpace: 'normal', cursor: 'pointer' }}
+              >
                 <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', marginBottom: 14 }}>
                   <div style={{ width: 56, height: 56, borderRadius: 12, background: 'linear-gradient(135deg, var(--id-primary, #667eea) 0%, var(--id-primary-light, #764ba2) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 22 }}>
                     {(personelData.name || '')[0].toUpperCase()}
@@ -686,7 +689,10 @@ const PatientReg = forwardRef((props, ref) => {
 
           {/* Seçilen Sahip Bilgileri */}
           {selectedOwner && (
-            <div style={{ borderRadius: 12, border: '1px solid var(--id-border, #e6e9f2)', padding: 16, background: 'var(--id-bg-card, #fff)', wordBreak: 'break-word', whiteSpace: 'normal' }}>
+            <div
+              onClick={goToIdentity}
+              style={{ borderRadius: 12, border: '1px solid var(--id-border, #e6e9f2)', padding: 16, background: 'var(--id-bg-card, #fff)', wordBreak: 'break-word', whiteSpace: 'normal', cursor: 'pointer' }}
+            >
               <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', marginBottom: 14 }}>
                 <div style={{ width: 56, height: 56, borderRadius: 12, background: 'linear-gradient(135deg, var(--id-primary, #667eea) 0%, var(--id-primary-light, #764ba2) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 22 }}>
                   {(selectedOwner.user_name || '')[0].toUpperCase()}
@@ -775,12 +781,6 @@ const PatientReg = forwardRef((props, ref) => {
               >
                 ➕ {t('AddAnimal')}
               </button>
-              <button 
-                onClick={goToIdentity} 
-                style={{ width: '100%', padding: '12px 16px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 10, fontWeight: 600, cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
-              >
-                🆔 {t('GoToIdentity')}
-              </button>
             </>
           )}
 
@@ -842,16 +842,7 @@ const PatientReg = forwardRef((props, ref) => {
             </button>
           )}
 
-          {(selectedOwner || (showAnimalForm && selectedOwner)) && (
-            <>
-              <button 
-                onClick={goToIdentity} 
-                style={{ width: '100%', padding: '12px 16px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 10, fontWeight: 600, cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
-              >
-                🆔 {t('GoToIdentity')}
-              </button>
-            </>
-          )}
+          {(selectedOwner || (showAnimalForm && selectedOwner)) && null}
 
           {(selectedOwner || personelData || showAnimalForm) && (
             <button 
