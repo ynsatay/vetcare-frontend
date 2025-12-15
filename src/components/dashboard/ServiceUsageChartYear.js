@@ -15,8 +15,13 @@ const ServiceUsageChartYear = () => {
   const [series, setSeries] = useState([]);
   const [serviceNames, setServiceNames] = useState([]);
   const [selectedServices, setSelectedServices] = useState([]);
-  const [windowStart, setWindowStart] = useState(0);
-  const [windowSize, setWindowSize] = useState(12);
+  const [windowStart, setWindowStart] = useState(() => {
+    const defaultWindowSize = 3;
+    const currentMonthIndex = new Date().getMonth();
+    const start = currentMonthIndex - defaultWindowSize + 1;
+    return Math.max(0, Math.min(12 - defaultWindowSize, start));
+  });
+  const [windowSize, setWindowSize] = useState(3);
   const [stacked, setStacked] = useState(false);
   const [normalized, setNormalized] = useState(false);
   const [grandTotal, setGrandTotal] = useState(0);

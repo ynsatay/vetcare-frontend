@@ -435,14 +435,18 @@ body.dark .dropdown-menu .bi, body.dark .dropdown-menu i {
   color: var(--id-text-muted, #c7d2e9) !important;
 }
 
-/* ApexCharts tooltip & marker: ensure hover/tooltips are dark in dark mode */
+/* ApexCharts tooltip: dark background in dark mode (do NOT override marker colors) */
 body.dark .apexcharts-tooltip,
-body.dark .apexcharts-tooltip *,
 body.dark .apexcharts-tooltip[style] {
   background: var(--id-bg-card, #0b1220) !important;
   color: var(--id-text, #e6eef8) !important;
- // border: 1px solid var(--id-border, rgba(255,255,255,0.06)) !important;
+  // border: 1px solid var(--id-border, rgba(255,255,255,0.06)) !important;
   box-shadow: 0 8px 30px rgba(0,0,0,0.6) !important;
+}
+
+/* Keep tooltip text readable but preserve Apex inline backgrounds (series markers) */
+body.dark .apexcharts-tooltip * {
+  color: var(--id-text, #e6eef8) !important;
 }
 
 body.dark .apexcharts-tooltip .apexcharts-tooltip-title {
@@ -456,11 +460,10 @@ body.dark .apexcharts-tooltip .apexcharts-tooltip-marker {
   color: var(--id-text-secondary, #cbd6ea) !important;
 }
 
-/* Make the little color marker inside the tooltip visible on dark backgrounds */
+/* Tooltip color marker: keep series color (background-color is set inline by ApexCharts) */
 body.dark .apexcharts-tooltip .apexcharts-tooltip-marker > div,
 body.dark .apexcharts-marker {
-  background: var(--id-bg-card, #0b1220) !important;
-  border: 2px solid var(--id-primary, #3b82f6) !important;
+  border: 1px solid var(--id-border, rgba(255,255,255,0.06)) !important;
 }
 
 /* Also target chart annotations/popups that may use inline white backgrounds */

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Chart from "react-apexcharts";
 import axiosInstance from "../../api/axiosInstance.ts";
-import { Syringe, Layers, Percent, Download, PieChart, ChevronLeft, ChevronRight, Search, X } from "lucide-react";
+import { Layers, Percent, Download,  ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import "../../views/ui/IdentityInfo.css";
 import { useLanguage } from "../../context/LanguageContext.js";
 
@@ -15,8 +15,13 @@ import { useLanguage } from "../../context/LanguageContext.js";
     const [series, setSeries] = useState([]);
     const [vaccineNames, setVaccineNames] = useState([]);
     const [selectedVaccines, setSelectedVaccines] = useState([]);
-    const [windowStart, setWindowStart] = useState(0);
-    const [windowSize, setWindowSize] = useState(12);
+    const [windowStart, setWindowStart] = useState(() => {
+      const defaultWindowSize = 3;
+      const currentMonthIndex = new Date().getMonth();
+      const start = currentMonthIndex - defaultWindowSize + 1;
+      return Math.max(0, Math.min(12 - defaultWindowSize, start));
+    });
+    const [windowSize, setWindowSize] = useState(3);
     const [stacked, setStacked] = useState(false);
     const [normalized, setNormalized] = useState(false);
     const [grandTotal, setGrandTotal] = useState(0);
