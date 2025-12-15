@@ -90,7 +90,13 @@ const NewVisitFileLayout = () => {
       fetchPaymentSummary();
     } catch (err) {
       if (err.__demo_blocked) return; 
-      await confirm(t('Error'), t('Ok'), "", t('Warning'));
+      const raw = String(err?.response?.data?.message || err?.message || '').toLowerCase();
+      const insufficient =
+        raw.includes('yetersiz stok') ||
+        (raw.includes('insufficient') && raw.includes('stock')) ||
+        raw.includes('not enough stock') ||
+        (raw.includes('yetersiz') && raw.includes('stok'));
+      await confirm(insufficient ? t('InsufficientStock') : t('Error'), t('Ok'), "", t('Warning'));
     }
   };
 
