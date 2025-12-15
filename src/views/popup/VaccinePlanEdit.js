@@ -20,6 +20,8 @@ const VaccinePlanEdit = ({ plan, onClose, onUpdateSuccess }) => {
   const { confirm } = useConfirm();
   const { t, lang } = useLanguage();
 
+  const today = dayjs().startOf('day');
+
   const [planDate, setPlanDate] = useState(null);
   const [note, setNote] = useState("");
   const [applied, setApplied] = useState(false);
@@ -35,6 +37,10 @@ const VaccinePlanEdit = ({ plan, onClose, onUpdateSuccess }) => {
   const handleUpdate = async () => {
     if (!planDate) {
       confirm(t('PleaseSelectPlannedDate'), t('Ok'), "", t('Warning'));
+      return;
+    }
+    if (dayjs(planDate).isBefore(today)) {
+      confirm(t('CannotPlanPastDay'), t('Ok'), "", t('Warning'));
       return;
     }
 
@@ -106,6 +112,8 @@ const VaccinePlanEdit = ({ plan, onClose, onUpdateSuccess }) => {
           <DatePicker
             value={planDate}
             onChange={(newValue) => setPlanDate(newValue)}
+            disablePast
+            minDate={today.toDate()}
             renderInput={(params) => <TextField fullWidth size="small" {...params} />}
           />
         </Grid>

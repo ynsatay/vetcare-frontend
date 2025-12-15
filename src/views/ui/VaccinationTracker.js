@@ -103,6 +103,9 @@ const VaccinationTracker = () => {
           borderColor: backgroundColor,
           textColor: "#fff",
           status,
+          extendedProps: {
+            is_applied: event.is_applied,
+          },
         };
       });
 
@@ -184,11 +187,24 @@ const VaccinationTracker = () => {
 
   const handleEventDrop = async (info) => {
     const { event, revert } = info;
+    const now = dayjs();
+    const eventStart = dayjs(event.start);
+
+    if (eventStart.isBefore(now.startOf('day'))) {
+      revert();
+      confirm(t('CannotPlanPastDay'), t('Ok'), "", t('Warning'));
+      return;
+    }
     const newDate = dayjs(event.start).format("YYYY-MM-DD");
+    const rawIsApplied = event.extendedProps?.is_applied;
+    const isAppliedValue = (rawIsApplied === 0 || rawIsApplied === 1 || rawIsApplied === 2 || rawIsApplied === '0' || rawIsApplied === '1' || rawIsApplied === '2')
+      ? Number(rawIsApplied)
+      : 0;
     
     try {
       const response = await axiosInstance.put(`/vaccine/plan/${event.id}`, {
         planned_date: newDate,
+        is_applied: isAppliedValue,
       });
       
       if (response.data.message) {
@@ -199,7 +215,10 @@ const VaccinationTracker = () => {
         confirm(t('DateUpdateFailed'), t('Ok'), "", t('Error'));
       }
     } catch (error) {
-      if (error.__demo_blocked) return; 
+      if (error.__demo_blocked) {
+        revert();
+        return;
+      }
       console.error("Aşı planı tarihi güncellenirken hata:", error);
       revert();
       const errorMsg = error.response?.data?.error || t('DateUpdateError');

@@ -29,10 +29,13 @@ axiosInstance.interceptors.response.use(
     if (error.response) {
       const status = error.response.status;
       const code = error.response.data?.code;
+      const silentDemoBlocked = Boolean((error.config as any)?.silentDemoBlocked);
 
       // ⭐ DEMO USER BLOCK — bu işlem hiçbir yere gitmesin
       if (code === "DEMO_USER_BLOCKED") {
-        toast.info("Demo hesabı ile bu işlemi yapamazsınız.");
+        if (!silentDemoBlocked) {
+          toast.info("Demo hesabı ile bu işlemi yapamazsınız.");
+        }
         return Promise.reject({ __demo_blocked: true });   // ❗ özel işaret
       }
 

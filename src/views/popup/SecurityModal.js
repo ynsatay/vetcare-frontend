@@ -18,15 +18,15 @@ const SecurityModal = ({ open, onClose, onSave }) => {
       </DialogTitle>
       <DialogContent dividers sx={{ p: 2.5 }}>
         <Stack spacing={2}>
-          <TextField type="password" label="Current Password" value={form.current} onChange={set('current')} fullWidth />
-          <TextField type="password" label="New Password" value={form.next} onChange={set('next')} fullWidth />
+          <TextField type="password" label={t('CurrentPassword')} value={form.current} onChange={set('current')} fullWidth />
+          <TextField type="password" label={t('NewPassword')} value={form.next} onChange={set('next')} fullWidth />
           {form.next && (
             <Box sx={{ height: 8, borderRadius: 999, background: '#e2e8f0', overflow: 'hidden' }}>
               <Box sx={{ width: `${strength}%`, height: '100%', background: strength < 40 ? '#f5576c' : strength < 70 ? '#f59e0b' : '#10b981', transition: 'width 0.2s ease' }} />
             </Box>
           )}
-          <TextField type="password" label="Confirm New Password" value={form.confirm} onChange={set('confirm')} fullWidth />
-          <FormControlLabel control={<Switch checked={form.twofa} onChange={(e) => setForm(p => ({ ...p, twofa: e.target.checked }))} />} label="Two-Factor Authentication" />
+          <TextField type="password" label={t('ConfirmNewPassword')} value={form.confirm} onChange={set('confirm')} fullWidth />
+          <FormControlLabel control={<Switch checked={form.twofa} onChange={(e) => setForm(p => ({ ...p, twofa: e.target.checked }))} />} label={t('TwoFactorAuthentication')} />
         </Stack>
       </DialogContent>
       <DialogActions sx={{ p: 2, justifyContent: 'space-between' }}>

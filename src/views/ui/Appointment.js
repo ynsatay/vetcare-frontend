@@ -176,13 +176,34 @@ const Appointment = () => {
 
   const handleEventChange = async (changeInfo) => {
     const { event, revert } = changeInfo;
+    const calendarApi = calendarRef.current?.getApi();
+    const viewType = calendarApi?.view?.type;
+    const now = dayjs();
+    const eventStart = dayjs(event.start);
+
+    if (viewType === "dayGridMonth") {
+      if (eventStart.isBefore(now.startOf("day"))) {
+        revert();
+        confirm(t('CannotSchedulePastDay'), t('Ok'), "", t('Warning'));
+        return;
+      }
+    } else {
+      if (eventStart.isBefore(now)) {
+        revert();
+        confirm(t('CannotSchedulePastTime'), t('Ok'), "", t('Warning'));
+        return;
+      }
+    }
     try {
       setIsUpdating(true);
       await updateAppointmentTimes(event);
       await fetchAppointments();
       confirm(t('AppointmentDateUpdated'), t('Ok'), "", t('Info'));
     } catch (err) {
-      if (err.__demo_blocked) return; 
+      if (err.__demo_blocked) {
+        revert();
+        return;
+      }
       console.error("Randevu güncelleme hatası:", err);
       revert();
       confirm(t('UpdateFailedTryAgain'), t('Ok'), "", t('Warning'));

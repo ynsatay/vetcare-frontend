@@ -34,6 +34,10 @@ const AppointmentDetails = ({ event, onUpdateSuccess, onClose }) => {
   const { confirm } = useConfirm();
   const { t } = useLanguage();
 
+  const now = dayjs();
+  const minStart = now;
+  const minEnd = start && start.isAfter(now) ? start : now;
+
   useEffect(() => {
     if (event) {
       setStart(event.start ? dayjs(event.start).local() : null);
@@ -49,6 +53,10 @@ const AppointmentDetails = ({ event, onUpdateSuccess, onClose }) => {
     }
     if (start.isAfter(end)) {
       confirm("Başlangıç tarihi, bitiş tarihinden büyük olamaz.", "Tamam", "", "Uyarı");
+      return;
+    }
+    if (start.isBefore(now) || end.isBefore(now)) {
+      confirm(t('CannotSchedulePastTime'), t('Ok'), "", t('Warning'));
       return;
     }
 
@@ -115,6 +123,7 @@ const AppointmentDetails = ({ event, onUpdateSuccess, onClose }) => {
             value={start}
             onChange={(newVal) => setStart(newVal ? dayjs(newVal).local() : null)}
             renderInput={(params) => <TextField fullWidth size="small" {...params} />}
+            minDateTime={minStart}
             maxDateTime={end || undefined}
             ampm={false}
           />
@@ -128,7 +137,7 @@ const AppointmentDetails = ({ event, onUpdateSuccess, onClose }) => {
             value={end}
             onChange={(newVal) => setEnd(newVal ? dayjs(newVal).local() : null)}
             renderInput={(params) => <TextField fullWidth size="small" {...params} />}
-            minDateTime={start || undefined}
+            minDateTime={minEnd}
             ampm={false}
           />
         </Grid>

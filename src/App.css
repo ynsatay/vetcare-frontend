@@ -1,1 +1,49 @@
 iframe#webpack-dev-server-client-overlay{display:none!important}
+
+/* MUI X Pickers: improve readability in dark mode */
+body.dark .MuiPickersPopper-root .MuiPaper-root,
+body.dark .MuiDialog-root .MuiPaper-root .MuiPickersLayout-root {
+	background: var(--id-bg-card) !important;
+	color: var(--id-text) !important;
+	border: 1px solid var(--id-border) !important;
+}
+
+body.dark .MuiPickersLayout-root,
+body.dark .MuiPickersLayout-root * {
+	color: var(--id-text);
+}
+
+body.dark .MuiPickersLayout-root .MuiPickersDay-root {
+	color: var(--id-text) !important;
+}
+
+body.dark .MuiPickersLayout-root .MuiPickersDay-root.Mui-selected {
+	background-color: var(--id-primary) !important;
+	color: var(--id-text) !important;
+}
+
+body.dark .MuiPickersLayout-root .MuiPickersDay-root:not(.Mui-selected):hover {
+	background-color: rgba(var(--id-primary-rgb, 99, 102, 241), 0.18) !important;
+}
+
+body.dark .MuiPickersLayout-root .MuiPickersDay-root.MuiPickersDay-today {
+	border-color: var(--id-primary) !important;
+}
+
+body.dark .MuiPickersLayout-root .MuiPickersArrowSwitcher-button,
+body.dark .MuiPickersLayout-root .MuiPickersCalendarHeader-label,
+body.dark .MuiPickersLayout-root .MuiSvgIcon-root {
+	color: var(--id-text) !important;
+}
+
+body.dark .MuiPickersLayout-root .MuiClockNumber-root,
+body.dark .MuiPickersLayout-root .MuiMultiSectionDigitalClockSection-item,
+body.dark .MuiPickersLayout-root .MuiMultiSectionDigitalClock-root {
+	color: var(--id-text) !important;
+}
+
+body.dark .MuiPickersLayout-root .Mui-selected,
+body.dark .MuiPickersLayout-root .Mui-selected:hover {
+	background-color: var(--id-primary) !important;
+	color: var(--id-text) !important;
+}

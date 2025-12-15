@@ -1391,7 +1391,7 @@ function Profile() {
             const langNum = data.language === 'en' ? 1 : 0;
             fd.append('language', String(langNum));
             fd.append('lang', String(langNum));
-            await axiosInstance.post('/update-profile', fd);
+            await axiosInstance.post('/update-profile', fd, { silentDemoBlocked: true });
           } catch (err) {
             console.error('Dil güncelleme isteği başarısız:', err);
           }
@@ -1429,7 +1429,7 @@ function Profile() {
               fd.append('userId', userid.toString());
               fd.append('dark_mode', dark ? '1' : '0');
               fd.append('theme', String(themeKeyToNumber(primary)));
-              axiosInstance.post('/update-profile', fd).catch((err) => {
+              axiosInstance.post('/update-profile', fd, { silentDemoBlocked: true }).catch((err) => {
                 console.error('Tema kaydetme isteği başarısız:', err);
               });
             }

@@ -26,6 +26,8 @@ const VaccinationPlanForm = forwardRef(({ materialsList = [], initialDate }, ref
 
   const { confirm } = useConfirm();
 
+  const today = dayjs().startOf('day');
+
   useEffect(() => {
     if (initialDate) {
       setPlannedDate(dayjs(initialDate));
@@ -54,6 +56,10 @@ const VaccinationPlanForm = forwardRef(({ materialsList = [], initialDate }, ref
     }
     if (!plannedDate) {
       confirm(t('PleaseSelectPlannedDate'), t('Ok'), "", t('Warning'));
+      return false;
+    }
+    if (dayjs(plannedDate).isBefore(today)) {
+      confirm(t('CannotPlanPastDay'), t('Ok'), "", t('Warning'));
       return false;
     }
     if (repeatCount < 1) {
@@ -139,6 +145,7 @@ const VaccinationPlanForm = forwardRef(({ materialsList = [], initialDate }, ref
             onChange={setPlannedDate}
             format="DD.MM.YYYY"
             disablePast
+            minDate={today}
             renderInput={(params) => (
               <TextField {...params} fullWidth size="small" />
             )}
