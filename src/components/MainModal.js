@@ -1,6 +1,6 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from 'reactstrap';
-import '../views/scss/_login.scss';
+import './MainModal.scss';
 
 const MainModal = ({
   isOpen,
@@ -13,27 +13,6 @@ const MainModal = ({
   modalStyle = {},
 }) => {
   const contentRef = useRef(null);
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    const checkDarkMode = () => {
-      const themePrefs = localStorage.getItem('theme_prefs');
-      if (themePrefs) {
-        const prefs = JSON.parse(themePrefs);
-        setIsDark(prefs.dark);
-      }
-    };
-    checkDarkMode();
-
-    const handleThemeChange = () => {
-      checkDarkMode();
-    };
-    window.addEventListener('themechange', handleThemeChange);
-
-    return () => {
-      window.removeEventListener('themechange', handleThemeChange);
-    };
-  }, []);
 
   const handleSaveClick = async () => {
     if (contentRef.current?.handleSave) {
@@ -49,32 +28,22 @@ const MainModal = ({
   };
 
   return (
-    <Modal isOpen={isOpen} toggle={toggle} style={modalStyle} contentClassName={isDark ? 'dark-mode-modal' : ''}>
-      <ModalHeader toggle={toggle} style={{ 
-        background: isDark ? '#1f2937' : '#fff',
-        color: isDark ? '#e5e7eb' : '#000',
-        borderColor: isDark ? '#374151' : '#e5e7eb',
-        transition: 'all 0.3s ease'
-      }}>{title}</ModalHeader>
-      <ModalBody style={{ 
-        maxHeight: modalStyle.maxHeight || 'none', 
-        overflowY: 'auto',
-        background: isDark ? '#111827' : '#fff',
-        color: isDark ? '#e5e7eb' : '#000',
-        transition: 'all 0.3s ease'
-      }}>
+    <Modal
+      isOpen={isOpen}
+      toggle={toggle}
+      style={modalStyle}
+      contentClassName="vc-main-modal__content"
+    >
+      <ModalHeader toggle={toggle}>{title}</ModalHeader>
+      <ModalBody style={{ maxHeight: modalStyle.maxHeight || 'none', overflowY: 'auto' }}>
         {React.cloneElement(content, { ref: contentRef })}
       </ModalBody>
       {ShowFooter && (
-        <ModalFooter style={{
-          background: isDark ? '#1f2937' : '#fff',
-          borderColor: isDark ? '#374151' : '#e5e7eb',
-          transition: 'all 0.3s ease'
-        }}>
-          <Button className="login" onClick={handleSaveClick}>
+        <ModalFooter>
+          <Button color="primary" onClick={handleSaveClick}>
             {saveButtonLabel}
           </Button>
-          <Button style={{ marginBottom: '7px' }} color="secondary" onClick={toggle}>
+          <Button color="secondary" onClick={toggle}>
             İptal
           </Button>
         </ModalFooter>

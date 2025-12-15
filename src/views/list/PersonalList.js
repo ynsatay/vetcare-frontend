@@ -125,7 +125,7 @@ const PersonalList = () => {
                                 {t('AllPersonnelList')}
                             </CardSubtitle>
                         </div>
-                        <Button className="login" onClick={togglePersonaldModal}>
+                        <Button color="primary" onClick={togglePersonaldModal}>
                             {t('AddNewPersonnel')}
                         </Button>
                     </div>

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axiosInstance from '../../api/axiosInstance.ts';
 import { useLanguage } from '../../context/LanguageContext.js';
-import { palettes } from '../../utils/theme.js';
 
 const AppPatientSearch = ({ onSelect, onClose }) => {
   const [searchByAnimalId, setSearchByAnimalId] = useState(false);
@@ -11,40 +10,6 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const { t } = useLanguage();
-  const [themeColor, setThemeColor] = useState('#667eea');
-  const [themeLightColor, setThemeLightColor] = useState('#764ba2');
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    const loadTheme = () => {
-      const themePrefs = localStorage.getItem('theme_prefs');
-      if (themePrefs) {
-        const prefs = JSON.parse(themePrefs);
-        const primaryPalette = palettes[prefs.primary] || palettes.indigo;
-        
-        setIsDark(prefs.dark);
-        if (prefs.dark) {
-          // Dark mode: koyu ana renk + açık gradient sonı
-          setThemeColor(primaryPalette[2]);
-          setThemeLightColor(primaryPalette[0]);
-        } else {
-          // Light mode: normal renkler
-          setThemeColor(primaryPalette[0]);
-          setThemeLightColor(primaryPalette[1]);
-        }
-      }
-    };
-    loadTheme();
-
-    const handleThemeChange = () => {
-      loadTheme();
-    };
-    window.addEventListener('themechange', handleThemeChange);
-
-    return () => {
-      window.removeEventListener('themechange', handleThemeChange);
-    };
-  }, []);
 
   const search = async () => {
     setError('');
@@ -80,7 +45,7 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
     <div style={{ 
       padding: 0, 
       borderRadius: 16, 
-      background: isDark ? '#1f2937' : '#2e1414ff', 
+      background: 'var(--id-bg-card, #ffffff)',
       overflow: 'hidden', 
       minWidth: 380,
       transition: 'all 0.6s ease',
@@ -88,7 +53,7 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
       {/* Header - same stil as PatientReg */}
       <div
         style={{
-          background: `linear-gradient(135deg, ${themeColor} 0%, ${themeLightColor} 100%)`,
+          background: 'linear-gradient(135deg, var(--id-primary, #6366F1) 0%, var(--id-primary-light, #8B5CF6) 100%)',
           padding: '24px 20px',
           borderRadius: '16px 16px 0 0',
           marginBottom: 0,
@@ -146,7 +111,7 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
                 padding: '5px 14px',
                 borderRadius: 999,
                 background: !searchByAnimalId ? '#fff' : 'transparent',
-                color: !searchByAnimalId ? themeColor : 'rgba(255,255,255,0.7)',
+                color: !searchByAnimalId ? 'var(--id-primary, #6366F1)' : 'rgba(255,255,255,0.7)',
                 fontWeight: 600,
                 fontSize: 11,
                 display: 'flex',
@@ -162,7 +127,7 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
                 padding: '5px 14px',
                 borderRadius: 999,
                 background: searchByAnimalId ? '#fff' : 'transparent',
-                color: searchByAnimalId ? themeColor : 'rgba(255,255,255,0.7)',
+                color: searchByAnimalId ? 'var(--id-primary, #6366F1)' : 'rgba(255,255,255,0.7)',
                 fontWeight: 600,
                 fontSize: 11,
                 display: 'flex',
@@ -178,13 +143,13 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
       </div>
 
       {/* Arama Alanı */}
-      <div style={{ padding: '20px 20px 8px 20px', background: isDark ? '#111827' : '#fff', transition: 'all 0.3s ease' }}>
+      <div style={{ padding: '20px 20px 8px 20px', background: 'var(--id-bg-card, #ffffff)', transition: 'all 0.3s ease' }}>
         <div style={{ marginBottom: 14 }}>
           <label
             style={{
               fontSize: 12,
               fontWeight: 600,
-              color: isDark ? '#d1d5db' : '#6b7280',
+              color: 'var(--id-text-secondary, #475569)',
               display: 'block',
               marginBottom: 6,
               textAlign: 'left',
@@ -208,15 +173,15 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
               width: '100%',
               padding: '11px 14px',
               borderRadius: 10,
-              border: `1px solid ${isDark ? '#374151' : '#e6e9f2'}`,
+              border: '1px solid var(--id-border, #e2e8f0)',
               fontSize: 14,
               outline: 'none',
-              background: isDark ? '#1f2937' : '#f8f9fc',
-              color: isDark ? '#e5e7eb' : '#000',
+              background: 'var(--id-bg-elevated, #f1f5f9)',
+              color: 'var(--id-text, #0f172a)',
               transition: 'all 200ms ease',
             }}
-            onFocus={(e) => (e.target.style.borderColor = themeColor)}
-            onBlur={(e) => (e.target.style.borderColor = isDark ? '#374151' : '#e6e9f2')}
+            onFocus={(e) => (e.target.style.borderColor = 'var(--id-primary, #6366F1)')}
+            onBlur={(e) => (e.target.style.borderColor = 'var(--id-border, #e2e8f0)')}
           />
         </div>
 
@@ -228,14 +193,14 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
             padding: '11px 0',
             background: loading
               ? '#9ca3af'
-              : `linear-gradient(135deg, ${themeColor} 0%, ${themeLightColor} 100%)`,
+              : 'linear-gradient(135deg, var(--id-primary, #6366F1) 0%, var(--id-primary-light, #8B5CF6) 100%)',
             color: '#fff',
             borderRadius: 10,
             border: 'none',
             fontWeight: 600,
             fontSize: 14,
             cursor: loading ? 'not-allowed' : 'pointer',
-            boxShadow: `0 4px 12px ${themeColor}59`,
+            boxShadow: '0 4px 12px rgba(var(--id-primary-rgb, 99, 102, 241), 0.35)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -252,7 +217,7 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
         <div
           style={{
             padding: '8px 20px 0 20px',
-            color: '#b91c1c',
+            color: 'var(--bs-danger, #b91c1c)',
             fontSize: 12,
             fontWeight: 500,
           }}
@@ -267,7 +232,7 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
           padding: '12px 20px 16px 20px',
           maxHeight: 260,
           overflowY: 'auto',
-          background: isDark ? '#111827' : '#fff',
+          background: 'var(--id-bg-card, #ffffff)',
           transition: 'all 0.3s ease',
         }}
       >
@@ -277,7 +242,7 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
               textAlign: 'center',
               padding: '24px 8px',
               fontSize: 12,
-              color: isDark ? '#6b7280' : '#9ca3af',
+              color: 'var(--id-text-muted, #94a3b8)',
               transition: 'all 0.3s ease',
             }}
           >
@@ -306,8 +271,8 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
                 style={{
                   padding: 12,
                   borderRadius: 10,
-                  border: `1px solid ${themeColor}33`,
-                  background: `${themeColor}08`,
+                  border: '1px solid rgba(var(--id-primary-rgb, 99, 102, 241), 0.20)',
+                  background: 'rgba(var(--id-primary-rgb, 99, 102, 241), 0.06)',
                   marginBottom: 8,
                   cursor: 'pointer',
                   fontSize: 13,
@@ -317,18 +282,18 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
                   transition: 'all 180ms ease',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = `${themeColor}15`;
-                  e.currentTarget.style.borderColor = `${themeColor}66`;
+                  e.currentTarget.style.background = 'rgba(var(--id-primary-rgb, 99, 102, 241), 0.10)';
+                  e.currentTarget.style.borderColor = 'rgba(var(--id-primary-rgb, 99, 102, 241), 0.40)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = `${themeColor}08`;
-                  e.currentTarget.style.borderColor = `${themeColor}33`;
+                  e.currentTarget.style.background = 'rgba(var(--id-primary-rgb, 99, 102, 241), 0.06)';
+                  e.currentTarget.style.borderColor = 'rgba(var(--id-primary-rgb, 99, 102, 241), 0.20)';
                 }}
               >
-                <span style={{ fontWeight: 600, color: isDark ? '#e5e7eb' : '#111827' }}>
+                <span style={{ fontWeight: 600, color: 'var(--id-text, #0f172a)' }}>
                   🐾 {item.animalname}
                 </span>
-                <span style={{ color: isDark ? '#9ca3af' : '#4b5563' }}>👤 {t('OwnerInfo')}: {item.user_name}</span>
+                <span style={{ color: 'var(--id-text-secondary, #475569)' }}>👤 {t('OwnerInfo')}: {item.user_name}</span>
               </li>
             ))}
           </ul>
@@ -339,8 +304,8 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
       <div
         style={{
           padding: '10px 20px 16px 20px',
-          borderTop: `1px solid ${isDark ? '#374151' : '#e5e7eb'}`,
-          background: isDark ? '#111827' : '#f9fafb',
+          borderTop: '1px solid var(--id-border, #e2e8f0)',
+          background: 'var(--id-bg-elevated, #f1f5f9)',
           textAlign: 'right',
           transition: 'all 0.3s ease',
         }}
@@ -349,12 +314,12 @@ const AppPatientSearch = ({ onSelect, onClose }) => {
           onClick={onClose}
           style={{
             padding: '8px 18px',
-            background: isDark ? '#1f2937' : '#ffffff',
+            background: 'var(--id-bg-card, #ffffff)',
             borderRadius: 999,
-            border: `1px solid ${isDark ? '#4b5563' : '#d1d5db'}`,
+            border: '1px solid var(--id-border, #e2e8f0)',
             fontSize: 13,
             fontWeight: 500,
-            color: isDark ? '#d1d5db' : '#374151',
+            color: 'var(--id-text, #0f172a)',
             cursor: 'pointer',
             transition: 'all 0.3s ease',
           }}

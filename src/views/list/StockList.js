@@ -195,7 +195,7 @@ const StockList = () => {
 
                 <Col xs={12} md="auto">
                     <div className="d-flex flex-wrap gap-2">
-                        <Button color='primary' onClick={handleSearch}>{t('Search')}</Button>
+                        <Button outline color="secondary" onClick={handleSearch}>{t('Search')}</Button>
 
                         <Button
                             color="danger"
@@ -206,7 +206,8 @@ const StockList = () => {
                         </Button>
 
                         <Button
-                            color="success"
+                            outline
+                            color="primary"
                             disabled={!selectedRow}
                             onClick={() => selectedRow && handleEdit(selectedRow)}
                         >
@@ -216,7 +217,7 @@ const StockList = () => {
                 </Col>
 
                 <Col xs={12} md className="text-md-end text-start">
-                    <Button color="success" onClick={() => setIsAddModalOpen(true)}>
+                    <Button color="primary" onClick={() => setIsAddModalOpen(true)}>
                         {t('AddStock')}
                     </Button>
                 </Col>

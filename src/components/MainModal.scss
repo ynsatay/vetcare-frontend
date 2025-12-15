@@ -1,0 +1,31 @@
+/* MainModal theme-aware styling using existing CSS variables */
+
+.vc-main-modal__content {
+  background: var(--id-bg-card, #ffffff);
+  color: var(--id-text, #0f172a);
+  border: 1px solid var(--id-border, #e2e8f0);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.vc-main-modal__content .modal-header {
+  background: var(--id-bg-card, #ffffff);
+  color: var(--id-text, #0f172a);
+  border-bottom: 1px solid var(--id-border, #e2e8f0);
+}
+
+.vc-main-modal__content .modal-body {
+  background: var(--id-bg-card, #ffffff);
+  color: var(--id-text, #0f172a);
+}
+
+.vc-main-modal__content .modal-footer {
+  background: var(--id-bg-card, #ffffff);
+  border-top: 1px solid var(--id-border, #e2e8f0);
+  gap: 10px;
+}
+
+body.dark .vc-main-modal__content .btn-close {
+  filter: invert(1);
+  opacity: 0.9;
+}
