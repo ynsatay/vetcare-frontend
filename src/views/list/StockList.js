@@ -9,18 +9,12 @@ import { useConfirm } from '../../components/ConfirmContext';
 import { trTR } from '@mui/x-data-grid/locales';
 import { toast } from 'react-toastify';
 import { useLanguage } from '../../context/LanguageContext.js';
+import { getStockCategories, normalizeStockCategory } from '../../constants/stockCategories.js';
 import './ListTheme.css';
 
 const StockList = () => {
     const { t, lang } = useLanguage();
-    const categories = [
-        { label: t('Medicine'), value: 0 },
-        { label: t('Consumable'), value: 1 },
-        { label: t('Cleaning'), value: 2 },
-        { label: t('Food'), value: 3 },
-        { label: t('Vaccine'), value: 5 },
-        { label: t('Other'), value: 4 }
-    ];
+    const categories = getStockCategories(t);
 
     const units = [
         { label: t('UnitPiece'), value: 0 },
@@ -38,7 +32,8 @@ const StockList = () => {
         headerName: t('Category'),
         width: 120,
         valueFormatter: (params) => {
-            const cat = categories.find(c => c.value === Number(params.value));
+            const normalized = normalizeStockCategory(params.value);
+            const cat = categories.find(c => c.value === Number(normalized));
             return cat ? cat.label : t('Unknown');
         }
     },

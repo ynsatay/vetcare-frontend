@@ -8,17 +8,12 @@ import { useConfirm } from '../../components/ConfirmContext';
 import { trTR } from '@mui/x-data-grid/locales';
 import { toast } from 'react-toastify';
 import { useLanguage } from '../../context/LanguageContext.js';
+import { getServiceCategories, normalizeServiceCategory } from '../../constants/serviceCategories.js';
 import './ListTheme.css';
 
 const ServiceList = () => {
   const { t, lang } = useLanguage();
-  const categories = [
-    { label: t('Examination'), value: 1 },
-    { label: t('Vaccination'), value: 2 },
-    { label: t('Operation'), value: 3 },
-    { label: t('Treatment'), value: 4 },
-    { label: t('Other'), value: 0 }
-  ];
+  const categories = getServiceCategories(t);
 
   const [services, setServices] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -37,16 +32,25 @@ const ServiceList = () => {
     try {
       const res = await axiosInstance.get('/getServices');
       if (res.data && res.data.status === 'success' && res.data.data) {
-        setServices(res.data.data);
-        setFilteredServices(res.data.data);
+        const next = res.data.data;
+        setServices(next);
+        setFilteredServices(next);
+        setSelectedRow(prev => {
+          if (!prev) return null;
+          const prevId = prev.id ?? prev._id;
+          const found = next.find(row => String(row.id ?? row._id) === String(prevId));
+          return found || null;
+        });
       } else {
         setServices([]);
         setFilteredServices([]);
+        setSelectedRow(null);
       }
     } catch (err) {
       console.error('Service fetch error:', err);
       setServices([]);
       setFilteredServices([]);
+      setSelectedRow(null);
     } finally {
       setLoading(false);
     }
@@ -114,7 +118,9 @@ const ServiceList = () => {
     {
       field: 'category', headerName: t('Category'), flex: 1, width: 150,
       valueFormatter: (params) => {
-        const cat = categories.find(c => c.value === Number(params.value));
+        const normalized = normalizeServiceCategory(params.value);
+        if (normalized === '' || normalized === null || normalized === undefined) return t('Unknown');
+        const cat = categories.find(c => c.value === Number(normalized));
         return cat ? cat.label : t('Unknown');
       }
     },
@@ -186,7 +192,7 @@ const ServiceList = () => {
           getRowId={row => row.id || row._id}
           onSelectionModelChange={ids => {
             const selectedID = ids[0];
-            const selected = filteredServices.find(row => row.id === selectedID);
+            const selected = filteredServices.find(row => String(row.id ?? row._id) === String(selectedID));
             setSelectedRow(selected || null);
           }}
           selectionModel={selectedRow ? [selectedRow.id] : []}

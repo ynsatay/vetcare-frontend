@@ -1,5 +1,6 @@
 import React, {
     useState,
+    useEffect,
     useImperativeHandle,
     forwardRef
 } from 'react';
@@ -7,25 +8,29 @@ import { Row, Col, FormGroup, Label, Input } from 'reactstrap';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import axiosInstance from '../../api/axiosInstance.ts';
 import { useLanguage } from '../../context/LanguageContext.js';
+import { getServiceCategories, normalizeServiceCategory } from '../../constants/serviceCategories.js';
 
 const AddService = forwardRef(({ service, onClose }, ref) => {
     const { t } = useLanguage();
     const [formData, setFormData] = useState({
         name: service?.name || '',
         price: service?.price || '',
-        category: service?.category || '',
+        category: normalizeServiceCategory(service?.category) ?? '',
         description: service?.description || ''
     });
 
     const [showConfirm, setShowConfirm] = useState(false);
 
-    const categories = [
-        { label: t('Examination'), value: 1 },
-        { label: t('Vaccination'), value: 2 },
-        { label: t('Operation'), value: 3 },
-        { label: t('Treatment'), value: 4 },
-        { label: t('Other'), value: 0 }
-    ];
+    const categories = getServiceCategories(t);
+
+    useEffect(() => {
+        setFormData({
+            name: service?.name || '',
+            price: service?.price || '',
+            category: normalizeServiceCategory(service?.category) ?? '',
+            description: service?.description || ''
+        });
+    }, [service]);
 
     useImperativeHandle(ref, () => ({
         handleSave: async () => {
@@ -49,10 +54,15 @@ const AddService = forwardRef(({ service, onClose }, ref) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: name === 'category' ? parseInt(value) : value
-        }));
+        if (name === 'category') {
+            setFormData(prev => ({ ...prev, category: value === '' ? '' : Number(value) }));
+            return;
+        }
+        if (name === 'price') {
+            setFormData(prev => ({ ...prev, price: value === '' ? '' : Number(value) }));
+            return;
+        }
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
     
     return (

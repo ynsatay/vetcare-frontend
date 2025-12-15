@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Chart from "react-apexcharts";
 import axiosInstance from "../../api/axiosInstance.ts";
 import { Layers, Percent, Download,  ChevronLeft, ChevronRight, Search, X } from "lucide-react";
@@ -10,8 +10,11 @@ import { useLanguage } from "../../context/LanguageContext.js";
     "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık",
   ];
 
+  const baseColors = ["#667eea", "#10b981", "#f59e0b", "#ef4444", "#7c3aed", "#0ea5e9"];
+
   const VaccineUsageChartYear = () => {
     const { t, lang } = useLanguage();
+    const tRef = useRef(t);
     const [series, setSeries] = useState([]);
     const [vaccineNames, setVaccineNames] = useState([]);
     const [selectedVaccines, setSelectedVaccines] = useState([]);
@@ -38,7 +41,9 @@ import { useLanguage } from "../../context/LanguageContext.js";
 
     const windowRange = useMemo(() => clampWindow(windowStart, windowSize), [windowStart, windowSize]);
 
-    const baseColors = ["#667eea", "#10b981", "#f59e0b", "#ef4444", "#7c3aed", "#0ea5e9"];
+    useEffect(() => {
+      tRef.current = t;
+    }, [t]);
 
     useEffect(() => {
       const mq = window.matchMedia("(max-width: 1024px)");
@@ -56,7 +61,7 @@ import { useLanguage } from "../../context/LanguageContext.js";
         const map = {};
         for (const item of raw) {
           const m = (item.month || 1) - 1;
-          const name = item.vaccine_name || t('Unknown');
+          const name = item.vaccine_name || tRef.current('Unknown');
           if (!map[name]) map[name] = new Array(12).fill(0);
           map[name][m] = Number(item.usage || 0);
         }
@@ -90,7 +95,7 @@ import { useLanguage } from "../../context/LanguageContext.js";
         { breakpoint: 768, options: { legend: { show: false }, chart: { height: 260 }, xaxis: { labels: { rotate: -30 } } } },
         { breakpoint: 480, options: { legend: { show: false }, chart: { height: 220 }, xaxis: { labels: { show: false } } } }
       ],
-    }), [stacked, normalized, windowRange]);
+    }), [stacked, normalized, windowRange, lang]);
 
     const barOptions = useMemo(() => ({
       chart: { type: "bar", stacked: false, toolbar: { show: false } },
@@ -106,7 +111,7 @@ import { useLanguage } from "../../context/LanguageContext.js";
         { breakpoint: 768, options: { legend: { show: false }, chart: { height: 180 }, xaxis: { labels: { rotate: -30 } } } },
         { breakpoint: 480, options: { legend: { show: false }, chart: { height: 160 }, xaxis: { labels: { show: false } } } }
       ],
-    }), [windowRange]);
+    }), [windowRange, lang]);
 
     const filteredSeries = useMemo(() => {
       const names = new Set(selectedVaccines);
@@ -138,7 +143,7 @@ import { useLanguage } from "../../context/LanguageContext.js";
       const totals = new Array(len).fill(0);
       filteredSeries.forEach(s => s.data.slice(min, max + 1).forEach((v, i) => { totals[i] += v; }));
       return [{ name: t('Total'), data: totals }];
-    }, [filteredSeries, windowRange]);
+    }, [filteredSeries, windowRange, t]);
 
     const currentMonthIndex = new Date().getMonth();
     const currentMonthTotal = series.reduce((acc, s) => acc + (s.data[currentMonthIndex] || 0), 0);
