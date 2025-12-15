@@ -105,9 +105,8 @@ const ClinicList = () => {
       minWidth: 100,
       renderCell: (params) => (
         <Button
-          variant="outlined"
-          color="warning"
-          size="small"
+          color="primary"
+          size="sm"
           onClick={() => handleEditClick(params.row)}
         >
           {t('EditAction')}

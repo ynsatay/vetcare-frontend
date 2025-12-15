@@ -156,7 +156,7 @@ const ServiceList = () => {
 
         <Col xs={12} md="auto">
           <div className="d-flex flex-wrap gap-2">
-            <Button color="primary" onClick={handleSearch}>{t('Search')}</Button>
+            <Button outline color="secondary" onClick={handleSearch}>{t('Search')}</Button>
             <Button
               color="danger"
               disabled={!selectedRow}
@@ -165,7 +165,8 @@ const ServiceList = () => {
               {t('Delete')}
             </Button>
             <Button
-              color="success"
+              outline
+              color="primary"
               disabled={!selectedRow}
               onClick={() => selectedRow && onEdit(selectedRow)}
             >
@@ -175,7 +176,7 @@ const ServiceList = () => {
         </Col>
 
         <Col xs={12} md className="text-md-end text-start">
-          <Button color="success" onClick={toggleAddModal}>
+          <Button color="primary" onClick={toggleAddModal}>
             {t('AddServiceLabel')}
           </Button>
         </Col>

@@ -215,10 +215,120 @@ body.dark input, body.dark textarea, body.dark select {
   //border: 1px solid var(--id-border, rgba(255,255,255,0.06)) !important;
 }
 
+/* MUI inputs (TextField/Select/DatePicker) — global dark-mode readability */
+body.dark .MuiInputBase-root {
+  color: var(--id-text, #e6eef8) !important;
+}
+
+body.dark .MuiFormLabel-root {
+  color: var(--id-text-muted, rgba(230, 238, 248, 0.72)) !important;
+}
+
+body.dark .MuiFormLabel-root.Mui-focused {
+  color: var(--id-primary, #667eea) !important;
+}
+
+body.dark .MuiOutlinedInput-root {
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+body.dark .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.38) !important;
+}
+
+body.dark .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.55) !important;
+}
+
+body.dark .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: var(--id-primary, #667eea) !important;
+}
+
+body.dark .MuiInputAdornment-root,
+body.dark .MuiSelect-icon,
+body.dark .MuiFormControl-root .MuiSvgIcon-root {
+  color: var(--id-text, #e6eef8) !important;
+}
+
+/* Disabled MUI text in dark mode should remain readable */
+body.dark .MuiTypography-root.Mui-disabled,
+body.dark .MuiFormControlLabel-label.Mui-disabled,
+body.dark .MuiFormHelperText-root.Mui-disabled {
+  color: rgba(230, 238, 248, 0.70) !important;
+}
+
+body.dark .MuiFormControlLabel-root.Mui-disabled {
+  opacity: 1 !important;
+}
+
+body.dark input::placeholder {
+  color: rgba(230, 238, 248, 0.55);
+}
+
 /* Buttons primary accent */
 .btn-primary, button[variant="contained"] {
   background: linear-gradient(135deg, var(--id-primary, #6366F1), var(--id-primary-light, #8B5CF6)) !important;
   color: #fff !important;
+}
+
+/* Buttons secondary (theme-aware neutral)
+   IMPORTANT: scoped to modal/list areas so it does not affect Header dropdown toggles
+   (reactstrap DropdownToggle defaults to .btn-secondary).
+*/
+.modal-content .btn-secondary,
+.vc-main-modal__content .btn-secondary,
+.list-page .btn-secondary {
+  background: var(--id-bg-elevated, #f1f5f9) !important;
+  color: var(--id-text, #0f172a) !important;
+  border-color: var(--id-border, #e2e8f0) !important;
+}
+body.dark .modal-content .btn-secondary,
+body.dark .vc-main-modal__content .btn-secondary,
+body.dark .list-page .btn-secondary {
+  background: var(--id-bg-elevated, #091024) !important;
+  color: var(--id-text, #e6eef8) !important;
+  border-color: var(--id-border, rgba(255,255,255,0.06)) !important;
+}
+
+/* Outline buttons should follow theme variables (scoped) */
+.modal-content .btn-outline-primary,
+.vc-main-modal__content .btn-outline-primary,
+.list-page .btn-outline-primary {
+  color: var(--id-primary, #6366F1) !important;
+  border-color: rgba(var(--id-primary-rgb, 99, 102, 241), 0.55) !important;
+  background: transparent !important;
+}
+.modal-content .btn-outline-primary:hover,
+.modal-content .btn-outline-primary:focus,
+.vc-main-modal__content .btn-outline-primary:hover,
+.vc-main-modal__content .btn-outline-primary:focus,
+.list-page .btn-outline-primary:hover,
+.list-page .btn-outline-primary:focus {
+  background: rgba(var(--id-primary-rgb, 99, 102, 241), 0.10) !important;
+  border-color: rgba(var(--id-primary-rgb, 99, 102, 241), 0.85) !important;
+  color: var(--id-primary, #6366F1) !important;
+}
+
+.modal-content .btn-outline-secondary,
+.vc-main-modal__content .btn-outline-secondary,
+.list-page .btn-outline-secondary {
+  color: var(--id-text, #0f172a) !important;
+  border-color: var(--id-border, #e2e8f0) !important;
+  background: transparent !important;
+}
+body.dark .modal-content .btn-outline-secondary,
+body.dark .vc-main-modal__content .btn-outline-secondary,
+body.dark .list-page .btn-outline-secondary {
+  color: var(--id-text, #e6eef8) !important;
+  border-color: var(--id-border, rgba(255,255,255,0.06)) !important;
+}
+.modal-content .btn-outline-secondary:hover,
+.modal-content .btn-outline-secondary:focus,
+.vc-main-modal__content .btn-outline-secondary:hover,
+.vc-main-modal__content .btn-outline-secondary:focus,
+.list-page .btn-outline-secondary:hover,
+.list-page .btn-outline-secondary:focus {
+  background: rgba(var(--id-primary-rgb, 99, 102, 241), 0.06) !important;
 }
 
 /* small identity specific tweaks */

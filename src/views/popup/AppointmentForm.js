@@ -91,7 +91,7 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
   };
 
   return (
-    <Grid container spacing={1}>
+    <Grid container spacing={1} className="appointment-form">
       {/* Hasta */}
       <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Grid item xs={4}>
@@ -113,7 +113,14 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
               <Button
                 fullWidth
                 variant="contained"
-                className='login'
+                sx={{
+                  borderRadius: 2,
+                  fontWeight: 700,
+                  background: 'linear-gradient(135deg, var(--id-primary, #6366F1) 0%, var(--id-primary-light, #8B5CF6) 100%)',
+                  ':hover': {
+                    background: 'linear-gradient(135deg, var(--id-primary-dark, #4F46E5) 0%, var(--id-primary, #6366F1) 100%)',
+                  },
+                }}
                 onClick={() => setShowPatientSearch(true)}
               >
                 {t('SearchPatient')}
@@ -222,7 +229,7 @@ const AppointmentForm = forwardRef(({ startDateProp, endDateProp, currentView },
           zIndex: 1000,
           borderRadius: 16,
         }}>
-          <div style={{ backgroundColor: 'white', borderRadius: 16, width: 400 }}>
+          <div style={{ backgroundColor: 'var(--id-bg-card, white)', color: 'var(--id-text, inherit)', borderRadius: 16, width: 400 }}>
             <AppPatientSearch
               onSelect={handlePatientSelect}
               onClose={() => setShowPatientSearch(false)}

@@ -14,6 +14,45 @@ body.dark .invoice-selector-modal .MuiDialogActions-root {
   color: var(--id-text, #e6eef8) !important;
 }
 
+/* Inputs (MUI TextField / DatePicker) */
+body.dark .invoice-selector-modal .MuiFormLabel-root {
+  color: var(--id-text-muted, rgba(230, 238, 248, 0.72)) !important;
+}
+
+body.dark .invoice-selector-modal .MuiInputBase-root {
+  color: var(--id-text, #e6eef8) !important;
+}
+
+body.dark .invoice-selector-modal .MuiOutlinedInput-root {
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+body.dark .invoice-selector-modal .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.38) !important;
+}
+
+body.dark .invoice-selector-modal .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.55) !important;
+}
+
+body.dark .invoice-selector-modal .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: var(--id-primary, #667eea) !important;
+}
+
+body.dark .invoice-selector-modal .MuiFormLabel-root.Mui-focused {
+  color: var(--id-primary, #667eea) !important;
+}
+
+body.dark .invoice-selector-modal .MuiInputAdornment-root,
+body.dark .invoice-selector-modal .MuiSelect-icon,
+body.dark .invoice-selector-modal .MuiSvgIcon-root {
+  color: var(--id-text, #e6eef8) !important;
+}
+
+body.dark .invoice-selector-modal input::placeholder {
+  color: rgba(230, 238, 248, 0.55);
+}
+
 /* Chips (preset buttons) */
 body.dark .invoice-selector-modal .MuiChip-root {
   color: var(--id-text, #e6eef8) !important;

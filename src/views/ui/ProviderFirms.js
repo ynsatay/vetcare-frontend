@@ -140,7 +140,7 @@ const ProviderFirmsList = () => {
 
                 <Col xs={12} md="auto">
                     <div className="d-flex flex-wrap gap-2">
-                        <Button color='primary' onClick={handleSearch}>{t('Search')}</Button>
+                        <Button outline color="secondary" onClick={handleSearch}>{t('Search')}</Button>
 
                         <Button
                             color="danger"
@@ -151,7 +151,8 @@ const ProviderFirmsList = () => {
                         </Button>
 
                         <Button
-                            color="success"
+                            outline
+                            color="primary"
                             disabled={!selectedRow}
                             onClick={() => selectedRow && handleEdit(selectedRow)}
                         >
@@ -161,7 +162,7 @@ const ProviderFirmsList = () => {
                 </Col>
 
                 <Col xs={12} md className="text-md-end text-start">
-                    <Button color="success" onClick={() => {
+                    <Button color="primary" onClick={() => {
                         setEditData(null);
                         setIsEditModalOpen(true);
                     }}>

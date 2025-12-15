@@ -141,11 +141,7 @@ const ProviderPriceList = () => {
         </Col>
 
         <Col xs="auto">
-          <Button color="primary" onClick={handleSearch}>{t('Search')}</Button>
-        </Col>
-
-        <Col xs="auto">
-          <Button color="success" onClick={handleAddNew}>{t('Add')}</Button>
+          <Button outline color="secondary" onClick={handleSearch}>{t('Search')}</Button>
         </Col>
 
         <Col xs="auto">
@@ -153,7 +149,11 @@ const ProviderPriceList = () => {
         </Col>
 
         <Col xs="auto">
-          <Button color="warning" disabled={!selectedRow} onClick={() => selectedRow && handleEdit(selectedRow)}>{t('EditAction')}</Button>
+          <Button outline color="primary" disabled={!selectedRow} onClick={() => selectedRow && handleEdit(selectedRow)}>{t('EditAction')}</Button>
+        </Col>
+
+        <Col xs={12} md className="text-md-end text-start">
+          <Button color="primary" onClick={handleAddNew}>{t('Add')}</Button>
         </Col>
       </Row>
 
