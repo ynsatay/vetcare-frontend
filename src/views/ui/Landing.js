@@ -48,16 +48,13 @@ const Landing = () => {
         } catch {}
         setLanguage(code);
     };
-    const getCookie = (name) => {
-        const m = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-        return m ? m[2] : null;
-    };
     useEffect(() => {
-        const saved = getCookie('vetcare_lang');
+        const m = document.cookie.match(/(^| )vetcare_lang=([^;]+)/);
+        const saved = m ? m[2] : null;
         if (saved && (saved === 'en' || saved === 'tr') && saved !== lang) {
             setLanguage(saved);
         }
-    }, []);
+    }, [lang, setLanguage]);
 
     const autoLoginDemo = async () => {
         try {

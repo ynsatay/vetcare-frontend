@@ -7,6 +7,7 @@ import { Row, Col, FormGroup, Label, Input } from 'reactstrap';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import axiosInstance from '../../api/axiosInstance.ts';
 import { useLanguage } from '../../context/LanguageContext.js';
+import { getStockCategories } from '../../constants/stockCategories.js';
 
 const AddStock = forwardRef(({ onClose }, ref) => {
     const { t } = useLanguage();
@@ -15,7 +16,7 @@ const AddStock = forwardRef(({ onClose }, ref) => {
         price: 0,
         //quantity: '', //Stok Alım Ekanı için kaldırıldı. 
         unit: "",
-        category: 0,
+        category: 1,
         min_stock_level: 0,
         barcode: 0,
         description: ''
@@ -23,14 +24,7 @@ const AddStock = forwardRef(({ onClose }, ref) => {
 
     const [showConfirm, setShowConfirm] = useState(false);
 
-    const categories = [
-        { label: t('Medicine'), value: 0 },
-        { label: t('Consumable'), value: 1 },
-        { label: t('Cleaning'), value: 2 },
-        { label: t('Food'), value: 3 },
-        { label: t('Vaccine'), value: 5 },
-        { label: t('Other'), value: 4 }
-    ];
+    const categories = getStockCategories(t);
 
     const units = [
         { label: t('UnitPiece'), value: 0 },
@@ -64,7 +58,11 @@ const AddStock = forwardRef(({ onClose }, ref) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        const numericFields = new Set(["price", "min_stock_level", "barcode", "category", "unit"]);
+        const nextValue = numericFields.has(name)
+            ? (value === "" ? "" : Number(value))
+            : value;
+        setFormData(prev => ({ ...prev, [name]: nextValue }));
     };
 
     return (

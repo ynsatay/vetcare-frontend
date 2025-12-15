@@ -8,6 +8,7 @@ import { Row, Col, FormGroup, Label, Input } from 'reactstrap';
 import ConfirmDialog from '../../components/ConfirmDialog.js';
 import axiosInstance from '../../api/axiosInstance.ts';
 import { useLanguage } from '../../context/LanguageContext.js';
+import { getStockCategories, normalizeStockCategory } from '../../constants/stockCategories.js';
 
 const EditStock = forwardRef(({ onClose, initialData }, ref) => {
     const { t } = useLanguage();
@@ -26,18 +27,14 @@ const EditStock = forwardRef(({ onClose, initialData }, ref) => {
 
     const [showConfirm, setShowConfirm] = useState(false);
 
-    const categories = [
-        { label: t('Medicine'), value: 1 },
-        { label: t('Consumable'), value: 2 },
-        { label: t('Cleaning'), value: 3 },
-        { label: t('Food'), value: 4 },
-        { label: t('Vaccine'), value: 5 },
-        { label: t('Other'), value: 0 }
-    ];
+    const categories = getStockCategories(t);
 
     useEffect(() => {
         if (initialData) {
-            setFormData(initialData);
+            setFormData({
+                ...initialData,
+                category: normalizeStockCategory(initialData.category),
+            });
         }
     }, [initialData]);
 
@@ -61,7 +58,11 @@ const EditStock = forwardRef(({ onClose, initialData }, ref) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        const numericFields = new Set(["price", "min_stock_level", "barcode", "category", "unit", "quantity"]);
+        const nextValue = numericFields.has(name)
+            ? (value === "" ? "" : Number(value))
+            : value;
+        setFormData(prev => ({ ...prev, [name]: nextValue }));
     };
 
     return (
