@@ -32,6 +32,7 @@ const IdentityInfo = () => {
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isPatientFileRegOpen, setIsPatientFileRegOpen] = useState(false);
+  const [newVisitSource, setNewVisitSource] = useState(null);
 
   const [appointmentList, setAppointmentList] = useState([]);
   const { confirm } = useConfirm();
@@ -529,7 +530,7 @@ const IdentityInfo = () => {
                       </div>
                     </div>
                     <div className="identity-animal-detail-actions">
-                      <button className="identity-btn identity-btn-success" onClick={() => setIsPatientFileRegOpen(true)} disabled={selectedAnimal?.isdeath || !selectedAnimal?.active}>
+                      <button className="identity-btn identity-btn-success" onClick={() => { setNewVisitSource('direct'); setIsPatientFileRegOpen(true); }} disabled={selectedAnimal?.isdeath || !selectedAnimal?.active}>
                         <FolderPlus size={16} /> {t('NewVisit')}
                       </button>
                     </div>
@@ -807,7 +808,7 @@ const IdentityInfo = () => {
               pat_name={`${ownerInfo?.name || ''} ${ownerInfo?.surname || ''}`.trim()}
               animal_id={selectedAnimal?.id || 0}
               animal_name={selectedAnimal?.animalname || ''}
-              navigateOnSave={false}
+              navigateOnSave={newVisitSource !== 'apply'}
             />
           }
           saveButtonLabel={t('Save')}
@@ -817,7 +818,10 @@ const IdentityInfo = () => {
             if (baseId) {
               fetchVisitList(baseId);
             }
-            setShowApplyVisitModal(true);
+            if (newVisitSource === 'apply') {
+              setShowApplyVisitModal(true);
+            }
+            setNewVisitSource(null);
           }}
         />
         <Modal isOpen={showApplyVisitModal} toggle={() => setShowApplyVisitModal(false)}>
@@ -858,7 +862,7 @@ const IdentityInfo = () => {
             <Button color="success" disabled={!selectedVisitIdForApply} onClick={applyToSelectedVisit}>
               {t('ApplyToThisVisit')}
             </Button>
-            <Button color="primary" onClick={() => { setIsPatientFileRegOpen(true); }}>
+            <Button color="primary" onClick={() => { setNewVisitSource('apply'); setIsPatientFileRegOpen(true); }}>
               {t('CreateNewVisit')}
             </Button>
             <Button color="secondary" onClick={() => setShowApplyVisitModal(false)}>{t('Cancel')}</Button>
