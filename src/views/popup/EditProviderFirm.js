@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, FormGroup, Label, Input, FormFeedback } from 'reactstrap';
+import { Check } from 'lucide-react';
 import axiosInstance from '../../api/axiosInstance.ts';
 import { toast } from 'react-toastify';
 import { useLanguage } from '../../context/LanguageContext.js';
@@ -22,7 +23,7 @@ const EditProviderFirm = ({ initialData = null, onClose }) => {
       setPhone(initialData.phone || '');
       setEmail(initialData.email || '');
       setAddress(initialData.address || '');
-      setActive(initialData.active !== undefined ? initialData.active : true);
+      setActive(initialData.active !== undefined ? !!initialData.active : true);
     } else {
       // Yeni kayıt için formu sıfırla
       setName('');
@@ -138,15 +139,27 @@ const EditProviderFirm = ({ initialData = null, onClose }) => {
         />
       </FormGroup>
 
-      <FormGroup check>
-        <Input
-          id="active"
-          type="checkbox"
-          checked={active}
-          onChange={e => setActive(e.target.checked)}
-        />
-        <Label for="active" check>{t('Active')}</Label>
-      </FormGroup>
+      <div style={{ marginTop: 8 }}>
+        <button
+          type="button"
+          onClick={() => setActive(!active)}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '8px 12px',
+            borderRadius: 8,
+            border: active ? '1px solid var(--id-primary, #6366f1)' : '1px solid var(--id-border, #e2e8f0)',
+            background: active ? 'rgba(99,102,241,0.10)' : 'var(--id-bg-card, #ffffff)',
+            color: active ? 'var(--id-primary, #6366f1)' : 'var(--id-text, #0f172a)',
+            cursor: 'pointer'
+          }}
+          aria-pressed={!!active}
+        >
+          {active ? <Check size={16} /> : <span style={{ width: 16, height: 16, display: 'inline-block', border: '1px solid var(--id-border, #e2e8f0)', borderRadius: 4 }} />}
+          <span>{t('Active')}</span>
+        </button>
+      </div>
 
       <div className="mt-3 d-flex justify-content-end gap-2">
         <Button color="secondary" type="button" onClick={onClose}>
