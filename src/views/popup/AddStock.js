@@ -16,7 +16,7 @@ const AddStock = forwardRef(({ onClose }, ref) => {
         price: 0,
         //quantity: '', //Stok Alım Ekanı için kaldırıldı. 
         unit: "",
-        category: 1,
+        category: '',
         min_stock_level: 0,
         barcode: 0,
         description: ''
@@ -27,11 +27,11 @@ const AddStock = forwardRef(({ onClose }, ref) => {
     const categories = getStockCategories(t);
 
     const units = [
-        { label: t('UnitPiece'), value: 0 },
-        { label: t('Box'), value: 1 },
-        { label: t('ML'), value: 2 },
-        { label: t('Gram'), value: 3 },
-        { label: t('Liter'), value: 4 }
+        { label: t('UnitPiece'), value: 1 },
+        { label: t('Box'), value: 2 },
+        { label: t('ML'), value: 3 },
+        { label: t('Gram'), value: 4 },
+        { label: t('Liter'), value: 5 }
     ];
 
 
@@ -42,7 +42,12 @@ const AddStock = forwardRef(({ onClose }, ref) => {
             //     return;
             // }
 
-             if (!formData.name || !formData.unit) {
+                 // unit=0 (Adet) geçerli bir seçim; bu yüzden falsy kontrolü kullanmayalım
+                 if (
+                     !formData.name ||
+                     formData.category === '' || formData.category === null || formData.category === undefined ||
+                     formData.unit === '' || formData.unit === null || formData.unit === undefined
+                 ) {
                 setShowConfirm(true);
                 return;
             }
@@ -92,7 +97,7 @@ const AddStock = forwardRef(({ onClose }, ref) => {
 
             <FormGroup>
                 <Row>
-                    <Col md={4}><Label>{t('Category')}</Label></Col>
+                    <Col md={4}><Label>{`${t('Category')}*`}</Label></Col>
                     <Col md={8}>
                         <Input
                             type="select"

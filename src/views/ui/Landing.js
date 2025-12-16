@@ -20,6 +20,7 @@ const Landing = () => {
     const [formModalOpen, setFormModalOpen] = useState(false);
     const [demoConfirmOpen, setDemoConfirmOpen] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState(null);
+    const [requestType, setRequestType] = useState('demo'); // 'demo' | 'plan'
     const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [animatedNumbers, setAnimatedNumbers] = useState({ clinics: 0, patients: 0, satisfaction: 0, support: 0 });
@@ -433,7 +434,7 @@ const Landing = () => {
                             </div>
                             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
                             <Button
-                                    onClick={() => { setSelectedPlan(t('DemoRequest')); setFormModalOpen(true); }}
+                                    onClick={() => { setRequestType('demo'); setSelectedPlan(t('DemoRequest')); setFormModalOpen(true); }}
                                     style={{
                                         padding: isMobile ? '14px 28px' : '16px 32px',
                                         fontSize: '1rem',
@@ -918,7 +919,7 @@ const Landing = () => {
                                                 ))}
                                             </ul>
                                         <Button
-                                        onClick={() => { setSelectedPlan(plan.title); setFormModalOpen(true); }}
+                                        onClick={() => { setRequestType('plan'); setSelectedPlan(plan.title); setFormModalOpen(true); }}
                                         style={{
                                             width: '100%',
                                             padding: '14px',
@@ -1632,39 +1633,63 @@ const Landing = () => {
                     <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#111827', marginBottom: '12px' }}>
                         {t('Info')}
                     </div>
-                    <div style={{ color: '#4b5563', fontSize: '0.95rem', marginBottom: '20px' }}>
-                        {t('AutoLoginQuestion')}
-                    </div>
-                    <div className="d-flex justify-content-center gap-2">
-                        <Button
-                            style={{
-                                borderRadius: '10px',
-                                padding: '10px 20px',
-                                background: 'linear-gradient(135deg, #59018b 0%, #7a1fa8 100%)',
-                                border: 'none',
-                                fontWeight: 700
-                            }}
-                            onClick={async () => {
-                                setDemoConfirmOpen(false);
-                                await autoLoginDemo();
-                            }}
-                        >
-                            {t('Yes')}
-                        </Button>
-                        <Button
-                            outline
-                            style={{
-                                borderRadius: '10px',
-                                padding: '10px 20px',
-                                borderColor: '#6b7280',
-                                color: '#6b7280',
-                                background: '#fff'
-                            }}
-                            onClick={() => setDemoConfirmOpen(false)}
-                        >
-                            {t('No')}
-                        </Button>
-                    </div>
+                    {requestType === 'plan' ? (
+                        <>
+                            <div style={{ color: '#4b5563', fontSize: '0.95rem', marginBottom: '20px' }}>
+                                {t('RequestSentMessage')}
+                            </div>
+                            <div className="d-flex justify-content-center">
+                                <Button
+                                    style={{
+                                        borderRadius: '10px',
+                                        padding: '10px 20px',
+                                        background: 'linear-gradient(135deg, #59018b 0%, #7a1fa8 100%)',
+                                        border: 'none',
+                                        fontWeight: 700
+                                    }}
+                                    onClick={() => setDemoConfirmOpen(false)}
+                                >
+                                    {t('Ok')}
+                                </Button>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div style={{ color: '#4b5563', fontSize: '0.95rem', marginBottom: '20px' }}>
+                                {t('AutoLoginQuestion')}
+                            </div>
+                            <div className="d-flex justify-content-center gap-2">
+                                <Button
+                                    style={{
+                                        borderRadius: '10px',
+                                        padding: '10px 20px',
+                                        background: 'linear-gradient(135deg, #59018b 0%, #7a1fa8 100%)',
+                                        border: 'none',
+                                        fontWeight: 700
+                                    }}
+                                    onClick={async () => {
+                                        setDemoConfirmOpen(false);
+                                        await autoLoginDemo();
+                                    }}
+                                >
+                                    {t('Yes')}
+                                </Button>
+                                <Button
+                                    outline
+                                    style={{
+                                        borderRadius: '10px',
+                                        padding: '10px 20px',
+                                        borderColor: '#6b7280',
+                                        color: '#6b7280',
+                                        background: '#fff'
+                                    }}
+                                    onClick={() => setDemoConfirmOpen(false)}
+                                >
+                                    {t('No')}
+                                </Button>
+                            </div>
+                        </>
+                    )}
                 </ModalBody>
             </Modal>
 
@@ -1673,7 +1698,7 @@ const Landing = () => {
                     background: 'linear-gradient(135deg, #59018b 0%, #7a1fa8 100%)',
                     color: 'white', border: 'none', borderRadius: '14px 14px 0 0', padding: '18px 24px'
                 }}>
-                    {t('DemoRequest')}
+                    {requestType === 'plan' ? (selectedPlan || t('DemoRequest')) : t('DemoRequest')}
                 </ModalHeader>
                 <ModalBody style={{
                     padding: '0',
@@ -1688,7 +1713,7 @@ const Landing = () => {
                             color: '#4b5563',
                             fontSize: '0.95rem'
                         }}>
-                            {t('DemoRequestDescription')}
+                            {requestType === 'plan' ? t('PlanRequestDescription') : t('DemoRequestDescription')}
                         </div>
                         <Form onSubmit={handleSubmit}>
                             <div style={{ display: 'grid', gap: '16px' }}>
@@ -1727,7 +1752,7 @@ const Landing = () => {
                                     background: 'linear-gradient(135deg, #59018b 0%, #7a1fa8 100%)',
                                     border: 'none', fontWeight: 700, color: '#ffffff', boxShadow: '0 10px 30px rgba(89,1,139,0.25)'
                                 }}>
-                                    {t('SendDemoRequest')}
+                                    {requestType === 'plan' ? t('SubmitRequest') : t('SendDemoRequest')}
                                 </Button>
                             </div>
                         </Form>
