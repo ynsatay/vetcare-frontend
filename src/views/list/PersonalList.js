@@ -84,8 +84,12 @@ const PersonalList = () => {
             flex: 1,
             valueFormatter: (params) => {
                 const v = params.value;
-                if (v === 2) return t('Veterinarian');
-                if (v === 3) return lang === 'en' ? 'Clinic Manager' : 'Klinik Yöneticisi';
+                const rv = Number(v);
+                if (rv === 2 || String(v).trim() === '2') return t('Veterinarian');
+                if (rv === 3 || String(v).trim() === '3') return t('ClinicManager');
+                if (rv === 4 || String(v).trim() === '3') return t('ClinicManager');
+                if (String(v).toLowerCase().includes('vet')) return t('Veterinarian');
+                if (String(v).toLowerCase().includes('klinik')) return t('ClinicManager');
                 return t('Unknown');
             },
         },

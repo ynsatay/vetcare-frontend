@@ -10,6 +10,7 @@ import {
   Nav,
   NavItem,
 } from "reactstrap";
+import { Modal, ModalHeader, ModalBody } from "reactstrap";
 import "./scss/_header.scss";
 import { AuthContext } from "../context/usercontext.tsx";
 import { useLanguage } from "../context/LanguageContext.js";
@@ -27,6 +28,19 @@ const Header = () => {
   const [themeLightColor, setThemeLightColor] = useState('#7a1fa8');
   const location = useLocation();
   const navigate = useNavigate();
+  const [showTrainingModal, setShowTrainingModal] = useState(false);
+  const trainingVideos = [
+    { titleKey: 'AccountSettings', url: 'https://www.youtube.com/embed/u0Nx6-tRxYI' },
+    { titleKey: 'PatientSearchRegister', url: 'https://www.youtube.com/embed/-s5SCxgLlis' },
+    { titleKey: 'Home', url: 'https://www.youtube.com/embed/q_XlWyI8MLk' },
+    { titleKey: 'Identity', url: 'https://www.youtube.com/embed/rFQs6HNiBJg' },
+    { titleKey: 'VisitFile', url: 'https://www.youtube.com/embed/vRGjuzd7u_s' },
+    { titleKey: 'Vaccinations', url: 'https://www.youtube.com/embed/aHnSpFaDBJQ' },
+    { titleKey: 'AppointmentList', url: 'https://www.youtube.com/embed/JAukAQii3Rs' },
+    { titleKey: 'StocksServices', extra:'StockInvoice', url: 'https://www.youtube.com/embed/vpKJi2L7riA' },
+    { titleKey: 'ClinicListTitle', extra: 'OfficeListTitle',  extra: 'ProviderFirms', extra: 'ProviderPrices', url: 'https://www.youtube.com/embed/ToxbcWUYLxg' },
+  ];
+  const orderedVideos = trainingVideos;
 
   const toRgba = (color, alpha) => {
     if (!color || typeof color !== 'string') return `rgba(89, 1, 139, ${alpha})`;
@@ -265,6 +279,24 @@ const Header = () => {
                   >
                     <i className="bi bi-person-circle me-2"></i> {t('MyAccount')}
                   </DropdownItem>
+                  <DropdownItem
+                    onClick={() => setShowTrainingModal(true)}
+                    style={{
+                      transition: 'all 0.2s ease',
+                      borderRadius: '8px',
+                      margin: '5px 10px'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'linear-gradient(135deg, rgba(89, 1, 139, 0.1) 0%, rgba(122, 31, 168, 0.1) 100%)';
+                      e.currentTarget.style.transform = 'translateX(5px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'transparent';
+                      e.currentTarget.style.transform = 'translateX(0)';
+                    }}
+                  >
+                    <i className="bi bi-play-circle-fill me-2"></i> {t('TrainingVideos')}
+                  </DropdownItem>
                   <DropdownItem divider />
                   <DropdownItem
                     onClick={handlelogout}
@@ -356,6 +388,34 @@ const Header = () => {
                   }}
                 >
                   {t('Home')}
+                </a>
+              </NavItem>
+              <NavItem>
+                <a
+                  href="#training"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowTrainingModal(true);
+                  }}
+                  style={{
+                    color: '#fff',
+                    textDecoration: 'none',
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    fontSize: '0.95rem',
+                    fontWeight: 500,
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  {t('TrainingVideos')}
                 </a>
               </NavItem>
 
@@ -841,10 +901,10 @@ const Header = () => {
                 }}
               >
                 <span style={{ fontSize: '1.3rem' }}>💬</span>
-                <span>{t('Testimonials')}</span>
+              <span>{t('Testimonials')}</span>
               </a>
 
-               <a
+              <a
                 href="#videos"
                 onClick={(e) => {
                   e.preventDefault();
@@ -886,6 +946,46 @@ const Header = () => {
               >
                 <span style={{ fontSize: '1.3rem' }}>🎥</span>
                 <span>{t('Videos')}</span>
+              </a>
+
+              <a
+                href="#training"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowTrainingModal(true);
+                  closeMobileMenu();
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '15px',
+                  padding: '18px 20px',
+                  borderRadius: '18px',
+                  background: 'rgba(89, 1, 139, 0.08)',
+                  color: '#59018b',
+                  textDecoration: 'none',
+                  fontWeight: 600,
+                  fontSize: '1.1rem',
+                  marginBottom: '30px',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  border: '1px solid rgba(89, 1, 139, 0.15)',
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(89, 1, 139, 0.15)';
+                  e.currentTarget.style.transform = 'translateX(8px) scale(1.02)';
+                  e.currentTarget.style.boxShadow = '0 4px 15px rgba(89, 1, 139, 0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(89, 1, 139, 0.08)';
+                  e.currentTarget.style.transform = 'translateX(0) scale(1)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                <span style={{ fontSize: '1.3rem' }}>🎓</span>
+                <span>{t('TrainingVideos')}</span>
               </a>
 
               <a
@@ -1004,6 +1104,169 @@ const Header = () => {
           background: rgba(89, 1, 139, 0.5);
         }
       `}</style>
+      <style>{`
+        .vc-training-modal__count-chip {
+          border: 1px solid var(--id-border, #e2e8f0);
+        }
+        body:not(.dark) .vc-training-modal__header-title {
+          color: var(--id-primary, #59018b);
+        }
+        body:not(.dark) .vc-training-modal__count-chip {
+          background: rgba(var(--id-primary-rgb, 99, 102, 241), 0.16);
+          color: var(--id-primary, #59018b);
+          border-color: rgba(var(--id-primary-rgb, 99, 102, 241), 0.22);
+        }
+        body.dark .vc-training-modal__header-title {
+          color: #fff;
+        }
+        body.dark .vc-training-modal__count-chip {
+          background: rgba(255, 255, 255, 0.18);
+          color: #fff;
+          border-color: rgba(255,255,255,0.2);
+        }
+      `}</style>
+
+      <Modal
+        isOpen={showTrainingModal}
+        toggle={() => setShowTrainingModal(false)}
+        style={{ maxWidth: '1100px' }}
+        contentClassName="vc-main-modal__content"
+      >
+        <ModalHeader
+          toggle={() => setShowTrainingModal(false)}
+          style={{
+            background: 'linear-gradient(135deg, var(--profile-header-start, #e0e7ff) 0%, var(--profile-header-end, #fdf2f8) 100%)',
+            borderBottom: '1px solid var(--id-border, #e2e8f0)'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <i className="bi bi-mortarboard-fill" style={{ fontSize: 20 }}></i>
+              <span className="vc-training-modal__header-title" style={{ fontWeight: 700 }}>{t('TrainingVideos')}</span>
+            </div>
+            <div
+              className="vc-training-modal__count-chip"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '6px 12px',
+                borderRadius: 16,
+                fontWeight: 600
+              }}
+            >
+              <i className="bi bi-collection-play"></i>
+              <span>{t('Videos')}: {orderedVideos.length}</span>
+            </div>
+          </div>
+        </ModalHeader>
+        <ModalBody>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))',
+              gap: 18
+            }}
+          >
+            {orderedVideos.map((v, i) => (
+              <div
+                key={i}
+                style={{
+                  position: 'relative',
+                  border: '1px solid var(--id-border, #e2e8f0)',
+                  borderRadius: 12,
+                  overflow: 'hidden',
+                  background: 'linear-gradient(180deg, var(--id-bg-card, #fff) 0%, rgba(var(--id-primary-rgb, 99, 102, 241), 0.06) 100%)',
+                  boxShadow: '0 6px 20px rgba(0,0,0,0.06)',
+                  transform: 'translateY(0)',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-6px) scale(1.02)';
+                  e.currentTarget.style.boxShadow = '0 16px 40px rgba(0,0,0,0.18), 0 8px 24px rgba(var(--id-primary-rgb, 99, 102, 241), 0.18)';
+                  const overlay = e.currentTarget.querySelector('[data-overlay]');
+                  if (overlay) overlay.style.opacity = '1';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.06)';
+                  const overlay = e.currentTarget.querySelector('[data-overlay]');
+                  if (overlay) overlay.style.opacity = '0';
+                }}
+              >
+                <div style={{ position: 'relative', aspectRatio: '16 / 9', background: 'var(--id-bg-card, #fff)' }}>
+                  <iframe
+                    title={`${t(v.titleKey)} ${v.extra ? ' - ' + t(v.extra) : ''}`}
+                    width="100%"
+                    height="100%"
+                    src={v.url}
+                    style={{ border: 0 }}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
+                  <div
+                    data-overlay
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: 'radial-gradient(circle at 50% 50%, rgba(var(--id-primary-rgb, 99, 102, 241), 0.22) 0%, rgba(0,0,0,0) 55%)',
+                      transition: 'opacity 0.3s ease',
+                      opacity: 0,
+                      pointerEvents: 'none'
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 56,
+                        height: 56,
+                        borderRadius: '50%',
+                        background: 'rgba(0,0,0,0.35)',
+                        backdropFilter: 'blur(4px)',
+                        WebkitBackdropFilter: 'blur(4px)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#fff',
+                        boxShadow: '0 6px 20px rgba(0,0,0,0.25)'
+                      }}
+                    >
+                      <i className="bi bi-play-fill" style={{ fontSize: 24 }}></i>
+                    </div>
+                  </div>
+                </div>
+                <div style={{ padding: 12 }}>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--id-text, #0f172a)' }}>
+                    {t(v.titleKey)}{v.extra ? ` - ${t(v.extra)}` : ''}
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--id-text-secondary, #64748b)', marginTop: 6 }}>
+                    VetCare • {new Date().toLocaleDateString()}
+                  </div>
+                  <div style={{ marginTop: 10, display: 'flex', gap: 8 }}>
+                    <span
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        padding: '4px 10px',
+                        borderRadius: 14,
+                        background: 'rgba(var(--id-primary-rgb, 99, 102, 241), 0.12)',
+                        color: 'var(--id-text, #0f172a)',
+                        fontSize: 12,
+                        fontWeight: 600
+                      }}
+                    >
+                      <i className="bi bi-play-circle"></i> {t('Videos')}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </ModalBody>
+      </Modal>
     </>
   );
 };
