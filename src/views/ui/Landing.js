@@ -1549,7 +1549,7 @@ const Landing = () => {
                                             onMouseEnter={(e) => e.currentTarget.style.color = '#59018b'}
                                             onMouseLeave={(e) => e.currentTarget.style.color = '#6b7280'}
                                             >
-                                                +90 555 123 45 67
+                                                +90 546 209 37 05
                                             </a>
                                         </div>
                                     </div>
