@@ -159,7 +159,7 @@ function Profile() {
       formData.append('name', values.name);
       formData.append('surname', values.surname);
       formData.append('phone', values.phone);
-      formData.append('birthDate', values.birthdate ? values.birthdate.format('YYYY-MM-DD') : '');
+      formData.append('birthdate', values.birthdate ? values.birthdate.format('YYYY-MM-DD') : '');
       formData.append('sex', values.sex);
       formData.append('email', values.email);
       formData.append('address', values.address);
