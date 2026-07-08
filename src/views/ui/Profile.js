@@ -163,7 +163,7 @@ function Profile() {
       formData.append('sex', values.sex);
       formData.append('email', values.email);
       formData.append('address', values.address);
-      formData.append('identity', values.identity);
+      formData.append('identity', values.identity || '');
       formData.append('pass_number', values.pass_number);
       formData.append('uname', values.username);
 
